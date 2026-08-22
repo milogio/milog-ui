@@ -2,13 +2,10 @@ import { cn } from "@/lib/utils";
 
 export function LogoMark({ className }: { className?: string }) {
   return (
-    <div
-      className={cn(
-        "flex size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-indigo-500 to-secondary shadow-[0_20px_40px_rgba(99,102,241,0.35)]",
-        className,
-      )}
-    >
-      <span className="font-mono text-sm font-bold tracking-[0.24em] text-white">ML</span>
+    <div className={cn("relative h-7 w-7 rounded-md bg-gradient-brand shadow-glow", className)}>
+      <div className="absolute inset-[3px] flex items-center justify-center rounded-[5px] bg-background">
+        <span className="font-mono text-[11px] font-bold text-gradient-brand">M</span>
+      </div>
     </div>
   );
 }

@@ -16,21 +16,21 @@ export function FilterPanel({
   compact?: boolean;
 }) {
   return (
-    <div className={`panel rounded-3xl p-5 ${compact ? "" : "lg:sticky lg:top-24 lg:h-fit"}`}>
-      <div className="mb-5 flex items-center justify-between">
+    <div className={`rounded-lg border border-border bg-card p-4 shadow-soft ${compact ? "" : "lg:sticky lg:top-24 lg:h-fit"}`}>
+      <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-muted">Query</p>
-          <h3 className="mt-2 text-lg font-semibold text-foreground">Filters</h3>
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gradient-brand">Query</p>
+          <h3 className="mt-1 text-base font-semibold text-foreground">Filters</h3>
         </div>
-        <button className="text-sm text-muted hover:text-foreground" onClick={onClear}>
+        <button className="font-mono text-xs text-muted-foreground hover:text-foreground" onClick={onClear}>
           Clear
         </button>
       </div>
 
-      <div className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <label className="space-y-2 text-sm">
-            <span className="text-muted">Start date</span>
+      <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <label className="space-y-1.5 text-sm">
+            <span className="text-muted-foreground">Start date</span>
             <input
               className="input"
               type="datetime-local"
@@ -38,8 +38,8 @@ export function FilterPanel({
               onChange={(event) => onChange({ ...filters, start_date: event.target.value || undefined })}
             />
           </label>
-          <label className="space-y-2 text-sm">
-            <span className="text-muted">End date</span>
+          <label className="space-y-1.5 text-sm">
+            <span className="text-muted-foreground">End date</span>
             <input
               className="input"
               type="datetime-local"
@@ -50,14 +50,14 @@ export function FilterPanel({
         </div>
 
         <div>
-          <span className="mb-2 block text-sm text-muted">Log levels</span>
-          <div className="flex flex-wrap gap-2">
+          <span className="mb-2 block text-sm text-muted-foreground">Log levels</span>
+          <div className="flex flex-wrap gap-1.5">
             {levels.map((level) => {
               const active = filters.log_level?.includes(level);
               return (
                 <button
                   key={level}
-                  className={`rounded-full border px-3 py-1.5 text-xs ${active ? "border-primary/50 bg-primary/15 text-indigo-200" : "border-white/10 bg-white/5 text-muted"}`}
+                  className={`rounded-md border px-2 py-1 font-mono text-[11px] uppercase tracking-wide ${active ? "border-brand/50 bg-accent text-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"}`}
                   onClick={() =>
                     onChange({
                       ...filters,
@@ -74,8 +74,8 @@ export function FilterPanel({
           </div>
         </div>
 
-        <label className="space-y-2 text-sm">
-          <span className="text-muted">Actor</span>
+        <label className="space-y-1.5 text-sm">
+          <span className="text-muted-foreground">Actor</span>
           <input
             className="input"
             placeholder="Chris"
@@ -84,8 +84,8 @@ export function FilterPanel({
           />
         </label>
 
-        <label className="space-y-2 text-sm">
-          <span className="text-muted">Message contains</span>
+        <label className="space-y-1.5 text-sm">
+          <span className="text-muted-foreground">Message contains</span>
           <input
             className="input"
             placeholder="pricing page"
@@ -94,9 +94,9 @@ export function FilterPanel({
           />
         </label>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <label className="space-y-2 text-sm">
-            <span className="text-muted">Metadata key</span>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <label className="space-y-1.5 text-sm">
+            <span className="text-muted-foreground">Metadata key</span>
             <input
               className="input"
               placeholder="campaign"
@@ -104,8 +104,8 @@ export function FilterPanel({
               onChange={(event) => onChange({ ...filters, metadata_key: event.target.value || undefined })}
             />
           </label>
-          <label className="space-y-2 text-sm">
-            <span className="text-muted">Metadata value</span>
+          <label className="space-y-1.5 text-sm">
+            <span className="text-muted-foreground">Metadata value</span>
             <input
               className="input"
               placeholder="engaged"
@@ -115,8 +115,8 @@ export function FilterPanel({
           </label>
         </div>
 
-        <label className="space-y-2 text-sm">
-          <span className="text-muted">Limit</span>
+        <label className="space-y-1.5 text-sm">
+          <span className="text-muted-foreground">Limit</span>
           <select
             className="input"
             value={filters.limit ?? 25}

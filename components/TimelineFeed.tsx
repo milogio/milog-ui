@@ -44,19 +44,28 @@ export function TimelineFeed({
   }
 
   return (
-    <div className="space-y-4">
-      {events.map((event) => (
-        <TimelineItem
-          key={event.id}
-          event={event}
-          selected={selectedEventId === event.id}
-          onSelect={() => onSelect(event)}
-          visibleMetadataKeys={visibleMetadataKeys}
-          readOnly={readOnly}
-        />
-      ))}
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+      <div className="grid grid-cols-[78px_70px_minmax(82px,120px)_minmax(0,1fr)_auto] gap-2 border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-wide text-muted-foreground sm:grid-cols-[120px_78px_140px_minmax(0,1fr)_auto] sm:gap-3">
+        <span>Time</span>
+        <span>Level</span>
+        <span>Actor</span>
+        <span>Message</span>
+        <span className="text-right">Actions</span>
+      </div>
+      <ul className="divide-y divide-border/60 font-mono text-[12.5px]">
+        {events.map((event) => (
+          <TimelineItem
+            key={event.id}
+            event={event}
+            selected={selectedEventId === event.id}
+            onSelect={() => onSelect(event)}
+            visibleMetadataKeys={visibleMetadataKeys}
+            readOnly={readOnly}
+          />
+        ))}
+      </ul>
       {hasNextPage && onLoadMore ? (
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center border-t border-border px-4 py-3">
           <button className="btn btn-secondary min-w-40" onClick={onLoadMore} disabled={isFetchingNextPage}>
             {isFetchingNextPage ? "Loading..." : "Load more"}
           </button>

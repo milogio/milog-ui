@@ -14,15 +14,15 @@ export function MetadataChips({
   if (!entries.length) return null;
 
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
+    <div className="mt-3 flex flex-wrap gap-1.5">
       {entries.map(([key, value]) => (
         <div
           key={key}
-          className="rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2 text-xs text-slate-300"
+          className="rounded-md border border-border bg-background px-2 py-1 font-mono text-[11px] text-muted-foreground"
         >
-          <span className="font-medium text-slate-100">{key}</span>
-          <span className="mx-1 text-slate-500">=</span>
-          <span className="font-mono">{String(value)}</span>
+          <span className="text-foreground/85">{key}</span>
+          <span className="mx-1">=</span>
+          <span>{String(value)}</span>
         </div>
       ))}
     </div>

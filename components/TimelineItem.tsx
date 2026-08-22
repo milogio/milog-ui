@@ -26,30 +26,24 @@ export function TimelineItem({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <article
-      className={`panel rounded-3xl p-5 ${selected ? "border-primary/60 shadow-[0_20px_50px_rgba(79,70,229,0.18)]" : "hover:border-white/18"}`}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <button className="flex flex-1 cursor-pointer flex-col text-left" onClick={onSelect}>
-          <div className="flex flex-wrap items-center gap-3">
-            <LogLevelBadge level={event.log_level} />
-            <time
-              title={formatExactTimestamp(event.occurrence_date)}
-              className="font-mono text-xs tracking-wide text-muted"
-            >
-              {formatRelativeTime(event.occurrence_date)}
-            </time>
-          </div>
-          <h3 className="mt-4 text-lg font-semibold text-foreground">{event.message}</h3>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted">
+    <li className={`animate-row-in ${selected ? "bg-accent/30" : "hover:bg-accent/40"}`}>
+      <div className="grid grid-cols-[78px_70px_minmax(82px,120px)_minmax(0,1fr)_auto] items-center gap-2 px-4 py-2 sm:grid-cols-[120px_78px_140px_minmax(0,1fr)_auto] sm:gap-3">
+        <button className="contents text-left" onClick={onSelect}>
+          <time
+            title={formatExactTimestamp(event.occurrence_date)}
+            className="truncate tabular-nums text-muted-foreground"
+          >
+            {formatRelativeTime(event.occurrence_date)}
+          </time>
+          <LogLevelBadge level={event.log_level} />
+          <span className="truncate text-foreground/80">
             <ActorBadge actor={event.actor} />
-            <span>{formatExactTimestamp(event.occurrence_date)}</span>
-          </div>
-          <MetadataChips event={event} visibleKeys={visibleMetadataKeys} />
+          </span>
+          <span className="min-w-0 truncate text-foreground">{event.message}</span>
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-1.5">
           <button
-            className="btn btn-secondary px-3 py-2 text-xs"
+            className="btn btn-secondary px-2 py-1.5 text-xs"
             onClick={async () => {
               await navigator.clipboard.writeText(JSON.stringify(event.metadata, null, 2));
               pushToast({ title: "Metadata copied to clipboard.", tone: "success" });
@@ -59,18 +53,31 @@ export function TimelineItem({
             Copy
           </button>
           {!readOnly ? (
-            <button className="btn btn-secondary px-3 py-2 text-xs" onClick={() => setExpanded((value) => !value)}>
+            <button className="btn btn-secondary px-2 py-1.5 text-xs" onClick={() => setExpanded((value) => !value)}>
               {expanded ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
               JSON
             </button>
           ) : null}
         </div>
       </div>
+      <div className="px-4 pb-2 pl-4 sm:pl-[366px]">
+        <MetadataChips event={event} visibleKeys={visibleMetadataKeys} />
+      </div>
       {expanded ? (
-        <pre className="mt-4 overflow-x-auto rounded-2xl bg-black/30 p-4 font-mono text-xs text-slate-300">
-          {JSON.stringify(event.metadata, null, 2)}
-        </pre>
+        <div className="border-t border-border/60 bg-background/40 px-4 py-3">
+          <div className="mb-2 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-muted-foreground">
+            <span>
+              event_id: <span className="text-foreground">{event.id}</span>
+            </span>
+            <span>
+              occurred_at: <span className="text-foreground">{formatExactTimestamp(event.occurrence_date)}</span>
+            </span>
+          </div>
+          <pre className="overflow-x-auto rounded-md border border-border bg-card p-3 font-mono text-[12px] text-foreground/90">
+            {JSON.stringify(event.metadata, null, 2)}
+          </pre>
+        </div>
       ) : null}
-    </article>
+    </li>
   );
 }

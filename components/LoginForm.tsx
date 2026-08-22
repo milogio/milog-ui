@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Terminal } from "lucide-react";
 import { login } from "@/lib/milogApi";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
@@ -18,21 +18,26 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="panel w-full max-w-md rounded-[2rem] p-8">
-      <div className="flex items-center gap-4">
+    <div className="w-full max-w-md rounded-2xl border border-border bg-card/90 p-6 shadow-soft">
+      <div className="flex items-center gap-3">
         <LogoMark />
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-muted">MiLog</p>
-          <h1 className="mt-1 text-2xl font-semibold">Welcome back</h1>
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">MiLog</p>
+          <h1 className="mt-1 text-xl font-semibold tracking-normal">Welcome back</h1>
         </div>
       </div>
 
-      <p className="mt-5 text-sm leading-6 text-muted">
+      <p className="mt-5 text-sm leading-6 text-muted-foreground">
         Sign in to inspect your tenant timeline, export signal, and share the story behind every event.
       </p>
 
+      <div className="mt-5 flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-muted-foreground">
+        <Terminal className="h-3.5 w-3.5 text-brand" />
+        milog auth session
+      </div>
+
       <form
-        className="mt-8 space-y-4"
+        className="mt-6 space-y-4"
         onSubmit={async (event) => {
           event.preventDefault();
           setLoading(true);
@@ -50,11 +55,11 @@ export function LoginForm() {
         }}
       >
         <label className="block space-y-2 text-sm">
-          <span className="text-muted">Email</span>
+          <span className="text-muted-foreground">Email</span>
           <input className="input" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
         </label>
         <label className="block space-y-2 text-sm">
-          <span className="text-muted">Password</span>
+          <span className="text-muted-foreground">Password</span>
           <input
             className="input"
             type="password"
@@ -63,9 +68,13 @@ export function LoginForm() {
           />
         </label>
 
-        {error ? <p className="rounded-2xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-200">{error}</p> : null}
+        {error ? (
+          <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive-foreground">
+            {error}
+          </p>
+        ) : null}
 
-        <button className="btn btn-primary w-full justify-center py-3" disabled={loading}>
+        <button className="btn btn-primary w-full justify-center py-2.5" disabled={loading}>
           {loading ? "Signing in..." : "Sign in"}
           {!loading ? <ArrowRight className="size-4" /> : null}
         </button>

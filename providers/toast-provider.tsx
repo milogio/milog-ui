@@ -37,18 +37,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={toast.id}
             className={cn(
-              "pointer-events-auto panel flex items-start gap-3 rounded-2xl px-4 py-3",
-              toast.tone === "error" ? "border-red-500/40" : "border-white/10",
+              "pointer-events-auto flex items-start gap-3 rounded-lg border bg-card px-4 py-3 shadow-soft",
+              toast.tone === "error" ? "border-destructive/40" : "border-border",
             )}
           >
             {toast.tone === "error" ? (
               <CircleAlert className="mt-0.5 size-4 text-error" />
             ) : (
-              <CheckCircle2 className="mt-0.5 size-4 text-secondary" />
+              <CheckCircle2 className="mt-0.5 size-4 text-brand" />
             )}
             <p className="flex-1 text-sm text-foreground">{toast.title}</p>
             <button
-              className="rounded-full p-1 text-muted hover:bg-white/5 hover:text-foreground"
+              className="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
               onClick={() => setToasts((current) => current.filter((item) => item.id !== toast.id))}
             >
               <X className="size-4" />

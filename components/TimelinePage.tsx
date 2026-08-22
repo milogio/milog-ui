@@ -13,7 +13,7 @@ import { useToast } from "@/providers/toast-provider";
 import { compactDateTime, downloadTextFile, formatDownloadDate, safeJsonParse } from "@/lib/utils";
 import { filtersToSearchParams } from "@/lib/urlState";
 import { AlertsModal } from "@/components/AlertsModal";
-import { DashboardLayout } from "@/components/DashboardLayout";
+import { Drawer } from "@/components/Drawer";
 import { ErrorState } from "@/components/ErrorState";
 import { FilterPanel } from "@/components/FilterPanel";
 import { MetadataColumnSelector } from "@/components/MetadataColumnSelector";
@@ -70,7 +70,8 @@ export function TimelinePage({
   const [draftFilters, setDraftFilters] = useState<TimelineFilters>(() => loadStoredFilters(initialFilters));
   const [selectedEventId, setSelectedEventId] = useState<string>();
   const [visibleMetadataKeys, setVisibleMetadataKeys] = useState<string[]>(() => loadMetadataKeys());
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [queryDrawerOpen, setQueryDrawerOpen] = useState(false);
+  const [detailsDrawerOpen, setDetailsDrawerOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -105,8 +106,7 @@ export function TimelinePage({
     [query.data?.pages],
   );
 
-  const selectedEvent =
-    events.find((event) => event.id === selectedEventId) ?? events[0] ?? null;
+  const selectedEvent = events.find((event) => event.id === selectedEventId) ?? null;
 
   const lastUpdated = useMemo(
     () => (query.dataUpdatedAt ? compactDateTime(new Date(query.dataUpdatedAt).toISOString()) : undefined),
@@ -213,7 +213,7 @@ export function TimelinePage({
           tenantName={tenant?.name ?? subtitle}
           message={draftFilters.message ?? ""}
           onMessageChange={(message) => setDraftFilters((current) => ({ ...current, message: message || undefined }))}
-          onFiltersToggle={!readOnly ? () => setFiltersOpen((value) => !value) : undefined}
+          onFiltersToggle={() => setQueryDrawerOpen(true)}
           onRefresh={() => void query.refetch()}
           autoRefresh={autoRefresh}
           onAutoRefreshChange={() => setAutoRefresh((value) => !value)}
@@ -230,64 +230,76 @@ export function TimelinePage({
           readOnly={readOnly}
         />
 
-        <div className="mx-auto max-w-7xl px-4 pt-6 md:px-6">
-          <div className="mb-6">
-            <p className="text-xs uppercase tracking-[0.28em] text-muted">{title}</p>
-            <h2 className="mt-2 text-3xl font-semibold text-foreground">
+        <div className="mx-auto max-w-7xl px-4 pt-5 md:px-6">
+          <div className="mb-4">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">{title}</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-normal text-foreground">
               {readOnly ? "Shared MiLog Timeline" : "Tenant event timeline"}
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
               {readOnly
                 ? "Read-only view of the selected MiLog filter state. Sign in if you need to export or create alerts."
                 : "Search, export, and share the moments that matter across your tenant timeline."}
             </p>
           </div>
 
-          {!readOnly && filtersOpen ? (
-            <div className="mb-4 lg:hidden">
-              <FilterPanel filters={draftFilters} onChange={setDraftFilters} onClear={() => setDraftFilters({ limit: 25 })} compact />
-            </div>
-          ) : null}
+          <div className="space-y-4 pb-6">
+            <MetadataColumnSelector
+              availableKeys={availableMetadataKeys}
+              selectedKeys={visibleMetadataKeys}
+              onChange={setVisibleMetadataKeys}
+            />
 
-          <DashboardLayout
-            filters={
-              <FilterPanel
-                filters={draftFilters}
-                onChange={setDraftFilters}
-                onClear={() => setDraftFilters({ limit: 25 })}
+            {query.isError ? (
+              <ErrorState
+                description={query.error instanceof Error ? query.error.message : "Unable to load timeline."}
+                onRetry={() => void query.refetch()}
               />
-            }
-            main={
-              <div className="space-y-4">
-                <MetadataColumnSelector
-                  availableKeys={availableMetadataKeys}
-                  selectedKeys={visibleMetadataKeys}
-                  onChange={setVisibleMetadataKeys}
-                />
-
-                {query.isError ? (
-                  <ErrorState
-                    description={query.error instanceof Error ? query.error.message : "Unable to load timeline."}
-                    onRetry={() => void query.refetch()}
-                  />
-                ) : (
-                  <TimelineFeed
-                    events={events}
-                    selectedEventId={selectedEvent?.id}
-                    onSelect={(event) => setSelectedEventId(event.id)}
-                    visibleMetadataKeys={visibleMetadataKeys}
-                    hasNextPage={query.hasNextPage}
-                    onLoadMore={() => void query.fetchNextPage()}
-                    isLoading={query.isLoading}
-                    isFetchingNextPage={query.isFetchingNextPage}
-                    readOnly={readOnly}
-                  />
-                )}
-              </div>
-            }
-            details={<TimelineDetailsPanel event={selectedEvent} />}
-          />
+            ) : (
+              <TimelineFeed
+                events={events}
+                selectedEventId={selectedEvent?.id}
+                onSelect={(event) => {
+                  setSelectedEventId(event.id);
+                  setDetailsDrawerOpen(true);
+                }}
+                visibleMetadataKeys={visibleMetadataKeys}
+                hasNextPage={query.hasNextPage}
+                onLoadMore={() => void query.fetchNextPage()}
+                isLoading={query.isLoading}
+                isFetchingNextPage={query.isFetchingNextPage}
+                readOnly={readOnly}
+              />
+            )}
+          </div>
         </div>
+
+        <Drawer
+          open={queryDrawerOpen}
+          side="left"
+          eyebrow="Query"
+          title="Timeline filters"
+          onClose={() => setQueryDrawerOpen(false)}
+        >
+          <FilterPanel
+            filters={draftFilters}
+            onChange={setDraftFilters}
+            onClear={() => setDraftFilters({ limit: 25 })}
+            compact
+          />
+        </Drawer>
+
+        {selectedEvent ? (
+          <Drawer
+            open={detailsDrawerOpen}
+            side="right"
+            eyebrow="Event"
+            title="Event details"
+            onClose={() => setDetailsDrawerOpen(false)}
+          >
+            <TimelineDetailsPanel event={selectedEvent} />
+          </Drawer>
+        ) : null}
 
         {!readOnly ? <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} filters={debouncedFilters} /> : null}
         {!readOnly ? (

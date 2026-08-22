@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { TimelineFeed } from "@/components/TimelineFeed";
 import { ToastProvider } from "@/providers/toast-provider";
 import type { TimelineEvent } from "@/lib/types";
@@ -40,5 +41,25 @@ describe("TimelineFeed", () => {
     expect(screen.getByText("source")).toBeInTheDocument();
     expect(screen.getByText("google_ads")).toBeInTheDocument();
     expect(screen.getByText("status")).toBeInTheDocument();
+  });
+
+  it("selects a row when the event message is clicked", async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+
+    render(
+      <ToastProvider>
+        <TimelineFeed
+          events={[event]}
+          selectedEventId={undefined}
+          onSelect={onSelect}
+          visibleMetadataKeys={["source", "status"]}
+        />
+      </ToastProvider>,
+    );
+
+    await user.click(screen.getByText("Lead viewed pricing page"));
+
+    expect(onSelect).toHaveBeenCalledWith(event);
   });
 });

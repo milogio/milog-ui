@@ -1,6 +1,6 @@
 export function ActorBadge({ actor }: { actor: string }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-slate-200">
+    <span className="inline-flex items-center rounded-md border border-border bg-background px-2 py-1 font-mono text-[11px] text-foreground/85">
       {actor}
     </span>
   );

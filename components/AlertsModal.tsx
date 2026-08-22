@@ -32,20 +32,20 @@ export function AlertsModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="panel w-full max-w-3xl rounded-3xl p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-3xl rounded-lg border border-border bg-card p-5 shadow-soft">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h3 className="text-lg font-semibold">Alerts</h3>
-            <p className="mt-2 text-sm text-muted">Get notified when new events match this filter shape.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Get notified when new events match this filter shape.</p>
           </div>
-          <button className="text-sm text-muted hover:text-foreground" onClick={onClose}>
+          <button className="font-mono text-xs text-muted-foreground hover:text-foreground" onClick={onClose}>
             Close
           </button>
         </div>
 
-        <div className="mt-5 rounded-3xl border border-white/10 bg-white/[0.03] p-4">
-          <h4 className="text-sm font-medium text-slate-100">Create alert from current filters</h4>
+        <div className="mt-5 rounded-lg border border-border bg-background p-4">
+          <h4 className="text-sm font-medium text-foreground">Create alert from current filters</h4>
           <div className="mt-3 flex gap-3">
             <button
               className="btn btn-primary"
@@ -65,10 +65,10 @@ export function AlertsModal({
         <div className="mt-5 space-y-3">
           {alerts.length ? (
             alerts.map((alert) => (
-              <div key={alert.id} className="panel-muted flex items-center justify-between rounded-3xl p-4">
+              <div key={alert.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-4">
                 <div>
-                  <h4 className="text-sm font-medium text-slate-100">{alert.name}</h4>
-                  <p className="mt-1 text-xs text-muted">{JSON.stringify(alert.filters)}</p>
+                  <h4 className="text-sm font-medium text-foreground">{alert.name}</h4>
+                  <p className="mt-1 font-mono text-xs text-muted-foreground">{JSON.stringify(alert.filters)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -103,7 +103,7 @@ export function AlertsModal({
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted">No alerts saved yet.</p>
+            <p className="text-sm text-muted-foreground">No alerts saved yet.</p>
           )}
         </div>
       </div>

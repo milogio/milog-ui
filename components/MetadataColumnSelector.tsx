@@ -12,18 +12,20 @@ export function MetadataColumnSelector({
   onChange: (keys: string[]) => void;
 }) {
   return (
-    <div className="panel-muted rounded-3xl p-4">
+    <div className="rounded-lg border border-border bg-card p-3 shadow-soft">
       <div className="mb-3 flex items-center gap-2">
-        <Settings2 className="size-4 text-secondary" />
-        <h4 className="text-sm font-medium text-slate-100">Visible metadata columns</h4>
+        <Settings2 className="size-4 text-brand" />
+        <h4 className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+          Visible metadata
+        </h4>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {availableKeys.map((key) => {
           const active = selectedKeys.includes(key);
           return (
             <button
               key={key}
-              className={`rounded-full border px-3 py-1.5 text-xs ${active ? "border-secondary/50 bg-secondary/15 text-secondary" : "border-white/10 bg-white/5 text-muted"}`}
+              className={`rounded-md border px-2 py-1 font-mono text-[11px] ${active ? "border-brand/50 bg-accent text-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"}`}
               onClick={() =>
                 onChange(active ? selectedKeys.filter((item) => item !== key) : [...selectedKeys, key])
               }

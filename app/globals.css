@@ -112,24 +112,26 @@ button {
 }
 
 .panel {
-  background: linear-gradient(180deg, hsl(var(--card) / 0.98), hsl(230 24% 8% / 0.95));
+  background: hsl(var(--card) / 0.92);
   border: 1px solid hsl(var(--border));
-  box-shadow: var(--shadow-lg);
+  box-shadow:
+    0 1px 0 hsl(var(--foreground) / 0.04) inset,
+    0 20px 60px -20px hsl(0 0% 0% / 0.6);
 }
 
 .panel-muted {
-  background: hsl(var(--muted) / 0.82);
-  border: 1px solid hsl(var(--border) / 0.72);
+  background: hsl(var(--muted) / 0.76);
+  border: 1px solid hsl(var(--border));
 }
 
 .input {
   width: 100%;
-  border-radius: 0.9rem;
+  border-radius: 0.375rem;
   border: 1px solid hsl(var(--border));
-  background: hsl(var(--background) / 0.78);
+  background: hsl(var(--background));
   color: hsl(var(--foreground));
-  padding: 0.75rem 0.95rem;
-  font-size: 0.95rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
 }
 
 .input::placeholder {
@@ -146,11 +148,11 @@ button {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 0.95rem;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  padding: 0.7rem 1rem;
-  font-size: 0.92rem;
-  font-weight: 600;
+  border-radius: 0.375rem;
+  border: 1px solid hsl(var(--border));
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -162,21 +164,23 @@ button {
 .btn-primary {
   background: linear-gradient(135deg, hsl(var(--accent-from)), hsl(var(--accent-to)));
   color: hsl(var(--brand-foreground));
-  box-shadow: 0 16px 30px hsl(var(--brand) / 0.28);
+  box-shadow:
+    0 0 0 1px hsl(var(--brand) / 0.25),
+    0 14px 40px -16px hsl(var(--brand) / 0.7);
 }
 
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 18px 36px rgba(79, 70, 229, 0.34);
+  opacity: 0.9;
+  transform: none;
 }
 
 .btn-secondary {
-  background: hsl(var(--secondary) / 0.86);
+  background: hsl(var(--background));
   color: hsl(var(--foreground));
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(36, 46, 66, 0.95);
+  background: hsl(var(--accent));
 }
 
 .scrollbar-thin {
