@@ -8,7 +8,6 @@ const FILTER_KEYS = [
   "metadata_key",
   "metadata_value",
   "limit",
-  "cursor",
 ] as const;
 
 export function filtersToSearchParams(filters: TimelineFilters) {
@@ -48,6 +47,5 @@ export function searchParamsToFilters(
     metadata_key: read("metadata_key"),
     metadata_value: read("metadata_value"),
     limit: limit ? Number(limit) : undefined,
-    cursor: read("cursor"),
   };
 }

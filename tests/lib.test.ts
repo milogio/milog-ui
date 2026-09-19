@@ -23,7 +23,7 @@ describe("MiLog utilities", () => {
     expect(event.actor).toBe("user 42");
   });
 
-  it("normalizes paginated timeline payloads", () => {
+  it("normalizes cursor-paginated timeline payloads", () => {
     const page = normalizeTimelineResponse(
       {
         data: [
@@ -37,13 +37,12 @@ describe("MiLog utilities", () => {
             metadata: {},
           },
         ],
-        meta: { current_page: 1, last_page: 3, total: 120 },
+        meta: { next_cursor: "opaque-next-token", prev_cursor: null, per_page: 50 },
       },
-      undefined,
     );
 
-    expect(page.nextCursor).toBe("2");
-    expect(page.total).toBe(120);
+    expect(page.nextCursor).toBe("opaque-next-token");
+    expect(page.total).toBeUndefined();
     expect(page.events).toHaveLength(1);
   });
 

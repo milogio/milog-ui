@@ -31,7 +31,6 @@ export type TimelineFilters = {
   metadata_key?: string;
   metadata_value?: string;
   limit?: number;
-  cursor?: string;
 };
 
 export type AlertRule = {
@@ -72,12 +71,17 @@ export type ApiTimelineEvent = {
 export type ApiTimelineResponse = {
   data: ApiTimelineEvent[];
   meta?: {
+    next_cursor?: string | null;
+    prev_cursor?: string | null;
     current_page?: number;
     last_page?: number;
     per_page?: number;
     total?: number;
   };
   links?: {
+    first?: string | null;
+    last?: string | null;
+    prev?: string | null;
     next?: string | null;
   };
 };

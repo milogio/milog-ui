@@ -11,6 +11,7 @@ import type {
   TimelinePage,
 } from "@/lib/types";
 import { normalizeTimelineResponse } from "@/lib/milogApi";
+import { buildTimelineApiSearchParams } from "@/lib/timelineQuery";
 
 const API_URL = process.env.NEXT_PUBLIC_MILOG_API_URL ?? "https://api.milog.local";
 const SESSION_COOKIE = "milog_session";
@@ -208,18 +209,12 @@ export async function loginServer(email: string, password: string): Promise<Logi
   return attemptLoginViaPasswordGrant(email, password);
 }
 
-export async function getTimelineServer(filters: TimelineFilters, token: string): Promise<TimelinePage> {
-  const params = new URLSearchParams();
-  if (filters.start_date) params.set("start_date", filters.start_date);
-  if (filters.end_date) params.set("end_date", filters.end_date);
-  if (filters.actor) params.set("actor", filters.actor);
-  if (filters.message) params.set("message", filters.message);
-  if (filters.metadata_key) params.set("metadata_key", filters.metadata_key);
-  if (filters.metadata_value) params.set("metadata_value", filters.metadata_value);
-  if (filters.limit) params.set("limit", String(filters.limit));
-  if (filters.log_level?.length) params.set("log_level", filters.log_level.join(","));
-  if (filters.cursor) params.set("cursor", filters.cursor);
-  if (filters.cursor && /^\d+$/.test(filters.cursor)) params.set("page", filters.cursor);
+export async function getTimelineServer(
+  filters: TimelineFilters,
+  token: string,
+  cursor?: string,
+): Promise<TimelinePage> {
+  const params = buildTimelineApiSearchParams(filters, cursor);
 
   let lastError: Error | null = null;
 
@@ -242,7 +237,7 @@ export async function getTimelineServer(filters: TimelineFilters, token: string)
       }
 
       const payload = (await parseJson<ApiTimelineResponse>(response))!;
-      return normalizeTimelineResponse(payload, filters.cursor);
+      return normalizeTimelineResponse(payload);
     } catch (error) {
       lastError = error as Error;
     }

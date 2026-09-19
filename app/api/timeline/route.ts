@@ -11,7 +11,8 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const filters = searchParamsToFilters(url.searchParams);
-    const page = await getTimelineServer(filters, session.token);
+    const cursor = url.searchParams.get("cursor") ?? undefined;
+    const page = await getTimelineServer(filters, session.token, cursor);
     return NextResponse.json(page);
   } catch (error) {
     return NextResponse.json(

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import type { AlertRule, TimelineEvent, TimelineFilters } from "@/lib/types";
 import { getTimeline } from "@/lib/milogApi";
@@ -30,10 +30,15 @@ const ALERTS_STORAGE_KEY = "milog.alerts";
 
 function loadStoredFilters(initialFilters: TimelineFilters) {
   if (typeof window === "undefined") return initialFilters;
-  const stored = safeJsonParse<TimelineFilters>(window.localStorage.getItem(FILTERS_STORAGE_KEY), {});
+  const stored = safeJsonParse<TimelineFilters & { cursor?: unknown }>(
+    window.localStorage.getItem(FILTERS_STORAGE_KEY),
+    {},
+  );
+  const storedFilters = { ...stored };
+  delete storedFilters.cursor;
   return {
     limit: 25,
-    ...stored,
+    ...storedFilters,
     ...initialFilters,
   };
 }
@@ -65,6 +70,7 @@ export function TimelinePage({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const { tenant, logout } = useAuth();
   const { pushToast } = useToast();
   const [draftFilters, setDraftFilters] = useState<TimelineFilters>(() => loadStoredFilters(initialFilters));
@@ -78,6 +84,7 @@ export function TimelinePage({
   const [exportLoading, setExportLoading] = useState(false);
 
   const debouncedFilters = useDebounce(draftFilters, 350);
+  const timelineQueryKey = useMemo(() => ["timeline", debouncedFilters] as const, [debouncedFilters]);
 
   useEffect(() => {
     window.localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(debouncedFilters));
@@ -90,21 +97,30 @@ export function TimelinePage({
   }, [visibleMetadataKeys]);
 
   const query = useInfiniteQuery({
-    queryKey: ["timeline", debouncedFilters],
-    initialPageParam: debouncedFilters.cursor,
+    queryKey: timelineQueryKey,
+    initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam }) =>
-      getTimeline({
-        ...debouncedFilters,
-        cursor: typeof pageParam === "string" ? pageParam : undefined,
-      }),
+      getTimeline(debouncedFilters, typeof pageParam === "string" ? pageParam : undefined),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-    refetchInterval: !readOnly && autoRefresh ? 30_000 : false,
   });
 
-  const events = useMemo(
-    () => query.data?.pages.flatMap((page) => page.events) ?? [],
-    [query.data?.pages],
-  );
+  useEffect(() => {
+    if (readOnly || !autoRefresh) return;
+    const interval = window.setInterval(() => {
+      void queryClient.resetQueries({ queryKey: timelineQueryKey, exact: true });
+    }, 30_000);
+    return () => window.clearInterval(interval);
+  }, [autoRefresh, queryClient, readOnly, timelineQueryKey]);
+
+  const events = useMemo(() => {
+    const uniqueEvents = new Map<string, TimelineEvent>();
+    for (const page of query.data?.pages ?? []) {
+      for (const event of page.events) {
+        if (!uniqueEvents.has(event.id)) uniqueEvents.set(event.id, event);
+      }
+    }
+    return [...uniqueEvents.values()];
+  }, [query.data?.pages]);
 
   const selectedEvent = events.find((event) => event.id === selectedEventId) ?? null;
 
@@ -164,12 +180,26 @@ export function TimelinePage({
 
   async function fetchAllEvents() {
     const allEvents: TimelineEvent[] = [];
+    const seenEventIds = new Set<string>();
+    const seenCursors = new Set<string>();
     let cursor: string | undefined;
 
     do {
-      const page = await getTimeline({ ...debouncedFilters, cursor, limit: debouncedFilters.limit ?? 100 });
-      allEvents.push(...page.events);
+      const page = await getTimeline(
+        { ...debouncedFilters, limit: debouncedFilters.limit ?? 100 },
+        cursor,
+      );
+      for (const event of page.events) {
+        if (!seenEventIds.has(event.id)) {
+          seenEventIds.add(event.id);
+          allEvents.push(event);
+        }
+      }
       cursor = page.nextCursor;
+      if (cursor && seenCursors.has(cursor)) {
+        throw new Error("MiLog returned a repeated pagination cursor.");
+      }
+      if (cursor) seenCursors.add(cursor);
     } while (cursor);
 
     return allEvents;
@@ -214,7 +244,7 @@ export function TimelinePage({
           message={draftFilters.message ?? ""}
           onMessageChange={(message) => setDraftFilters((current) => ({ ...current, message: message || undefined }))}
           onFiltersToggle={() => setQueryDrawerOpen(true)}
-          onRefresh={() => void query.refetch()}
+          onRefresh={() => void queryClient.resetQueries({ queryKey: timelineQueryKey, exact: true })}
           autoRefresh={autoRefresh}
           onAutoRefreshChange={() => setAutoRefresh((value) => !value)}
           onShare={!readOnly ? () => setShareOpen(true) : undefined}

@@ -7,6 +7,7 @@ import type {
   TimelinePage,
 } from "@/lib/types";
 import { normalizeLogLevel } from "@/lib/utils";
+import { filtersToSearchParams } from "@/lib/urlState";
 
 export function normalizeEvent(input: {
   id: string;
@@ -48,16 +49,9 @@ export async function login(email: string, password: string) {
   return payload as { user: MiLogUser; tenant: MiLogTenant };
 }
 
-export async function getTimeline(filters: TimelineFilters) {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(filters)) {
-    if (value === undefined) continue;
-    if (Array.isArray(value)) {
-      if (value.length) params.set(key, value.join(","));
-      continue;
-    }
-    params.set(key, String(value));
-  }
+export async function getTimeline(filters: TimelineFilters, cursor?: string) {
+  const params = filtersToSearchParams(filters);
+  if (cursor) params.set("cursor", cursor);
 
   const response = await fetch(`/api/timeline?${params.toString()}`, {
     credentials: "include",
@@ -76,13 +70,22 @@ export async function createShareLink(filters: TimelineFilters) {
   return `${window.location.origin}/share/${encodeShareState(filters)}`;
 }
 
-export function normalizeTimelineResponse(payload: ApiTimelineResponse, fallbackCursor?: string): TimelinePage {
-  const currentPage = payload.meta?.current_page ?? Number(fallbackCursor ?? 1);
-  const lastPage = payload.meta?.last_page ?? currentPage;
+function cursorFromNextLink(nextLink?: string | null) {
+  if (!nextLink) return undefined;
+
+  try {
+    return new URL(nextLink).searchParams.get("cursor") ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function normalizeTimelineResponse(payload: ApiTimelineResponse): TimelinePage {
+  const nextCursor = payload.meta?.next_cursor ?? cursorFromNextLink(payload.links?.next);
 
   return {
     events: payload.data.map(normalizeEvent),
-    nextCursor: currentPage < lastPage ? String(currentPage + 1) : undefined,
+    nextCursor: nextCursor || undefined,
     total: payload.meta?.total,
   };
 }
