@@ -1,6 +1,8 @@
 import type { TimelineFilters } from "@/lib/types";
 
-const FILTER_KEYS = [
+const FILTER_KEYS = ["target_id", "actor_id", "type"] as const;
+
+export const LEGACY_FILTER_KEYS = [
   "start_date",
   "end_date",
   "actor",
@@ -10,17 +12,47 @@ const FILTER_KEYS = [
   "limit",
 ] as const;
 
+const MAX_FILTER_LENGTH = 255;
+
+function normalizedFilterValue(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  const normalized = value.trim();
+  return normalized && normalized.length <= MAX_FILTER_LENGTH ? normalized : undefined;
+}
+
+export function sanitizeTimelineFilters(input: unknown): TimelineFilters {
+  if (!input || typeof input !== "object") return {};
+  const source = input as Record<string, unknown>;
+  return Object.fromEntries(
+    FILTER_KEYS.flatMap((key) => {
+      const value = normalizedFilterValue(source[key]);
+      return value ? [[key, value]] : [];
+    }),
+  ) as TimelineFilters;
+}
+
+export function hasLegacyTimelineFilters(input: unknown) {
+  if (!input || typeof input !== "object") return false;
+  const source = input as Record<string, unknown>;
+  return LEGACY_FILTER_KEYS.some((key) => source[key] !== undefined && source[key] !== null && source[key] !== "");
+}
+
+export function timelineFilterValidationMessage(input: URLSearchParams) {
+  for (const key of FILTER_KEYS) {
+    const value = input.get(key);
+    if (value && value.trim().length > MAX_FILTER_LENGTH) {
+      return `${key} must be 255 characters or fewer.`;
+    }
+  }
+  return undefined;
+}
+
 export function filtersToSearchParams(filters: TimelineFilters) {
   const params = new URLSearchParams();
 
   for (const key of FILTER_KEYS) {
-    const value = filters[key];
-    if (typeof value === "string" && value.trim()) params.set(key, value);
-    if (typeof value === "number") params.set(key, String(value));
-  }
-
-  if (filters.log_level?.length) {
-    params.set("log_level", filters.log_level.join(","));
+    const value = normalizedFilterValue(filters[key]);
+    if (value) params.set(key, value);
   }
 
   return params;
@@ -35,17 +67,5 @@ export function searchParamsToFilters(
     return Array.isArray(value) ? value[0] : value;
   };
 
-  const logLevel = read("log_level");
-  const limit = read("limit");
-
-  return {
-    start_date: read("start_date"),
-    end_date: read("end_date"),
-    log_level: logLevel ? (logLevel.split(",").filter(Boolean) as TimelineFilters["log_level"]) : undefined,
-    actor: read("actor"),
-    message: read("message"),
-    metadata_key: read("metadata_key"),
-    metadata_value: read("metadata_value"),
-    limit: limit ? Number(limit) : undefined,
-  };
+  return sanitizeTimelineFilters(Object.fromEntries(FILTER_KEYS.map((key) => [key, read(key)])));
 }

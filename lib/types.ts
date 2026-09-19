@@ -18,20 +18,21 @@ export type TimelineEvent = {
   occurrence_date: string;
   log_level: LogLevel;
   actor: string;
+  actor_id?: string;
+  actor_type?: string;
+  target_id?: string;
+  target_type?: string;
   message: string;
   metadata: Record<string, unknown>;
 };
 
-export type TimelineFilters = {
-  start_date?: string;
-  end_date?: string;
-  log_level?: LogLevel[];
-  actor?: string;
-  message?: string;
-  metadata_key?: string;
-  metadata_value?: string;
-  limit?: number;
+export type TimelineQuery = {
+  target_id?: string;
+  actor_id?: string;
+  type?: string;
 };
+
+export type TimelineFilters = TimelineQuery;
 
 export type AlertRule = {
   id: string;
@@ -64,6 +65,8 @@ export type ApiTimelineEvent = {
   actor?: string;
   actor_id?: string;
   actor_type?: string;
+  target_id?: string;
+  target_type?: string;
   message: string;
   metadata?: Record<string, unknown>;
 };

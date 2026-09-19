@@ -1,33 +1,53 @@
 import type { AlertRule, TimelineEvent, TimelineFilters } from "@/lib/types";
-import { normalizeLogLevel } from "@/lib/utils";
+import { hasLegacyTimelineFilters, sanitizeTimelineFilters } from "@/lib/urlState";
 
 export const ALERTS_STORAGE_KEY = "milog.alerts";
+
+export function migrateAlertRules(input: unknown) {
+  if (!Array.isArray(input)) return { alerts: [] as AlertRule[], migrated: false };
+
+  let migrated = false;
+  const alerts = input.flatMap((value) => {
+    if (!value || typeof value !== "object") {
+      migrated = true;
+      return [];
+    }
+
+    const candidate = value as Partial<AlertRule> & { filters?: unknown };
+    const filters = sanitizeTimelineFilters(candidate.filters);
+    const hadLegacyFilters = hasLegacyTimelineFilters(candidate.filters);
+    if (hadLegacyFilters) migrated = true;
+    if (hadLegacyFilters && Object.keys(filters).length === 0) return [];
+    if (
+      typeof candidate.id !== "string" ||
+      typeof candidate.name !== "string" ||
+      typeof candidate.enabled !== "boolean" ||
+      typeof candidate.created_at !== "string"
+    ) {
+      migrated = true;
+      return [];
+    }
+
+    return [{ ...candidate, filters } as AlertRule];
+  });
+
+  return { alerts, migrated };
+}
 
 export function buildAlertRule(name: string, filters: TimelineFilters): AlertRule {
   return {
     id: crypto.randomUUID(),
     name,
     enabled: true,
-    filters,
+    filters: sanitizeTimelineFilters(filters),
     created_at: new Date().toISOString(),
   };
 }
 
 export function matchesAlert(rule: AlertRule, event: TimelineEvent) {
   const { filters } = rule;
-  if (filters.actor && !event.actor.toLowerCase().includes(filters.actor.toLowerCase())) return false;
-  if (filters.message && !event.message.toLowerCase().includes(filters.message.toLowerCase())) return false;
-  if (filters.metadata_key) {
-    const metadataValue = event.metadata[filters.metadata_key];
-    if (metadataValue === undefined) return false;
-    if (filters.metadata_value) {
-      const normalizedValue = String(metadataValue).toLowerCase();
-      if (!normalizedValue.includes(filters.metadata_value.toLowerCase())) return false;
-    }
-  }
-  if (filters.log_level?.length) {
-    const normalized = normalizeLogLevel(event.log_level);
-    if (!filters.log_level.includes(normalized)) return false;
-  }
+  if (filters.actor_id && event.actor_id !== filters.actor_id) return false;
+  if (filters.target_id && event.target_id !== filters.target_id) return false;
+  if (filters.type && event.actor_type !== filters.type && event.target_type !== filters.type) return false;
   return true;
 }

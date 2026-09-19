@@ -24,13 +24,16 @@ function fromBase64Url(value: string) {
 
 export function encodeShareState(filters: TimelineFilters) {
   const params = filtersToSearchParams(filters);
+  params.set("v", "2");
   return toBase64Url(params.toString());
 }
 
 export function decodeShareState(shareId: string): TimelineFilters | null {
   try {
     const raw = fromBase64Url(shareId);
-    return searchParamsToFilters(new URLSearchParams(raw));
+    const params = new URLSearchParams(raw);
+    if (params.get("v") !== "2") return null;
+    return searchParamsToFilters(params);
   } catch {
     return null;
   }

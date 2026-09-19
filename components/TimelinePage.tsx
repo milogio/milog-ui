@@ -5,13 +5,17 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import type { AlertRule, TimelineEvent, TimelineFilters } from "@/lib/types";
 import { getTimeline } from "@/lib/milogApi";
-import { matchesAlert } from "@/lib/alerts";
+import { matchesAlert, migrateAlertRules } from "@/lib/alerts";
 import { timelineToCsv } from "@/lib/export";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
 import { compactDateTime, downloadTextFile, formatDownloadDate, safeJsonParse } from "@/lib/utils";
-import { filtersToSearchParams } from "@/lib/urlState";
+import {
+  filtersToSearchParams,
+  hasLegacyTimelineFilters,
+  sanitizeTimelineFilters,
+} from "@/lib/urlState";
 import { AlertsModal } from "@/components/AlertsModal";
 import { Drawer } from "@/components/Drawer";
 import { ErrorState } from "@/components/ErrorState";
@@ -29,17 +33,15 @@ const DEFAULT_METADATA_KEYS = ["source", "campaign", "status", "lead_score"];
 const ALERTS_STORAGE_KEY = "milog.alerts";
 
 function loadStoredFilters(initialFilters: TimelineFilters) {
-  if (typeof window === "undefined") return initialFilters;
-  const stored = safeJsonParse<TimelineFilters & { cursor?: unknown }>(
-    window.localStorage.getItem(FILTERS_STORAGE_KEY),
-    {},
-  );
-  const storedFilters = { ...stored };
-  delete storedFilters.cursor;
+  if (typeof window === "undefined") return { filters: sanitizeTimelineFilters(initialFilters), hadLegacy: false };
+  const stored = safeJsonParse<unknown>(window.localStorage.getItem(FILTERS_STORAGE_KEY), {});
+  const urlState = Object.fromEntries(new URLSearchParams(window.location.search));
   return {
-    limit: 25,
-    ...storedFilters,
-    ...initialFilters,
+    filters: {
+      ...sanitizeTimelineFilters(stored),
+      ...sanitizeTimelineFilters(initialFilters),
+    },
+    hadLegacy: hasLegacyTimelineFilters(stored) || hasLegacyTimelineFilters(urlState),
   };
 }
 
@@ -50,7 +52,10 @@ function loadMetadataKeys() {
 
 function readAlerts() {
   if (typeof window === "undefined") return [] as AlertRule[];
-  return safeJsonParse<AlertRule[]>(window.localStorage.getItem(ALERTS_STORAGE_KEY), []);
+  const stored = safeJsonParse<unknown>(window.localStorage.getItem(ALERTS_STORAGE_KEY), []);
+  const result = migrateAlertRules(stored);
+  if (result.migrated) writeAlerts(result.alerts);
+  return result.alerts;
 }
 
 function writeAlerts(alerts: AlertRule[]) {
@@ -73,7 +78,8 @@ export function TimelinePage({
   const queryClient = useQueryClient();
   const { tenant, logout } = useAuth();
   const { pushToast } = useToast();
-  const [draftFilters, setDraftFilters] = useState<TimelineFilters>(() => loadStoredFilters(initialFilters));
+  const [storedFilterState] = useState(() => loadStoredFilters(initialFilters));
+  const [draftFilters, setDraftFilters] = useState<TimelineFilters>(storedFilterState.filters);
   const [selectedEventId, setSelectedEventId] = useState<string>();
   const [visibleMetadataKeys, setVisibleMetadataKeys] = useState<string[]>(() => loadMetadataKeys());
   const [queryDrawerOpen, setQueryDrawerOpen] = useState(false);
@@ -85,6 +91,14 @@ export function TimelinePage({
 
   const debouncedFilters = useDebounce(draftFilters, 350);
   const timelineQueryKey = useMemo(() => ["timeline", debouncedFilters] as const, [debouncedFilters]);
+
+  useEffect(() => {
+    if (!storedFilterState.hadLegacy) return;
+    pushToast({
+      title: "Unsupported legacy timeline filters were removed.",
+      tone: "info",
+    });
+  }, [pushToast, storedFilterState.hadLegacy]);
 
   useEffect(() => {
     window.localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(debouncedFilters));
@@ -149,7 +163,7 @@ export function TimelinePage({
       await Promise.all(
         nextAlerts.map(async (alert, index) => {
           try {
-            const page = await getTimeline({ ...alert.filters, limit: 10 });
+            const page = await getTimeline(alert.filters);
             const match = page.events.find((event) => {
               if (!matchesAlert(alert, event)) return false;
               if (!alert.last_triggered_at) return true;
@@ -185,10 +199,7 @@ export function TimelinePage({
     let cursor: string | undefined;
 
     do {
-      const page = await getTimeline(
-        { ...debouncedFilters, limit: debouncedFilters.limit ?? 100 },
-        cursor,
-      );
+      const page = await getTimeline(debouncedFilters, cursor);
       for (const event of page.events) {
         if (!seenEventIds.has(event.id)) {
           seenEventIds.add(event.id);
@@ -241,8 +252,8 @@ export function TimelinePage({
       <div className="min-h-screen">
         <TopNav
           tenantName={tenant?.name ?? subtitle}
-          message={draftFilters.message ?? ""}
-          onMessageChange={(message) => setDraftFilters((current) => ({ ...current, message: message || undefined }))}
+          typeFilter={draftFilters.type ?? ""}
+          onTypeFilterChange={(type) => setDraftFilters((current) => ({ ...current, type: type || undefined }))}
           onFiltersToggle={() => setQueryDrawerOpen(true)}
           onRefresh={() => void queryClient.resetQueries({ queryKey: timelineQueryKey, exact: true })}
           autoRefresh={autoRefresh}
@@ -269,7 +280,7 @@ export function TimelinePage({
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
               {readOnly
                 ? "Read-only view of the selected MiLog filter state. Sign in if you need to export or create alerts."
-                : "Search, export, and share the moments that matter across your tenant timeline."}
+                : "Filter, export, and share the moments that matter across your tenant timeline."}
             </p>
           </div>
 
@@ -314,7 +325,7 @@ export function TimelinePage({
           <FilterPanel
             filters={draftFilters}
             onChange={setDraftFilters}
-            onClear={() => setDraftFilters({ limit: 25 })}
+            onClear={() => setDraftFilters({})}
             compact
           />
         </Drawer>

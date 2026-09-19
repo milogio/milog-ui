@@ -1,4 +1,5 @@
 import type {
+  ApiTimelineEvent,
   ApiTimelineResponse,
   MiLogTenant,
   MiLogUser,
@@ -9,24 +10,17 @@ import type {
 import { normalizeLogLevel } from "@/lib/utils";
 import { filtersToSearchParams } from "@/lib/urlState";
 
-export function normalizeEvent(input: {
-  id: string;
-  tenant_id: string;
-  occurrence_date?: string;
-  occurred_at?: string;
-  log_level: string;
-  actor?: string;
-  actor_id?: string;
-  actor_type?: string;
-  message: string;
-  metadata?: Record<string, unknown>;
-}): TimelineEvent {
+export function normalizeEvent(input: ApiTimelineEvent): TimelineEvent {
   return {
     id: input.id,
     tenant_id: input.tenant_id,
     occurrence_date: input.occurrence_date ?? input.occurred_at ?? new Date().toISOString(),
     log_level: normalizeLogLevel(input.log_level),
     actor: input.actor ?? ([input.actor_type, input.actor_id].filter(Boolean).join(" ") || "system"),
+    actor_id: input.actor_id,
+    actor_type: input.actor_type,
+    target_id: input.target_id,
+    target_type: input.target_type,
     message: input.message,
     metadata: input.metadata ?? {},
   };
@@ -53,7 +47,8 @@ export async function getTimeline(filters: TimelineFilters, cursor?: string) {
   const params = filtersToSearchParams(filters);
   if (cursor) params.set("cursor", cursor);
 
-  const response = await fetch(`/api/timeline?${params.toString()}`, {
+  const query = params.toString();
+  const response = await fetch(query ? `/api/timeline?${query}` : "/api/timeline", {
     credentials: "include",
   });
 

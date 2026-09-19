@@ -11,6 +11,7 @@ export function AlertBuilder({
   onCreate: (name: string) => void;
 }) {
   const [name, setName] = useState("");
+  const suggestedName = filters.type || filters.target_id || filters.actor_id;
 
   return (
     <div className="panel-muted rounded-3xl p-4">
@@ -19,13 +20,13 @@ export function AlertBuilder({
         <input
           className="input flex-1"
           value={name}
-          placeholder={filters.message ? `Alert for "${filters.message}"` : "High-intent leads"}
+          placeholder={suggestedName ? `Alert for "${suggestedName}"` : "Timeline alert"}
           onChange={(event) => setName(event.target.value)}
         />
         <button
           className="btn btn-primary"
           onClick={() => {
-            onCreate(name || filters.message || "MiLog alert");
+            onCreate(name || suggestedName || "MiLog alert");
             setName("");
           }}
         >

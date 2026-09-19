@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getTimelineServer, readSession } from "@/lib/milogServer";
-import { searchParamsToFilters } from "@/lib/urlState";
+import { searchParamsToFilters, timelineFilterValidationMessage } from "@/lib/urlState";
 
 export async function GET(request: Request) {
   const session = await readSession();
@@ -10,6 +10,10 @@ export async function GET(request: Request) {
 
   try {
     const url = new URL(request.url);
+    const validationMessage = timelineFilterValidationMessage(url.searchParams);
+    if (validationMessage) {
+      return NextResponse.json({ message: validationMessage }, { status: 400 });
+    }
     const filters = searchParamsToFilters(url.searchParams);
     const cursor = url.searchParams.get("cursor") ?? undefined;
     const page = await getTimelineServer(filters, session.token, cursor);

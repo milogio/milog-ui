@@ -1,5 +1,7 @@
 # P0: Reconcile the Timeline Filter Contract
 
+Status: Implemented on 2026-09-19 using the current public API fields `target_id`, `actor_id`, and `type`.
+
 ## Goal
 
 Ensure every filter shown by MiLog UI is executed correctly by the API and never silently ignored.
@@ -62,4 +64,3 @@ The recommended direction is to preserve useful UI filters by adding explicit se
 - Requires agreement with the API team on supported filters and parameter names.
 - Metadata searching needs explicit backend semantics for nested values, types, and partial matching.
 - Date filters need a documented timezone and inclusive/exclusive boundary policy.
-

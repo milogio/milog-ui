@@ -156,7 +156,7 @@ describe("milogApi", () => {
 
   describe("buildTimelineApiSearchParams", () => {
     it("requests cursor pagination from the first page", () => {
-      const params = buildTimelineApiSearchParams({ limit: 25 });
+      const params = buildTimelineApiSearchParams({});
 
       expect(params.get("pagination")).toBe("cursor");
       expect(params.has("cursor")).toBe(false);
@@ -164,7 +164,7 @@ describe("milogApi", () => {
     });
 
     it("forwards opaque cursors without creating an offset page", () => {
-      const params = buildTimelineApiSearchParams({ actor: "Chris" }, "opaque+/cursor-token");
+      const params = buildTimelineApiSearchParams({ actor_id: "actor-42" }, "opaque+/cursor-token");
 
       expect(params.get("pagination")).toBe("cursor");
       expect(params.get("cursor")).toBe("opaque+/cursor-token");
@@ -216,14 +216,9 @@ describe("milogApi", () => {
         }),
       );
       const filters: TimelineFilters = {
-        start_date: "2026-05-01T00:00",
-        end_date: "2026-05-04T00:00",
-        log_level: ["info", "error"],
-        actor: "Chris",
-        message: "pricing page",
-        metadata_key: "source",
-        metadata_value: "google_ads",
-        limit: 50,
+        target_id: "invoice-1",
+        actor_id: "actor-42",
+        type: "invoice",
       };
 
       const page = await getTimeline(filters, "opaque-cursor-token");
@@ -231,27 +226,27 @@ describe("milogApi", () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0];
       expect(String(url)).toBe(
-        "/api/timeline?start_date=2026-05-01T00%3A00&end_date=2026-05-04T00%3A00&actor=Chris&message=pricing+page&metadata_key=source&metadata_value=google_ads&limit=50&log_level=info%2Cerror&cursor=opaque-cursor-token",
+        "/api/timeline?target_id=invoice-1&actor_id=actor-42&type=invoice&cursor=opaque-cursor-token",
       );
       expect(options).toEqual({ credentials: "include" });
       expect(page).toEqual({ events: [], nextCursor: "2", total: 10 });
     });
 
-    it("omits undefined and empty array filters", async () => {
+    it("omits undefined filters", async () => {
       const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ events: [] }));
 
-      await getTimeline({ actor: undefined, log_level: [], limit: 25 });
+      await getTimeline({ actor_id: undefined });
 
-      expect(fetchMock).toHaveBeenCalledWith("/api/timeline?limit=25", { credentials: "include" });
+      expect(fetchMock).toHaveBeenCalledWith("/api/timeline", { credentials: "include" });
     });
 
     it("does not serialize legacy cursor properties as filters", async () => {
       const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ events: [] }));
-      const filters = { limit: 25, cursor: "stale-cursor" } as TimelineFilters;
+      const filters = { message: "pricing", cursor: "stale-cursor" } as unknown as TimelineFilters;
 
       await getTimeline(filters);
 
-      expect(fetchMock).toHaveBeenCalledWith("/api/timeline?limit=25", { credentials: "include" });
+      expect(fetchMock).toHaveBeenCalledWith("/api/timeline", { credentials: "include" });
     });
 
     it("throws the API message when timeline loading fails", async () => {
@@ -259,7 +254,7 @@ describe("milogApi", () => {
         jsonResponse({ message: "Timeline unavailable." }, { status: 503 }),
       );
 
-      await expect(getTimeline({ message: "pricing" })).rejects.toThrow("Timeline unavailable.");
+      await expect(getTimeline({ type: "invoice" })).rejects.toThrow("Timeline unavailable.");
     });
 
     it("uses a friendly fallback message when timeline loading fails without a message", async () => {
@@ -272,10 +267,9 @@ describe("milogApi", () => {
   describe("createShareLink", () => {
     it("creates a share URL that preserves the filter state", async () => {
       const filters: TimelineFilters = {
-        message: "pricing",
-        log_level: ["warning"],
-        metadata_key: "campaign",
-        metadata_value: "mortgage",
+        target_id: "invoice-1",
+        actor_id: "actor-42",
+        type: "invoice",
       };
 
       const url = await createShareLink(filters);

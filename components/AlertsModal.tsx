@@ -2,7 +2,7 @@
 
 import { Bell, BellOff, Trash2 } from "lucide-react";
 import type { AlertRule, TimelineFilters } from "@/lib/types";
-import { buildAlertRule } from "@/lib/alerts";
+import { buildAlertRule, migrateAlertRules } from "@/lib/alerts";
 import { safeJsonParse } from "@/lib/utils";
 import { useToast } from "@/providers/toast-provider";
 
@@ -10,7 +10,10 @@ const STORAGE_KEY = "milog.alerts";
 
 export function readAlerts() {
   if (typeof window === "undefined") return [] as AlertRule[];
-  return safeJsonParse<AlertRule[]>(window.localStorage.getItem(STORAGE_KEY), []);
+  const stored = safeJsonParse<unknown>(window.localStorage.getItem(STORAGE_KEY), []);
+  const result = migrateAlertRules(stored);
+  if (result.migrated) writeAlerts(result.alerts);
+  return result.alerts;
 }
 
 export function writeAlerts(alerts: AlertRule[]) {
@@ -50,7 +53,8 @@ export function AlertsModal({
             <button
               className="btn btn-primary"
               onClick={() => {
-                const next = [...alerts, buildAlertRule(currentFilters.message || "MiLog alert", currentFilters)];
+                const name = currentFilters.type || currentFilters.target_id || currentFilters.actor_id || "MiLog alert";
+                const next = [...alerts, buildAlertRule(name, currentFilters)];
                 writeAlerts(next);
                 pushToast({ title: "Alert saved locally.", tone: "success" });
                 onClose();

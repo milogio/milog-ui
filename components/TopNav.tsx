@@ -6,8 +6,8 @@ import { ExportMenu } from "@/components/ExportMenu";
 
 export function TopNav({
   tenantName,
-  message,
-  onMessageChange,
+  typeFilter,
+  onTypeFilterChange,
   onFiltersToggle,
   onRefresh,
   autoRefresh,
@@ -22,8 +22,8 @@ export function TopNav({
   readOnly = false,
 }: {
   tenantName?: string;
-  message: string;
-  onMessageChange: (value: string) => void;
+  typeFilter: string;
+  onTypeFilterChange: (value: string) => void;
   onFiltersToggle?: () => void;
   onRefresh?: () => void;
   autoRefresh?: boolean;
@@ -83,9 +83,10 @@ export function TopNav({
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 className="input h-9 pl-9 font-mono text-xs"
-                placeholder="Search messages, actors, campaigns..."
-                value={message}
-                onChange={(event) => onMessageChange(event.target.value)}
+                maxLength={255}
+                placeholder="Filter by actor or target type..."
+                value={typeFilter}
+                onChange={(event) => onTypeFilterChange(event.target.value)}
               />
             </label>
             {onFiltersToggle ? (

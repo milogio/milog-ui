@@ -38,7 +38,7 @@ export function TimelineFeed({
     return (
       <EmptyState
         title="No events match this query"
-        description="Adjust your filters, widen the date range, or clear the query to bring more signal into view."
+        description="Adjust the actor, target, or type filters, or clear the query to bring more signal into view."
       />
     );
   }
