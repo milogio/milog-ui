@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp, Copy } from "lucide-react";
 import type { TimelineEvent } from "@/lib/types";
 import { formatExactTimestamp, formatRelativeTime } from "@/lib/utils";
 import { useToast } from "@/providers/toast-provider";
-import { ActorBadge } from "@/components/ActorBadge";
+import { EventContext } from "@/components/EventContext";
 import { LogLevelBadge } from "@/components/LogLevelBadge";
 import { MetadataChips } from "@/components/MetadataChips";
 
@@ -27,7 +27,7 @@ export function TimelineItem({
 
   return (
     <li className={`animate-row-in ${selected ? "bg-accent/30" : "hover:bg-accent/40"}`}>
-      <div className="grid grid-cols-[78px_70px_minmax(82px,120px)_minmax(0,1fr)_auto] items-center gap-2 px-4 py-2 sm:grid-cols-[120px_78px_140px_minmax(0,1fr)_auto] sm:gap-3">
+      <div className="grid grid-cols-[78px_70px_minmax(0,1fr)_auto] items-center gap-2 px-4 py-2 sm:grid-cols-[120px_78px_minmax(0,1fr)_auto] sm:gap-3">
         <button className="contents text-left" onClick={onSelect}>
           <time
             title={formatExactTimestamp(event.occurrence_date)}
@@ -36,10 +36,10 @@ export function TimelineItem({
             {formatRelativeTime(event.occurrence_date)}
           </time>
           <LogLevelBadge level={event.log_level} />
-          <span className="truncate text-foreground/80">
-            <ActorBadge actor={event.actor} />
+          <span className="min-w-0">
+            <EventContext event={event} compact />
+            <span className="mt-1 block truncate text-[11px] text-muted-foreground">{event.message}</span>
           </span>
-          <span className="min-w-0 truncate text-foreground">{event.message}</span>
         </button>
         <div className="flex items-center justify-end gap-1.5">
           <button
@@ -60,7 +60,7 @@ export function TimelineItem({
           ) : null}
         </div>
       </div>
-      <div className="px-4 pb-2 pl-4 sm:pl-[366px]">
+      <div className="px-4 pb-2 pl-4 sm:pl-[222px]">
         <MetadataChips event={event} visibleKeys={visibleMetadataKeys} />
       </div>
       {expanded ? (

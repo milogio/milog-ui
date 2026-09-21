@@ -4,6 +4,8 @@
 
 Preserve the API's structured event data while continuing to provide friendly display fields.
 
+This work should follow the event-context UX plan so the normalized model supports the actor → action → target presentation consistently.
+
 ## Problem
 
 The API returns structured fields including actor, action, target, occurrence time, and creation time. The UI currently collapses much of that information into `actor` and `message`, making precise filtering, event inspection, and lossless export difficult.
@@ -48,4 +50,3 @@ The API returns structured fields including actor, action, target, occurrence ti
 - Coordinate naming with the API OpenAPI schema.
 - Avoid silently replacing a missing API timestamp with the browser's current time; doing so creates false event history.
 - Any display-level log normalization must not alter the underlying event contract.
-

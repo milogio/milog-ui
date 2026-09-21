@@ -10,6 +10,11 @@ const event: TimelineEvent = {
   occurrence_date: "2026-05-04T16:00:00Z",
   log_level: "info",
   actor: "Chris",
+  actor_type: "user",
+  actor_id: "user-42",
+  action: "viewed",
+  target_type: "page",
+  target_id: "pricing",
   message: "Lead viewed pricing page",
   metadata: { source: "google_ads", status: "engaged" },
 };
@@ -38,6 +43,9 @@ describe("TimelineFeed", () => {
     );
 
     expect(screen.getByText("Lead viewed pricing page")).toBeInTheDocument();
+    expect(screen.getByLabelText("Actor: user user-42")).toBeInTheDocument();
+    expect(screen.getByLabelText("Action: viewed")).toBeInTheDocument();
+    expect(screen.getByLabelText("Target: page pricing")).toBeInTheDocument();
     expect(screen.getByText("source")).toBeInTheDocument();
     expect(screen.getByText("google_ads")).toBeInTheDocument();
     expect(screen.getByText("status")).toBeInTheDocument();

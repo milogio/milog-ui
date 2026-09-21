@@ -1,6 +1,7 @@
 "use client";
 
 import type { TimelineFilters } from "@/lib/types";
+import { TIMELINE_FILTERS } from "@/lib/timelineFilters";
 
 export function FilterPanel({
   filters,
@@ -26,38 +27,23 @@ export function FilterPanel({
       </div>
 
       <div className="space-y-3">
-        <label className="space-y-1.5 text-sm">
-          <span className="text-muted-foreground">Actor ID</span>
-          <input
-            className="input"
-            maxLength={255}
-            placeholder="actor-42"
-            value={filters.actor_id ?? ""}
-            onChange={(event) => onChange({ ...filters, actor_id: event.target.value || undefined })}
-          />
-        </label>
-
-        <label className="space-y-1.5 text-sm">
-          <span className="text-muted-foreground">Target ID</span>
-          <input
-            className="input"
-            maxLength={255}
-            placeholder="invoice-123"
-            value={filters.target_id ?? ""}
-            onChange={(event) => onChange({ ...filters, target_id: event.target.value || undefined })}
-          />
-        </label>
-
-        <label className="space-y-1.5 text-sm">
-          <span className="text-muted-foreground">Actor or target type</span>
-          <input
-            className="input"
-            maxLength={255}
-            placeholder="invoice"
-            value={filters.type ?? ""}
-            onChange={(event) => onChange({ ...filters, type: event.target.value || undefined })}
-          />
-        </label>
+        {TIMELINE_FILTERS.map(({ key, label, placeholder, help }) => (
+          <label key={key} className="block space-y-1.5 text-sm">
+            <span className="text-muted-foreground">{label}</span>
+            <input
+              className="input"
+              aria-label={label}
+              maxLength={255}
+              placeholder={placeholder}
+              value={filters[key] ?? ""}
+              onChange={(event) => onChange({ ...filters, [key]: event.target.value || undefined })}
+            />
+            <span className="block text-xs leading-5 text-muted-foreground">{help}</span>
+          </label>
+        ))}
+        <p className="rounded-md border border-border bg-background px-3 py-2 text-xs leading-5 text-muted-foreground">
+          Identifiers use exact, case-sensitive matching. When several filters are active, every filter must match.
+        </p>
       </div>
     </div>
   );

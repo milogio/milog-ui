@@ -22,6 +22,7 @@ export type TimelineEvent = {
   actor_type?: string;
   target_id?: string;
   target_type?: string;
+  action?: string;
   message: string;
   metadata: Record<string, unknown>;
 };
@@ -67,6 +68,7 @@ export type ApiTimelineEvent = {
   actor_type?: string;
   target_id?: string;
   target_type?: string;
+  action?: string;
   message: string;
   metadata?: Record<string, unknown>;
 };

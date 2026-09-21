@@ -2,6 +2,8 @@
 
 Status: Implemented on 2026-09-19 using the current public API fields `target_id`, `actor_id`, and `type`.
 
+Follow-up required: the contract is correct, but the current top-bar control presents the combined `type` parameter as generic search. Entering an actor identifier there sends the wrong parameter. See [Clarify Event Context and Filter UX](./02a-p0-event-context-filter-ux.md).
+
 ## Goal
 
 Ensure every filter shown by MiLog UI is executed correctly by the API and never silently ignored.

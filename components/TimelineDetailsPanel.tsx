@@ -3,6 +3,7 @@ import type { TimelineEvent } from "@/lib/types";
 import { formatExactTimestamp } from "@/lib/utils";
 import { useToast } from "@/providers/toast-provider";
 import { LogLevelBadge } from "@/components/LogLevelBadge";
+import { EventContext } from "@/components/EventContext";
 
 export function TimelineDetailsPanel({ event }: { event: TimelineEvent }) {
   const { pushToast } = useToast();
@@ -12,9 +13,40 @@ export function TimelineDetailsPanel({ event }: { event: TimelineEvent }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gradient-brand">Event details</p>
-          <h3 className="mt-3 text-base font-semibold text-foreground">{event.message}</h3>
+          <h3 className="mt-3 text-base font-semibold text-foreground">Event context</h3>
         </div>
         <LogLevelBadge level={event.log_level} />
+      </div>
+
+      <div className="mt-6 rounded-lg border border-border bg-background p-4">
+        <EventContext event={event} />
+        <div className="mt-4 flex flex-wrap gap-2 border-t border-border pt-4">
+          {event.actor_id ? (
+            <button
+              className="btn btn-secondary px-3 py-2 text-xs"
+              onClick={async () => {
+                await navigator.clipboard.writeText(event.actor_id!);
+                pushToast({ title: "Actor ID copied to clipboard.", tone: "success" });
+              }}
+            >
+              <Copy className="size-3.5" />
+              Copy actor ID
+            </button>
+          ) : null}
+          {event.target_id ? (
+            <button
+              className="btn btn-secondary px-3 py-2 text-xs"
+              onClick={async () => {
+                await navigator.clipboard.writeText(event.target_id!);
+                pushToast({ title: "Target ID copied to clipboard.", tone: "success" });
+              }}
+            >
+              <Copy className="size-3.5" />
+              Copy target ID
+            </button>
+          ) : null}
+        </div>
+        <p className="mt-4 border-t border-border pt-4 text-sm leading-6 text-foreground">{event.message}</p>
       </div>
 
       <dl className="mt-6 space-y-4 text-sm">
@@ -22,10 +54,7 @@ export function TimelineDetailsPanel({ event }: { event: TimelineEvent }) {
           <dt className="text-muted-foreground">Occurred</dt>
           <dd className="mt-1 font-mono text-foreground">{formatExactTimestamp(event.occurrence_date)}</dd>
         </div>
-        <div>
-          <dt className="text-muted-foreground">Actor</dt>
-          <dd className="mt-1 font-mono text-foreground">{event.actor}</dd>
-        </div>
+        <div><dt className="text-muted-foreground">Event ID</dt><dd className="mt-1 break-all font-mono text-foreground">{event.id}</dd></div>
         <div>
           <dt className="text-muted-foreground">Tenant</dt>
           <dd className="mt-1 font-mono text-foreground">{event.tenant_id}</dd>

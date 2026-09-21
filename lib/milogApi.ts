@@ -21,6 +21,7 @@ export function normalizeEvent(input: ApiTimelineEvent): TimelineEvent {
     actor_type: input.actor_type,
     target_id: input.target_id,
     target_type: input.target_type,
+    action: input.action,
     message: input.message,
     metadata: input.metadata ?? {},
   };

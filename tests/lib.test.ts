@@ -22,6 +22,7 @@ describe("MiLog utilities", () => {
       actor_id: "42",
       target_type: "invoice",
       target_id: "invoice-1",
+      action: "updated",
       message: "User updated invoice",
       metadata: { source: "billing" },
     });
@@ -30,6 +31,7 @@ describe("MiLog utilities", () => {
     expect(event.log_level).toBe("warning");
     expect(event.actor).toBe("user 42");
     expect(event.target_id).toBe("invoice-1");
+    expect(event.action).toBe("updated");
   });
 
   it("normalizes cursor-paginated timeline payloads", () => {

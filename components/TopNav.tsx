@@ -1,13 +1,16 @@
 "use client";
 
-import { Bell, Download, Filter, LogOut, RefreshCcw, Search, Share2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Bell, Download, Filter, LogOut, RefreshCcw, Share2, ToggleLeft, ToggleRight } from "lucide-react";
 import { LogoMark } from "@/components/LogoMark";
 import { ExportMenu } from "@/components/ExportMenu";
+import { TIMELINE_FILTERS, type TimelineFilterKey } from "@/lib/timelineFilters";
 
 export function TopNav({
   tenantName,
-  typeFilter,
-  onTypeFilterChange,
+  quickFilterKey,
+  quickFilterValue,
+  onQuickFilterKeyChange,
+  onQuickFilterValueChange,
   onFiltersToggle,
   onRefresh,
   autoRefresh,
@@ -22,8 +25,10 @@ export function TopNav({
   readOnly = false,
 }: {
   tenantName?: string;
-  typeFilter: string;
-  onTypeFilterChange: (value: string) => void;
+  quickFilterKey: TimelineFilterKey;
+  quickFilterValue: string;
+  onQuickFilterKeyChange: (value: TimelineFilterKey) => void;
+  onQuickFilterValueChange: (value: string) => void;
   onFiltersToggle?: () => void;
   onRefresh?: () => void;
   autoRefresh?: boolean;
@@ -79,14 +84,23 @@ export function TopNav({
 
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex min-w-0 flex-1 gap-2">
-            <label className="relative min-w-0 flex-1">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <label className="sr-only" htmlFor="quick-filter-role">Filter role</label>
+            <select
+              id="quick-filter-role"
+              className="input h-9 w-36 shrink-0 font-mono text-xs sm:w-40"
+              value={quickFilterKey}
+              onChange={(event) => onQuickFilterKeyChange(event.target.value as TimelineFilterKey)}
+            >
+              {TIMELINE_FILTERS.map(({ key, label }) => <option key={key} value={key}>{label}</option>)}
+            </select>
+            <label className="min-w-0 flex-1">
+              <span className="sr-only">{TIMELINE_FILTERS.find(({ key }) => key === quickFilterKey)?.label} filter value</span>
               <input
-                className="input h-9 pl-9 font-mono text-xs"
+                className="input h-9 font-mono text-xs"
                 maxLength={255}
-                placeholder="Filter by actor or target type..."
-                value={typeFilter}
-                onChange={(event) => onTypeFilterChange(event.target.value)}
+                placeholder={TIMELINE_FILTERS.find(({ key }) => key === quickFilterKey)?.placeholder}
+                value={quickFilterValue}
+                onChange={(event) => onQuickFilterValueChange(event.target.value)}
               />
             </label>
             {onFiltersToggle ? (
