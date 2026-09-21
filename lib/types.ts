@@ -23,6 +23,7 @@ export type TimelineEvent = {
   target_id?: string;
   target_type?: string;
   action?: string;
+  created_at?: string;
   message: string;
   metadata: Record<string, unknown>;
 };
@@ -42,6 +43,10 @@ export type AlertRule = {
   filters: TimelineFilters;
   created_at: string;
   last_triggered_at?: string;
+  last_triggered_created_at?: string;
+  last_triggered_event_id?: string;
+  last_checked_at?: string;
+  last_error?: string;
 };
 
 export type AuthSession = {
@@ -69,6 +74,7 @@ export type ApiTimelineEvent = {
   target_id?: string;
   target_type?: string;
   action?: string;
+  created_at?: string;
   message: string;
   metadata?: Record<string, unknown>;
 };

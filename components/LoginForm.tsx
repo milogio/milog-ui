@@ -8,7 +8,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
 import { LogoMark } from "@/components/LogoMark";
 
-export function LoginForm() {
+export function LoginForm({ nextPath = "/timeline" }: { nextPath?: string }) {
   const router = useRouter();
   const { setSession } = useAuth();
   const { pushToast } = useToast();
@@ -46,7 +46,7 @@ export function LoginForm() {
             const session = await login(email, password);
             setSession(session);
             pushToast({ title: "Welcome to MiLog.", tone: "success" });
-            router.push("/timeline");
+            router.push(nextPath);
           } catch (err) {
             setError(err instanceof Error ? err.message : "Login failed.");
           } finally {

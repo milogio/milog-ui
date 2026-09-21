@@ -1,5 +1,7 @@
 # P1: Preserve Exports, Alerts, and Sharing
 
+Status: Implemented on 2026-09-21. Shared filter links require an authenticated MiLog session and do not grant access.
+
 ## Goal
 
 Make exports, alert polling, and shared timeline views correct under the final filter contract and cursor pagination model.
@@ -54,4 +56,3 @@ Make exports, alert polling, and shared timeline views correct under the final f
 - Depends on completion of cursor pagination and the filter-contract decision.
 - Public sharing requires new API/server behavior and a security review.
 - Very large client-side exports can create memory and request-volume problems.
-

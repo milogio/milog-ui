@@ -73,6 +73,17 @@ export function AlertsModal({
                 <div>
                   <h4 className="text-sm font-medium text-foreground">{alert.name}</h4>
                   <p className="mt-1 font-mono text-xs text-muted-foreground">{JSON.stringify(alert.filters)}</p>
+                  {alert.last_triggered_at ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Last matched {new Date(alert.last_triggered_at).toLocaleString()}
+                      {alert.last_triggered_event_id ? ` · ${alert.last_triggered_event_id}` : ""}
+                    </p>
+                  ) : null}
+                  {alert.last_error ? (
+                    <p className="mt-2 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs text-destructive-foreground">
+                      Polling error: {alert.last_error}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex items-center gap-2">
                   <button

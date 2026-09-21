@@ -1,6 +1,8 @@
+import { redirect } from "next/navigation";
 import { decodeShareState } from "@/lib/shareState";
 import { TimelinePage } from "@/components/TimelinePage";
 import { ErrorState } from "@/components/ErrorState";
+import { readSession } from "@/lib/milogServer";
 
 export default async function SharedTimelinePage({
   params,
@@ -20,6 +22,9 @@ export default async function SharedTimelinePage({
       </main>
     );
   }
+
+  const session = await readSession();
+  if (!session) redirect(`/login?next=${encodeURIComponent(`/share/${shareId}`)}`);
 
   return <TimelinePage initialFilters={filters} readOnly title="Shared timeline" subtitle="Read-only view" />;
 }

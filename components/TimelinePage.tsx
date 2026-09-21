@@ -5,8 +5,14 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import type { AlertRule, TimelineEvent, TimelineFilters } from "@/lib/types";
 import { getTimeline } from "@/lib/milogApi";
-import { matchesAlert, migrateAlertRules } from "@/lib/alerts";
+import {
+  checkpointAlert,
+  isEventAfterAlertCheckpoint,
+  matchesAlert,
+  migrateAlertRules,
+} from "@/lib/alerts";
 import { timelineToCsv } from "@/lib/export";
+import { fetchTimelineForExport } from "@/lib/timelineExport";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
@@ -169,20 +175,31 @@ export function TimelinePage({
             const page = await getTimeline(alert.filters);
             const match = page.events.find((event) => {
               if (!matchesAlert(alert, event)) return false;
-              if (!alert.last_triggered_at) return true;
-              return new Date(event.occurrence_date) > new Date(alert.last_triggered_at);
+              return isEventAfterAlertCheckpoint(alert, event);
             });
 
             if (match) {
-              nextAlerts[index] = { ...alert, last_triggered_at: match.occurrence_date };
+              nextAlerts[index] = checkpointAlert(alert, match);
               mutated = true;
               pushToast({
                 title: `Alert triggered: ${alert.name} matched "${match.message}"`,
                 tone: "success",
               });
+            } else if (alert.last_error) {
+              nextAlerts[index] = {
+                ...alert,
+                last_checked_at: new Date().toISOString(),
+                last_error: undefined,
+              };
+              mutated = true;
             }
-          } catch {
-            // Ignore alert polling failures so the timeline stays responsive.
+          } catch (error) {
+            nextAlerts[index] = {
+              ...alert,
+              last_checked_at: new Date().toISOString(),
+              last_error: error instanceof Error ? error.message : "Alert polling failed.",
+            };
+            mutated = true;
           }
         }),
       );
@@ -195,34 +212,10 @@ export function TimelinePage({
     return () => window.clearInterval(interval);
   }, [pushToast, readOnly]);
 
-  async function fetchAllEvents() {
-    const allEvents: TimelineEvent[] = [];
-    const seenEventIds = new Set<string>();
-    const seenCursors = new Set<string>();
-    let cursor: string | undefined;
-
-    do {
-      const page = await getTimeline(debouncedFilters, cursor);
-      for (const event of page.events) {
-        if (!seenEventIds.has(event.id)) {
-          seenEventIds.add(event.id);
-          allEvents.push(event);
-        }
-      }
-      cursor = page.nextCursor;
-      if (cursor && seenCursors.has(cursor)) {
-        throw new Error("MiLog returned a repeated pagination cursor.");
-      }
-      if (cursor) seenCursors.add(cursor);
-    } while (cursor);
-
-    return allEvents;
-  }
-
   async function handleExport(kind: "csv" | "json") {
     setExportLoading(true);
     try {
-      const allEvents = await fetchAllEvents();
+      const allEvents = await fetchTimelineForExport(debouncedFilters);
       const date = formatDownloadDate();
 
       if (kind === "csv") {

@@ -51,3 +51,34 @@ export function matchesAlert(rule: AlertRule, event: TimelineEvent) {
   if (filters.type && event.actor_type !== filters.type && event.target_type !== filters.type) return false;
   return true;
 }
+
+function compareTimestamp(left?: string, right?: string) {
+  if (!left && !right) return 0;
+  if (!left) return -1;
+  if (!right) return 1;
+  return new Date(left).getTime() - new Date(right).getTime();
+}
+
+export function isEventAfterAlertCheckpoint(rule: AlertRule, event: TimelineEvent) {
+  if (!rule.last_triggered_at) return true;
+
+  const occurrenceOrder = compareTimestamp(event.occurrence_date, rule.last_triggered_at);
+  if (occurrenceOrder !== 0) return occurrenceOrder > 0;
+
+  const creationOrder = compareTimestamp(event.created_at, rule.last_triggered_created_at);
+  if (creationOrder !== 0) return creationOrder > 0;
+
+  if (!rule.last_triggered_event_id) return false;
+  return event.id.localeCompare(rule.last_triggered_event_id) > 0;
+}
+
+export function checkpointAlert(rule: AlertRule, event: TimelineEvent): AlertRule {
+  return {
+    ...rule,
+    last_triggered_at: event.occurrence_date,
+    last_triggered_created_at: event.created_at,
+    last_triggered_event_id: event.id,
+    last_checked_at: new Date().toISOString(),
+    last_error: undefined,
+  };
+}

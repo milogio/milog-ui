@@ -32,10 +32,10 @@ export function ShareModal({
           <div>
             <div className="flex items-center gap-2">
               <Share2 className="size-4 text-brand" />
-              <h3 className="text-lg font-semibold">Share this timeline</h3>
+              <h3 className="text-lg font-semibold">Share this filtered view</h3>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
-              Generate a read-only MiLog timeline URL from the current filter state.
+              Generate a read-only filter link. Recipients must sign in to the same MiLog tenant to view its events.
             </p>
           </div>
           <button className="font-mono text-xs text-muted-foreground hover:text-foreground" onClick={onClose}>
@@ -48,10 +48,9 @@ export function ShareModal({
             <span className="text-muted-foreground">Generated URL</span>
             <input className="input" readOnly value={shareUrl} />
           </label>
-          <label className="space-y-2 text-sm">
-            <span className="text-muted-foreground">Expiry</span>
-            <input className="input opacity-60" disabled value="Coming soon" />
-          </label>
+          <p className="rounded-md border border-border bg-background px-3 py-2 text-xs leading-5 text-muted-foreground">
+            This link contains filter values only. It does not contain credentials or grant access to timeline data.
+          </p>
         </div>
 
         <div className="mt-6 flex justify-end">
