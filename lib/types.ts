@@ -54,11 +54,13 @@ export type AuthSession = {
   token: string;
   user: MiLogUser;
   tenant: MiLogTenant;
+  expires_at: string;
 };
 
 export type ApiLoginResponse = {
   token?: string;
   access_token?: string;
+  expires_in?: number;
   user?: Partial<MiLogUser>;
   tenant?: MiLogTenant;
 };

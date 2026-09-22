@@ -10,6 +10,7 @@ export default async function LoginPage({
 }) {
   const params = await searchParams;
   const nextPath = safeInternalPath(params.next);
+  const reason = typeof params.reason === "string" ? params.reason : undefined;
   const session = await readSession();
   if (session) redirect(nextPath);
 
@@ -18,7 +19,7 @@ export default async function LoginPage({
       <div className="absolute inset-0 bg-grid" />
       <div className="absolute inset-0 bg-radial-glow" />
       <div className="relative z-10 flex w-full justify-center">
-        <LoginForm nextPath={nextPath} />
+        <LoginForm nextPath={nextPath} reason={reason} />
       </div>
     </main>
   );

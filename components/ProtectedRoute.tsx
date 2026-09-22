@@ -7,13 +7,14 @@ import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading, sessionMessage } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/login");
+      const reason = sessionMessage ? "session_expired" : "authentication_required";
+      router.replace(`/login?reason=${reason}`);
     }
-  }, [loading, router, user]);
+  }, [loading, router, sessionMessage, user]);
 
   if (loading || !user) {
     return <LoadingSkeleton variant="page" />;

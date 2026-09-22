@@ -8,7 +8,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
 import { LogoMark } from "@/components/LogoMark";
 
-export function LoginForm({ nextPath = "/timeline" }: { nextPath?: string }) {
+export function LoginForm({ nextPath = "/timeline", reason }: { nextPath?: string; reason?: string }) {
   const router = useRouter();
   const { setSession } = useAuth();
   const { pushToast } = useToast();
@@ -30,6 +30,12 @@ export function LoginForm({ nextPath = "/timeline" }: { nextPath?: string }) {
       <p className="mt-5 text-sm leading-6 text-muted-foreground">
         Sign in to inspect your tenant timeline, export signal, and share the story behind every event.
       </p>
+
+      {reason === "session_expired" ? (
+        <p className="mt-4 rounded-md border border-level-warn/30 bg-level-warn/10 px-3 py-2 text-sm text-foreground">
+          Your session expired or was revoked. Please sign in again.
+        </p>
+      ) : null}
 
       <div className="mt-5 flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-muted-foreground">
         <Terminal className="h-3.5 w-3.5 text-brand" />

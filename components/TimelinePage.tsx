@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import type { AlertRule, TimelineEvent, TimelineFilters } from "@/lib/types";
-import { getTimeline } from "@/lib/milogApi";
+import { getTimeline, MiLogClientError } from "@/lib/milogApi";
 import {
   checkpointAlert,
   isEventAfterAlertCheckpoint,
@@ -123,6 +123,14 @@ export function TimelinePage({
       getTimeline(debouncedFilters, typeof pageParam === "string" ? pageParam : undefined),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
+
+  useEffect(() => {
+    if (!(query.error instanceof MiLogClientError) || query.error.status !== 401) return;
+    void logout().finally(() => {
+      const next = encodeURIComponent(`${pathname}${window.location.search}`);
+      router.replace(`/login?reason=session_expired&next=${next}`);
+    });
+  }, [logout, pathname, query.error, router]);
 
   useEffect(() => {
     if (readOnly || !autoRefresh) return;

@@ -19,18 +19,28 @@ cp .env.example .env.local
 For local API development, set:
 
 ```env
-NEXT_PUBLIC_MILOG_API_URL=http://localhost:8980
+MILOG_API_URL=http://localhost:8980
+MILOG_SESSION_SECRET=replace-with-at-least-32-random-characters
+MILOG_PASSPORT_CLIENT_ID=your-password-grant-client-id
+MILOG_PASSPORT_CLIENT_SECRET=your-password-grant-client-secret
+MILOG_TIMELINE_API_KEY=your-tenant-api-key
+MILOG_LOCAL_TENANT_ID=your-tenant-id
+MILOG_LOCAL_TENANT_NAME=Your tenant name
 ```
 
-Optional local API compatibility settings:
+Generate a local session secret with `openssl rand -base64 32`. Both variables are server-only and must never use the `NEXT_PUBLIC_` prefix.
 
-```env
-MILOG_PASSPORT_CLIENT_ID=
-MILOG_PASSPORT_CLIENT_SECRET=
-MILOG_TIMELINE_API_KEY=
-MILOG_LOCAL_TENANT_ID=
-MILOG_LOCAL_TENANT_NAME=
-```
+## Authentication Contract
+
+MiLog UI uses a backend-for-frontend session. The browser submits credentials only to the UI route handler. Until the API adds its dedicated UI session contract, the UI calls exactly these currently implemented endpoints:
+
+- `POST /oauth/token` performs the existing Passport password grant.
+- `GET /api/user` validates the bearer token and restores the user.
+- `GET /api/v1/timeline` uses the configured tenant API key.
+
+Sessions last no longer than eight hours, are revalidated when restored, and are stored in an encrypted HTTP-only, same-site cookie. The UI uses this single configured compatibility flow without endpoint probing or browser token storage.
+
+This is a transitional contract: the current API does not bind Passport users to MiLog tenants and exposes no token-revocation endpoint. The target contract remains dedicated `/auth/login`, `/auth/session`, and `/auth/logout` endpoints that issue a tenant-bound credential accepted by the timeline. Missing compatibility configuration is returned as an explicit error.
 
 Do not commit `.env.local`; it is ignored by git.
 

@@ -9,7 +9,7 @@ This directory tracks the UI work required to align MiLog UI with the updated Mi
 - [x] [P0 follow-up: Clarify event context and filter UX](./02a-p0-event-context-filter-ux.md) — completed 2026-09-21
 - [x] [P1: Preserve exports, alerts, and sharing](./03-p1-dependent-features.md) — completed 2026-09-21
 - [x] [P1: Expand the event model](./04-p1-event-model.md) — completed 2026-09-21
-- [ ] [P1: Stabilize authentication](./05-p1-authentication.md)
+- [ ] [P1: Stabilize authentication](./05-p1-authentication.md) — compatibility flow restored; target API endpoints required
 - [ ] [P2: Update deployment configuration](./06-p2-deployment.md)
 - [ ] [Cross-cutting: Complete contract and product testing](./07-testing-and-rollout.md)
 
@@ -18,7 +18,6 @@ Progress: **5 of 8 stages complete.**
 ## Delivery guidance
 
 - All P0 contract and filter-clarity work is complete.
-- Continue with authentication stabilization.
-- Coordinate authentication changes with the API team before Passport endpoints are retired.
+- Complete authentication stabilization after the API team implements the documented tenant-bound UI authentication contract.
 - Keep API keys and bearer tokens server-side.
 - Treat the API OpenAPI document as the source of truth and add automated contract-drift detection.

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { loginServer, writeSession } from "@/lib/milogServer";
+import { loginServer, MiLogServerError, writeSession } from "@/lib/milogServer";
 
 export async function POST(request: Request) {
   try {
@@ -13,9 +13,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ user: session.user, tenant: session.tenant });
   } catch (error) {
+    const status = error instanceof MiLogServerError ? error.status : 500;
     return NextResponse.json(
       { message: error instanceof Error ? error.message : "Login failed." },
-      { status: 401 },
+      { status },
     );
   }
 }

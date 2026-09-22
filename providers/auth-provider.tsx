@@ -7,6 +7,7 @@ type AuthState = {
   user: MiLogUser | null;
   tenant: MiLogTenant | null;
   loading: boolean;
+  sessionMessage: string | null;
   refresh: () => Promise<void>;
   logout: () => Promise<void>;
   setSession: (session: { user: MiLogUser; tenant: MiLogTenant }) => void;
@@ -18,12 +19,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<MiLogUser | null>(null);
   const [tenant, setTenant] = useState<MiLogTenant | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionMessage, setSessionMessage] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch("/api/auth/session", { credentials: "include" });
       if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+        setSessionMessage(payload?.message ?? null);
         setUser(null);
         setTenant(null);
         return;
@@ -31,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const payload = (await response.json()) as { user: MiLogUser; tenant: MiLogTenant };
       setUser(payload.user);
       setTenant(payload.tenant);
+      setSessionMessage(null);
     } finally {
       setLoading(false);
     }
@@ -44,7 +49,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const response = await fetch("/api/auth/session", { credentials: "include" });
         if (!response.ok) {
+          const payload = (await response.json().catch(() => null)) as { message?: string } | null;
           if (!ignore) {
+            setSessionMessage(payload?.message ?? null);
             setUser(null);
             setTenant(null);
           }
@@ -54,6 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!ignore) {
           setUser(payload.user);
           setTenant(payload.tenant);
+          setSessionMessage(null);
         }
       } finally {
         if (!ignore) {
@@ -73,17 +81,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setTenant(null);
+    setSessionMessage(null);
   }, []);
 
   const setSession = useCallback((session: { user: MiLogUser; tenant: MiLogTenant }) => {
     setUser(session.user);
     setTenant(session.tenant);
+    setSessionMessage(null);
     setLoading(false);
   }, []);
 
   const value = useMemo(
-    () => ({ user, tenant, loading, refresh, logout, setSession }),
-    [loading, logout, refresh, setSession, tenant, user],
+    () => ({ user, tenant, loading, sessionMessage, refresh, logout, setSession }),
+    [loading, logout, refresh, sessionMessage, setSession, tenant, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

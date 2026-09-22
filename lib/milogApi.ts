@@ -46,6 +46,13 @@ export async function login(email: string, password: string) {
   return payload as { user: MiLogUser; tenant: MiLogTenant };
 }
 
+export class MiLogClientError extends Error {
+  constructor(message: string, public readonly status: number) {
+    super(message);
+    this.name = "MiLogClientError";
+  }
+}
+
 export async function getTimeline(filters: TimelineFilters, cursor?: string) {
   const params = filtersToSearchParams(filters);
   if (cursor) params.set("cursor", cursor);
@@ -57,7 +64,7 @@ export async function getTimeline(filters: TimelineFilters, cursor?: string) {
 
   const payload = await response.json();
   if (!response.ok) {
-    throw new Error(payload.message ?? "Unable to load MiLog timeline.");
+    throw new MiLogClientError(payload.message ?? "Unable to load MiLog timeline.", response.status);
   }
 
   return payload as TimelinePage;
