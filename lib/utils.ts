@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
-export function normalizeLogLevel(level: string): LogLevel {
+export function normalizeLogLevel(level: string | null | undefined): LogLevel {
   switch (level) {
     case "warn":
     case "warning":
@@ -24,11 +24,13 @@ export function normalizeLogLevel(level: string): LogLevel {
   }
 }
 
-export function formatRelativeTime(value: string) {
+export function formatRelativeTime(value: string | null | undefined) {
+  if (!value) return "Unknown time";
   return formatDistanceToNowStrict(new Date(value), { addSuffix: true });
 }
 
-export function formatExactTimestamp(value: string) {
+export function formatExactTimestamp(value: string | null | undefined) {
+  if (!value) return "Unknown";
   return formatDate(new Date(value), "PPP p");
 }
 

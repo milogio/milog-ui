@@ -22,8 +22,6 @@ import {
   hasLegacyTimelineFilters,
   sanitizeTimelineFilters,
 } from "@/lib/urlState";
-import type { TimelineFilterKey } from "@/lib/timelineFilters";
-import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { AlertsModal } from "@/components/AlertsModal";
 import { Drawer } from "@/components/Drawer";
 import { ErrorState } from "@/components/ErrorState";
@@ -96,7 +94,6 @@ export function TimelinePage({
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [exportLoading, setExportLoading] = useState(false);
-  const [quickFilterKey, setQuickFilterKey] = useState<TimelineFilterKey>("actor_id");
 
   const debouncedFilters = useDebounce(draftFilters, 350);
   const timelineQueryKey = useMemo(() => ["timeline", debouncedFilters] as const, [debouncedFilters]);
@@ -248,12 +245,8 @@ export function TimelinePage({
       <div className="min-h-screen">
         <TopNav
           tenantName={tenant?.name ?? subtitle}
-          quickFilterKey={quickFilterKey}
-          quickFilterValue={draftFilters[quickFilterKey] ?? ""}
-          onQuickFilterKeyChange={setQuickFilterKey}
-          onQuickFilterValueChange={(value) =>
-            setDraftFilters((current) => ({ ...current, [quickFilterKey]: value || undefined }))
-          }
+          filters={draftFilters}
+          onFiltersChange={setDraftFilters}
           onFiltersToggle={() => setQueryDrawerOpen(true)}
           onRefresh={() => void queryClient.resetQueries({ queryKey: timelineQueryKey, exact: true })}
           autoRefresh={autoRefresh}
@@ -285,11 +278,6 @@ export function TimelinePage({
           </div>
 
           <div className="space-y-4 pb-6">
-            <ActiveFilterChips
-              filters={draftFilters}
-              onRemove={(key) => setDraftFilters((current) => ({ ...current, [key]: undefined }))}
-              onClear={() => setDraftFilters({})}
-            />
             <MetadataColumnSelector
               availableKeys={availableMetadataKeys}
               selectedKeys={visibleMetadataKeys}

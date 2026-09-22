@@ -7,8 +7,9 @@ function event(id: string, overrides: Partial<TimelineEvent> = {}): TimelineEven
   return {
     id,
     tenant_id: "tenant-1",
-    occurrence_date: "2026-09-21T12:00:00Z",
+    occurred_at: "2026-09-21T12:00:00Z",
     created_at: "2026-09-21T12:00:01Z",
+    raw_log_level: "info",
     log_level: "info",
     actor: "user user-42",
     actor_type: "user",
@@ -71,7 +72,7 @@ describe("dependent timeline features", () => {
     expect(isEventAfterAlertCheckpoint(rule, event("evt-2"))).toBe(false);
     expect(isEventAfterAlertCheckpoint(rule, event("evt-3"))).toBe(true);
     expect(isEventAfterAlertCheckpoint(rule, event("evt-1"))).toBe(false);
-    expect(isEventAfterAlertCheckpoint(rule, event("evt-0", { occurrence_date: "2026-09-21T12:01:00Z" }))).toBe(true);
+    expect(isEventAfterAlertCheckpoint(rule, event("evt-0", { occurred_at: "2026-09-21T12:01:00Z" }))).toBe(true);
   });
 
   it("records the complete checkpoint and clears a previous polling error", () => {

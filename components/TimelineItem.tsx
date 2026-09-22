@@ -30,10 +30,10 @@ export function TimelineItem({
       <div className="grid grid-cols-[78px_70px_minmax(0,1fr)_auto] items-center gap-2 px-4 py-2 sm:grid-cols-[120px_78px_minmax(0,1fr)_auto] sm:gap-3">
         <button className="contents text-left" onClick={onSelect}>
           <time
-            title={formatExactTimestamp(event.occurrence_date)}
+            title={formatExactTimestamp(event.occurred_at)}
             className="truncate tabular-nums text-muted-foreground"
           >
-            {formatRelativeTime(event.occurrence_date)}
+            {formatRelativeTime(event.occurred_at)}
           </time>
           <LogLevelBadge level={event.log_level} />
           <span className="min-w-0">
@@ -70,7 +70,7 @@ export function TimelineItem({
               event_id: <span className="text-foreground">{event.id}</span>
             </span>
             <span>
-              occurred_at: <span className="text-foreground">{formatExactTimestamp(event.occurrence_date)}</span>
+              occurred_at: <span className="text-foreground">{formatExactTimestamp(event.occurred_at)}</span>
             </span>
           </div>
           <pre className="overflow-x-auto rounded-md border border-border bg-card p-3 font-mono text-[12px] text-foreground/90">

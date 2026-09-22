@@ -52,7 +52,7 @@ export function matchesAlert(rule: AlertRule, event: TimelineEvent) {
   return true;
 }
 
-function compareTimestamp(left?: string, right?: string) {
+function compareTimestamp(left?: string | null, right?: string | null) {
   if (!left && !right) return 0;
   if (!left) return -1;
   if (!right) return 1;
@@ -60,9 +60,10 @@ function compareTimestamp(left?: string, right?: string) {
 }
 
 export function isEventAfterAlertCheckpoint(rule: AlertRule, event: TimelineEvent) {
+  if (!event.occurred_at) return false;
   if (!rule.last_triggered_at) return true;
 
-  const occurrenceOrder = compareTimestamp(event.occurrence_date, rule.last_triggered_at);
+  const occurrenceOrder = compareTimestamp(event.occurred_at, rule.last_triggered_at);
   if (occurrenceOrder !== 0) return occurrenceOrder > 0;
 
   const creationOrder = compareTimestamp(event.created_at, rule.last_triggered_created_at);
@@ -75,8 +76,8 @@ export function isEventAfterAlertCheckpoint(rule: AlertRule, event: TimelineEven
 export function checkpointAlert(rule: AlertRule, event: TimelineEvent): AlertRule {
   return {
     ...rule,
-    last_triggered_at: event.occurrence_date,
-    last_triggered_created_at: event.created_at,
+    last_triggered_at: event.occurred_at ?? undefined,
+    last_triggered_created_at: event.created_at ?? undefined,
     last_triggered_event_id: event.id,
     last_checked_at: new Date().toISOString(),
     last_error: undefined,

@@ -52,7 +52,18 @@ export function TimelineDetailsPanel({ event }: { event: TimelineEvent }) {
       <dl className="mt-6 space-y-4 text-sm">
         <div>
           <dt className="text-muted-foreground">Occurred</dt>
-          <dd className="mt-1 font-mono text-foreground">{formatExactTimestamp(event.occurrence_date)}</dd>
+          <dd className="mt-1 font-mono text-foreground">{formatExactTimestamp(event.occurred_at)}</dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">Created</dt>
+          <dd className="mt-1 font-mono text-foreground">{formatExactTimestamp(event.created_at)}</dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">Log level</dt>
+          <dd className="mt-1 font-mono text-foreground">
+            {event.raw_log_level ?? "Unknown"}
+            {event.raw_log_level && event.raw_log_level !== event.log_level ? ` (displayed as ${event.log_level})` : ""}
+          </dd>
         </div>
         <div><dt className="text-muted-foreground">Event ID</dt><dd className="mt-1 break-all font-mono text-foreground">{event.id}</dd></div>
         <div>

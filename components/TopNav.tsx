@@ -3,14 +3,13 @@
 import { Bell, Download, Filter, LogOut, RefreshCcw, Share2, ToggleLeft, ToggleRight } from "lucide-react";
 import { LogoMark } from "@/components/LogoMark";
 import { ExportMenu } from "@/components/ExportMenu";
-import { TIMELINE_FILTERS, type TimelineFilterKey } from "@/lib/timelineFilters";
+import { QueryFilterBar } from "@/components/QueryFilterBar";
+import type { TimelineFilters } from "@/lib/types";
 
 export function TopNav({
   tenantName,
-  quickFilterKey,
-  quickFilterValue,
-  onQuickFilterKeyChange,
-  onQuickFilterValueChange,
+  filters,
+  onFiltersChange,
   onFiltersToggle,
   onRefresh,
   autoRefresh,
@@ -25,10 +24,8 @@ export function TopNav({
   readOnly = false,
 }: {
   tenantName?: string;
-  quickFilterKey: TimelineFilterKey;
-  quickFilterValue: string;
-  onQuickFilterKeyChange: (value: TimelineFilterKey) => void;
-  onQuickFilterValueChange: (value: string) => void;
+  filters: TimelineFilters;
+  onFiltersChange: (filters: TimelineFilters) => void;
   onFiltersToggle?: () => void;
   onRefresh?: () => void;
   autoRefresh?: boolean;
@@ -57,11 +54,6 @@ export function TopNav({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {!readOnly && onExportCsv && onExportJson ? (
-              <div className="hidden items-center gap-2 sm:flex">
-                <ExportMenu onExportCsv={onExportCsv} onExportJson={onExportJson} loading={Boolean(exportLoading)} />
-              </div>
-            ) : null}
             {!readOnly && onShare ? (
               <button className="btn btn-secondary" onClick={onShare}>
                 <Share2 className="size-4" />
@@ -82,40 +74,27 @@ export function TopNav({
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex min-w-0 flex-1 gap-2">
-            <label className="sr-only" htmlFor="quick-filter-role">Filter role</label>
-            <select
-              id="quick-filter-role"
-              className="input h-9 w-36 shrink-0 font-mono text-xs sm:w-40"
-              value={quickFilterKey}
-              onChange={(event) => onQuickFilterKeyChange(event.target.value as TimelineFilterKey)}
-            >
-              {TIMELINE_FILTERS.map(({ key, label }) => <option key={key} value={key}>{label}</option>)}
-            </select>
-            <label className="min-w-0 flex-1">
-              <span className="sr-only">{TIMELINE_FILTERS.find(({ key }) => key === quickFilterKey)?.label} filter value</span>
-              <input
-                className="input h-9 font-mono text-xs"
-                maxLength={255}
-                placeholder={TIMELINE_FILTERS.find(({ key }) => key === quickFilterKey)?.placeholder}
-                value={quickFilterValue}
-                onChange={(event) => onQuickFilterValueChange(event.target.value)}
-              />
-            </label>
+        <div>
+          <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Query</p>
+          <QueryFilterBar filters={filters} onChange={onFiltersChange} />
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-muted-foreground">{lastUpdated ? `Updated ${lastUpdated}` : "Waiting for timeline"}</span>
             {onFiltersToggle ? (
-              <button className="btn btn-secondary h-9 shrink-0" onClick={onFiltersToggle}>
+              <button className="btn btn-secondary h-8 shrink-0 px-2.5 text-xs" onClick={onFiltersToggle}>
                 <Filter className="size-4" />
-                Query
+                All filters
               </button>
             ) : null}
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            {lastUpdated ? <span className="font-mono text-xs">updated {lastUpdated}</span> : null}
+          <div className="flex flex-wrap items-center gap-2">
             {!readOnly && onExportCsv && onExportJson ? (
-              <button className="btn btn-secondary px-2.5 sm:hidden" onClick={onExportCsv} disabled={Boolean(exportLoading)} aria-label="Export CSV" title="Export CSV">
-                <Download className="size-4" />
-              </button>
+              <>
+                <div className="hidden sm:flex"><ExportMenu onExportCsv={onExportCsv} onExportJson={onExportJson} loading={Boolean(exportLoading)} /></div>
+                <button className="btn btn-secondary px-2.5 sm:hidden" onClick={onExportCsv} disabled={Boolean(exportLoading)} aria-label="Export CSV" title="Export CSV"><Download className="size-4" /></button>
+              </>
             ) : null}
             {!readOnly && onRefresh ? (
               <button className="btn btn-secondary px-2.5" onClick={onRefresh} aria-label="Refresh" title="Refresh">

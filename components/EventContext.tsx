@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import type { TimelineEvent } from "@/lib/types";
 
-function EntityIdentity({ role, type, id }: { role: "Actor" | "Target"; type?: string; id?: string }) {
+function EntityIdentity({ role, type, id }: { role: "Actor" | "Target"; type?: string | null; id?: string | null }) {
   return (
     <span className="min-w-0" aria-label={`${role}: ${type ?? "unknown type"} ${id ?? "unknown identifier"}`}>
       <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">{role}</span>

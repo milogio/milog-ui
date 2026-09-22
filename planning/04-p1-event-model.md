@@ -1,5 +1,7 @@
 # P1: Expand the UI Event Model
 
+Status: **Completed 2026-09-21**
+
 ## Goal
 
 Preserve the API's structured event data while continuing to provide friendly display fields.
@@ -50,3 +52,10 @@ The API returns structured fields including actor, action, target, occurrence ti
 - Coordinate naming with the API OpenAPI schema.
 - Avoid silently replacing a missing API timestamp with the browser's current time; doing so creates false event history.
 - Any display-level log normalization must not alter the underlying event contract.
+
+## Implementation notes
+
+- The normalized model now keeps canonical occurrence and creation timestamps, structured actor/action/target fields, and the raw API log level.
+- Legacy `occurrence_date` remains a read-only compatibility fallback; canonical `occurred_at` takes precedence.
+- Missing nullable timestamps remain `null` and render as unknown rather than being replaced with the browser time.
+- Details and CSV/JSON exports expose canonical event data while the timeline continues to use normalized display severity.

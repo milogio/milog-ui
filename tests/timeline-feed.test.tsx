@@ -7,7 +7,9 @@ import type { TimelineEvent } from "@/lib/types";
 const event: TimelineEvent = {
   id: "evt_1",
   tenant_id: "tenant_1",
-  occurrence_date: "2026-05-04T16:00:00Z",
+  occurred_at: "2026-05-04T16:00:00Z",
+  created_at: "2026-05-04T16:00:01Z",
+  raw_log_level: "info",
   log_level: "info",
   actor: "Chris",
   actor_type: "user",

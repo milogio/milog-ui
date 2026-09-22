@@ -38,7 +38,7 @@ describe("milogApi", () => {
       ).toBe(expectedLevel);
     });
 
-    it("prefers occurrence_date and display actor when provided", () => {
+    it("prefers canonical occurred_at and preserves display and structured actor fields", () => {
       const event = normalizeEvent({
         id: "evt_1",
         tenant_id: "tenant_1",
@@ -52,8 +52,10 @@ describe("milogApi", () => {
         metadata: { source: "google_ads" },
       });
 
-      expect(event.occurrence_date).toBe("2026-05-04T16:00:00Z");
+      expect(event.occurred_at).toBe("2026-05-01T12:00:00Z");
       expect(event.actor).toBe("Chris");
+      expect(event.actor_id).toBe("user_123");
+      expect(event.actor_type).toBe("user");
       expect(event.metadata).toEqual({ source: "google_ads" });
     });
 
@@ -81,21 +83,19 @@ describe("milogApi", () => {
       ).toBe("system");
     });
 
-    it("fills missing metadata and timestamp with safe defaults", () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(new Date("2026-05-04T16:00:00Z"));
-
+    it("keeps missing nullable fields null without inventing a timestamp", () => {
       const event = normalizeEvent({
         id: "evt_1",
         tenant_id: "tenant_1",
-        log_level: "info",
+        log_level: null,
         message: "Missing optional backend fields",
       });
 
-      expect(event.occurrence_date).toBe("2026-05-04T16:00:00.000Z");
+      expect(event.occurred_at).toBeNull();
+      expect(event.created_at).toBeNull();
+      expect(event.raw_log_level).toBeNull();
+      expect(event.log_level).toBe("info");
       expect(event.metadata).toEqual({});
-
-      vi.useRealTimers();
     });
   });
 
@@ -121,7 +121,7 @@ describe("milogApi", () => {
       expect(page.events).toEqual([
         expect.objectContaining({
           id: "evt_1",
-          occurrence_date: "2026-05-04T16:00:00Z",
+          occurred_at: "2026-05-04T16:00:00Z",
           log_level: "error",
           actor: "service checkout",
           metadata: {},

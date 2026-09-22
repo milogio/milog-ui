@@ -17,6 +17,7 @@ describe("MiLog utilities", () => {
       id: "evt_1",
       tenant_id: "tenant_1",
       occurred_at: "2026-05-04T16:00:00Z",
+      created_at: "2026-05-04T16:00:01Z",
       log_level: "warn",
       actor_type: "user",
       actor_id: "42",
@@ -27,8 +28,10 @@ describe("MiLog utilities", () => {
       metadata: { source: "billing" },
     });
 
-    expect(event.occurrence_date).toBe("2026-05-04T16:00:00Z");
+    expect(event.occurred_at).toBe("2026-05-04T16:00:00Z");
     expect(event.log_level).toBe("warning");
+    expect(event.raw_log_level).toBe("warn");
+    expect(event.created_at).toBe("2026-05-04T16:00:01Z");
     expect(event.actor).toBe("user 42");
     expect(event.target_id).toBe("invoice-1");
     expect(event.action).toBe("updated");
@@ -103,9 +106,16 @@ describe("MiLog utilities", () => {
       {
         id: "evt_1",
         tenant_id: "tenant_1",
-        occurrence_date: "2026-05-04T16:00:00Z",
+        occurred_at: "2026-05-04T16:00:00Z",
+        created_at: "2026-05-04T16:00:01Z",
+        raw_log_level: "info",
         log_level: "info",
         actor: "Chris",
+        actor_id: "actor-42",
+        actor_type: "user",
+        action: "viewed",
+        target_id: "pricing",
+        target_type: "page",
         message: "Lead viewed pricing page",
         metadata: { source: "google_ads", lead_score: 78 },
       },
@@ -113,6 +123,10 @@ describe("MiLog utilities", () => {
 
     const csv = timelineToCsv(events, ["source", "lead_score"]);
 
+    expect(csv.split("\n")[0]).toBe(
+      "id,tenant_id,occurred_at,created_at,log_level,raw_log_level,actor_type,actor_id,action,target_type,target_id,message,source,lead_score",
+    );
+    expect(csv).toContain('"2026-05-04T16:00:00Z","2026-05-04T16:00:01Z","info","info"');
     expect(csv).toContain("source,lead_score");
     expect(csv).toContain('"google_ads"');
     expect(csv).toContain('"78"');
@@ -128,13 +142,16 @@ describe("MiLog utilities", () => {
     const event: TimelineEvent = {
       id: "evt_1",
       tenant_id: "tenant_1",
-      occurrence_date: "2026-05-04T16:00:00Z",
+      occurred_at: "2026-05-04T16:00:00Z",
+      created_at: "2026-05-04T16:00:01Z",
+      raw_log_level: "info",
       log_level: "info",
       actor: "Chris",
       actor_id: "actor-42",
       actor_type: "user",
       target_id: "invoice-1",
       target_type: "invoice",
+      action: "viewed",
       message: "Lead viewed pricing page",
       metadata: { source: "google_ads" },
     };
