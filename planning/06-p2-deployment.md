@@ -1,5 +1,7 @@
 # P2: Update Deployment Configuration
 
+Status: **Completed 2026-10-02**
+
 ## Goal
 
 Align MiLog UI configuration and operational documentation with the API's new production container topology.
@@ -50,3 +52,10 @@ Align MiLog UI configuration and operational documentation with the API's new pr
 - API and UI may be deployed independently, so both sides need a compatibility window.
 - Local self-signed TLS must not encourage disabling certificate verification in production.
 
+## Implementation notes
+
+- Production startup validates the server-only API URL and session-encryption secret through Next.js instrumentation.
+- `GET /api/health` checks configuration and API reachability without exposing credentials or internal URLs.
+- The production Docker image uses standalone output, runs as an unprivileged user, and includes a readiness health check.
+- The smoke-test command verifies authentication, restoration, tenant isolation, two cursor pages, and logout.
+- Deployment, TLS, release ordering, and rollback requirements are documented in the project README.

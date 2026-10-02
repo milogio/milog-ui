@@ -54,7 +54,8 @@ export function LoginForm({ nextPath = "/timeline", reason }: { nextPath?: strin
             const session = await login(email, password, tenantId || undefined);
             setSession(session);
             pushToast({ title: "Welcome to MiLog.", tone: "success" });
-            router.push(nextPath);
+            router.replace(nextPath);
+            router.refresh();
           } catch (err) {
             if (err instanceof MiLogLoginError && err.tenants.length) {
               setTenants(err.tenants);

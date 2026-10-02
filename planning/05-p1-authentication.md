@@ -1,6 +1,6 @@
 # P1: Stabilize Authentication
 
-Status: **UI implementation complete; blocked on bearer authorization for the API timeline route.**
+Status: **Completed 2026-10-02**
 
 ## Goal
 
@@ -67,4 +67,4 @@ MiLog UI uses a trusted backend-for-frontend session against the versioned `/api
 
 The UI no longer probes endpoints, uses the Passport password grant, substitutes a deployment API key, or derives tenant identity from environment labels. Short-lived access tokens refresh server-side, tenant selection is supported for multi-membership users, logout revokes the upstream token family, and timeline responses are checked against the token-bound tenant.
 
-The API currently applies `auth:api` and `milog.ui_tenant` to the authentication routes but still exposes `/api/v1/timeline` only through `milog.api_key`. The stage can be marked complete once the API exposes timeline reads through the tenant-bound UI bearer middleware; the UI already sends that bearer token and rejects cross-tenant responses.
+The tenant-bound login, session restoration, bearer timeline access, filtering, and logout flow was verified end to end against the updated API on 2026-10-02.

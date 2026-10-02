@@ -10,8 +10,21 @@ import {
   timelineFilterValidationMessage,
 } from "@/lib/urlState";
 import type { TimelineEvent, TimelineFilters } from "@/lib/types";
+import { createRuntimeId } from "@/lib/utils";
 
 describe("MiLog utilities", () => {
+  it("creates IDs when randomUUID is unavailable", () => {
+    vi.stubGlobal("crypto", {
+      getRandomValues(values: Uint32Array) {
+        values.set([1, 2, 3, 4]);
+        return values;
+      },
+    });
+
+    expect(createRuntimeId()).toBe("00000001-00000002-00000003-00000004");
+    vi.unstubAllGlobals();
+  });
+
   it("normalizes backend timeline events", () => {
     const event = normalizeEvent({
       id: "evt_1",

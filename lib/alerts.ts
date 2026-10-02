@@ -1,5 +1,6 @@
 import type { AlertRule, TimelineEvent, TimelineFilters } from "@/lib/types";
 import { hasLegacyTimelineFilters, sanitizeTimelineFilters } from "@/lib/urlState";
+import { createRuntimeId } from "@/lib/utils";
 
 export const ALERTS_STORAGE_KEY = "milog.alerts";
 
@@ -36,7 +37,7 @@ export function migrateAlertRules(input: unknown) {
 
 export function buildAlertRule(name: string, filters: TimelineFilters): AlertRule {
   return {
-    id: crypto.randomUUID(),
+    id: createRuntimeId(),
     name,
     enabled: true,
     filters: sanitizeTimelineFilters(filters),

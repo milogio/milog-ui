@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { MiLogTenant, MiLogUser } from "@/lib/types";
 
 type AuthState = {
@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [tenant, setTenant] = useState<MiLogTenant | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionMessage, setSessionMessage] = useState<string | null>(null);
+  const sessionRevision = useRef(0);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -43,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let ignore = false;
+    const requestRevision = sessionRevision.current;
 
     async function loadSession() {
       setLoading(true);
@@ -50,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const response = await fetch("/api/auth/session", { credentials: "include" });
         if (!response.ok) {
           const payload = (await response.json().catch(() => null)) as { message?: string } | null;
-          if (!ignore) {
+          if (!ignore && sessionRevision.current === requestRevision) {
             setSessionMessage(payload?.message ?? null);
             setUser(null);
             setTenant(null);
@@ -58,13 +60,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
         const payload = (await response.json()) as { user: MiLogUser; tenant: MiLogTenant };
-        if (!ignore) {
+        if (!ignore && sessionRevision.current === requestRevision) {
           setUser(payload.user);
           setTenant(payload.tenant);
           setSessionMessage(null);
         }
       } finally {
-        if (!ignore) {
+        if (!ignore && sessionRevision.current === requestRevision) {
           setLoading(false);
         }
       }
@@ -79,12 +81,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
+    sessionRevision.current += 1;
     setUser(null);
     setTenant(null);
     setSessionMessage(null);
   }, []);
 
   const setSession = useCallback((session: { user: MiLogUser; tenant: MiLogTenant }) => {
+    sessionRevision.current += 1;
     setUser(session.user);
     setTenant(session.tenant);
     setSessionMessage(null);

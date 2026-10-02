@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { CheckCircle2, CircleAlert, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, createRuntimeId } from "@/lib/utils";
 
 type Toast = {
   id: string;
@@ -20,7 +20,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const pushToast = useCallback((toast: Omit<Toast, "id">) => {
-    const id = crypto.randomUUID();
+    const id = createRuntimeId();
     setToasts((current) => [...current, { ...toast, id }]);
     window.setTimeout(() => {
       setToasts((current) => current.filter((item) => item.id !== id));

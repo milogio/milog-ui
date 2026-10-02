@@ -6,6 +6,19 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
+export function createRuntimeId() {
+  const runtimeCrypto = globalThis.crypto;
+  if (typeof runtimeCrypto?.randomUUID === "function") return runtimeCrypto.randomUUID();
+
+  if (typeof runtimeCrypto?.getRandomValues === "function") {
+    const values = new Uint32Array(4);
+    runtimeCrypto.getRandomValues(values);
+    return Array.from(values, (value) => value.toString(16).padStart(8, "0")).join("-");
+  }
+
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
+
 export function normalizeLogLevel(level: string | null | undefined): LogLevel {
   switch (level) {
     case "warn":

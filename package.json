@@ -5,13 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/validate-runtime.mjs && next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm run test:run && npm run build",
     "clean": "rm -rf .next coverage",
     "test": "vitest",
-    "test:run": "vitest run --coverage"
+    "test:run": "vitest run --coverage",
+    "smoke": "node scripts/smoke-test.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.9",
@@ -19,7 +20,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^1.14.0",
-    "next": "16.2.4",
+    "next": "16.3.8",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "zod": "^4.4.3"
@@ -35,7 +36,7 @@
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.5",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.3.8",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4",
     "typescript": "^5",

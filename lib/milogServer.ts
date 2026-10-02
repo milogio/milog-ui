@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import type { ApiLoginResponse, ApiTimelineResponse, AuthSession, TimelineFilters, TimelinePage } from "@/lib/types";
 import { normalizeTimelineResponse } from "@/lib/milogApi";
 import { buildTimelineApiSearchParams } from "@/lib/timelineQuery";
+import { readRuntimeConfig } from "@/lib/runtimeConfig";
 
 const SESSION_COOKIE = "milog_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
@@ -27,18 +28,11 @@ export class MiLogServerError extends Error {
 }
 
 function requireConfig() {
-  const apiUrl = process.env.MILOG_API_URL;
-  const sessionSecret = process.env.MILOG_SESSION_SECRET;
-  if (!apiUrl) throw new MiLogServerError("MiLog UI is missing MILOG_API_URL.", 503, "configuration");
   try {
-    new URL(apiUrl);
-  } catch {
-    throw new MiLogServerError("MILOG_API_URL must be an absolute URL.", 503, "configuration");
+    return readRuntimeConfig();
+  } catch (error) {
+    throw new MiLogServerError(error instanceof Error ? error.message : "MiLog UI configuration is invalid.", 503, "configuration");
   }
-  if (!sessionSecret || sessionSecret.length < 32) {
-    throw new MiLogServerError("MiLog UI requires MILOG_SESSION_SECRET with at least 32 characters.", 503, "configuration");
-  }
-  return { apiUrl, sessionSecret };
 }
 
 function joinUrl(apiUrl: string, path: string) {
