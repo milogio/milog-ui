@@ -29,18 +29,25 @@ export function normalizeEvent(input: ApiTimelineEvent): TimelineEvent {
   };
 }
 
-export async function login(email: string, password: string) {
+export class MiLogLoginError extends Error {
+  constructor(message: string, public readonly tenants: Array<{ id: string; name: string }> = []) {
+    super(message);
+    this.name = "MiLogLoginError";
+  }
+}
+
+export async function login(email: string, password: string, tenantId?: string) {
   const response = await fetch("/api/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, ...(tenantId ? { tenant_id: tenantId } : {}) }),
   });
 
   const payload = await response.json();
   if (!response.ok) {
-    throw new Error(payload.message ?? "Login failed.");
+    throw new MiLogLoginError(payload.message ?? "Login failed.", payload.tenants ?? []);
   }
 
   return payload as { user: MiLogUser; tenant: MiLogTenant };

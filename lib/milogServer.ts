@@ -2,14 +2,16 @@ import "server-only";
 
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
-import type { ApiLoginResponse, ApiTimelineResponse, AuthSession, MiLogUser, TimelineFilters, TimelinePage } from "@/lib/types";
+import type { ApiLoginResponse, ApiTimelineResponse, AuthSession, TimelineFilters, TimelinePage } from "@/lib/types";
 import { normalizeTimelineResponse } from "@/lib/milogApi";
 import { buildTimelineApiSearchParams } from "@/lib/timelineQuery";
 
 const SESSION_COOKIE = "milog_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
-const LOGIN_PATH = "/oauth/token";
-const SESSION_PATH = "/api/user";
+const LOGIN_PATH = "/api/v1/auth/login";
+const REFRESH_PATH = "/api/v1/auth/refresh";
+const SESSION_PATH = "/api/v1/auth/me";
+const LOGOUT_PATH = "/api/v1/auth/logout";
 const TIMELINE_PATH = "/api/v1/timeline";
 
 export class MiLogServerError extends Error {
@@ -17,6 +19,7 @@ export class MiLogServerError extends Error {
     message: string,
     public readonly status: number,
     public readonly code: "configuration" | "unauthenticated" | "forbidden" | "validation" | "unavailable" | "upstream",
+    public readonly details?: { tenants?: Array<{ id: string; name: string }> },
   ) {
     super(message);
     this.name = "MiLogServerError";
@@ -38,21 +41,6 @@ function requireConfig() {
   return { apiUrl, sessionSecret };
 }
 
-function requirePassportConfig() {
-  const clientId = process.env.MILOG_PASSPORT_CLIENT_ID;
-  const clientSecret = process.env.MILOG_PASSPORT_CLIENT_SECRET;
-  const timelineApiKey = process.env.MILOG_TIMELINE_API_KEY;
-  const tenantId = process.env.MILOG_LOCAL_TENANT_ID;
-  const tenantName = process.env.MILOG_LOCAL_TENANT_NAME;
-  if (!clientId || !clientSecret) {
-    throw new MiLogServerError("MiLog UI requires MILOG_PASSPORT_CLIENT_ID and MILOG_PASSPORT_CLIENT_SECRET for the current API.", 503, "configuration");
-  }
-  if (!timelineApiKey || !tenantId || !tenantName) {
-    throw new MiLogServerError("MiLog UI requires its tenant API key, tenant ID, and tenant name for the current API.", 503, "configuration");
-  }
-  return { clientId, clientSecret, timelineApiKey, tenant: { id: tenantId, name: tenantName } };
-}
-
 function joinUrl(apiUrl: string, path: string) {
   return new URL(path, apiUrl).toString();
 }
@@ -68,13 +56,13 @@ async function parseJson<T>(response: Response): Promise<T | null> {
 }
 
 async function upstreamError(response: Response, fallback: string): Promise<MiLogServerError> {
-  const payload = await parseJson<{ message?: string }>(response);
-  const message = payload?.message ?? fallback;
+  const payload = await parseJson<{ message?: string; error?: { message?: string; tenants?: Array<{ id: string; name: string }> } }>(response);
+  const message = payload?.error?.message ?? payload?.message ?? fallback;
   if (response.status === 401) return new MiLogServerError(message, 401, "unauthenticated");
   if (response.status === 403) return new MiLogServerError(message, 403, "forbidden");
   if (response.status === 400 || response.status === 422) return new MiLogServerError(message, response.status, "validation");
   if (response.status >= 500) return new MiLogServerError("MiLog API is temporarily unavailable.", 503, "unavailable");
-  return new MiLogServerError(message, response.status, "upstream");
+  return new MiLogServerError(message, response.status, "upstream", { tenants: payload?.error?.tenants });
 }
 
 function sessionKey(secret: string) {
@@ -95,8 +83,8 @@ export function decodeSession(value: string, secret: string): AuthSession | null
     const decipher = createDecipheriv("aes-256-gcm", sessionKey(secret), payload.subarray(0, 12));
     decipher.setAuthTag(payload.subarray(12, 28));
     const decoded = JSON.parse(Buffer.concat([decipher.update(payload.subarray(28)), decipher.final()]).toString("utf8")) as AuthSession;
-    if (!decoded.token || !decoded.user?.id || !decoded.tenant?.id || !decoded.expires_at) return null;
-    return Date.parse(decoded.expires_at) > Date.now() ? decoded : null;
+    if (!decoded.token || !decoded.refresh_token || !decoded.user?.id || !decoded.tenant?.id || !decoded.expires_at || !decoded.session_expires_at) return null;
+    return Date.parse(decoded.session_expires_at) > Date.now() ? decoded : null;
   } catch {
     return null;
   }
@@ -111,7 +99,7 @@ export async function readSession(): Promise<AuthSession | null> {
 
 export async function writeSession(session: AuthSession) {
   const { sessionSecret } = requireConfig();
-  const expiresIn = Math.max(0, Math.min(SESSION_MAX_AGE_SECONDS, Math.floor((Date.parse(session.expires_at) - Date.now()) / 1000)));
+  const expiresIn = Math.max(0, Math.min(SESSION_MAX_AGE_SECONDS, Math.floor((Date.parse(session.session_expires_at) - Date.now()) / 1000)));
   (await cookies()).set(SESSION_COOKIE, encodeSession(session, sessionSecret), {
     httpOnly: true,
     sameSite: "lax",
@@ -125,22 +113,33 @@ export async function clearSession() {
   (await cookies()).delete(SESSION_COOKIE);
 }
 
-export async function loginServer(email: string, password: string): Promise<{ session: AuthSession }> {
+function sessionFromTokenPayload(payload: ApiLoginResponse, sessionExpiresAt?: string): AuthSession {
+  const token = payload.access_token;
+  const refreshToken = payload.refresh_token;
+  const apiUser = payload.user;
+  const tenant = apiUser?.tenant;
+  if (!token || !refreshToken || !apiUser?.id || !apiUser.email || !tenant?.id) {
+    throw new MiLogServerError("MiLog authentication response was incomplete.", 502, "upstream");
+  }
+  const expiresIn = Math.max(payload.expires_in ?? 0, 60);
+  return {
+    token,
+    refresh_token: refreshToken,
+    user: { id: String(apiUser.id), name: apiUser.name ?? apiUser.email, email: apiUser.email, tenant_id: tenant.id },
+    tenant: { id: tenant.id, name: tenant.name },
+    expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
+    session_expires_at: sessionExpiresAt ?? new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000).toISOString(),
+  };
+}
+
+export async function loginServer(email: string, password: string, tenantId?: string): Promise<{ session: AuthSession }> {
   const { apiUrl } = requireConfig();
-  const passport = requirePassportConfig();
   let response: Response;
   try {
     response = await fetch(joinUrl(apiUrl, LOGIN_PATH), {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        grant_type: "password",
-        client_id: passport.clientId,
-        client_secret: passport.clientSecret,
-        username: email,
-        password,
-        scope: "",
-      }),
+      body: JSON.stringify({ email, password, ...(tenantId ? { tenant_id: tenantId } : {}) }),
       cache: "no-store",
     });
   } catch {
@@ -148,24 +147,36 @@ export async function loginServer(email: string, password: string): Promise<{ se
   }
   if (!response.ok) throw await upstreamError(response, "Invalid email or password.");
   const payload = await parseJson<ApiLoginResponse>(response);
-  const token = payload?.access_token;
-  if (!token) throw new MiLogServerError("MiLog OAuth response did not include an access token.", 502, "upstream");
-  const identityResponse = await fetch(joinUrl(apiUrl, SESSION_PATH), {
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-    cache: "no-store",
-  });
-  if (!identityResponse.ok) throw await upstreamError(identityResponse, "Unable to load the authenticated user.");
-  const identity = await parseJson<Partial<MiLogUser>>(identityResponse);
-  if (!identity?.id || !identity.email) throw new MiLogServerError("MiLog user response was incomplete.", 502, "upstream");
-  const user: MiLogUser = { id: String(identity.id), name: identity.name ?? identity.email, email: identity.email, tenant_id: passport.tenant.id };
-  const tenant = passport.tenant;
-  const expiresIn = Math.min(Math.max(payload?.expires_in ?? SESSION_MAX_AGE_SECONDS, 60), SESSION_MAX_AGE_SECONDS);
-  return { session: { token, user, tenant, expires_at: new Date(Date.now() + expiresIn * 1000).toISOString() } };
+  if (!payload) throw new MiLogServerError("MiLog authentication response was empty.", 502, "upstream");
+  return { session: sessionFromTokenPayload(payload) };
+}
+
+export async function refreshSessionServer(session: AuthSession): Promise<AuthSession> {
+  const { apiUrl } = requireConfig();
+  let response: Response;
+  try {
+    response = await fetch(joinUrl(apiUrl, REFRESH_PATH), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ refresh_token: session.refresh_token }),
+      cache: "no-store",
+    });
+  } catch {
+    throw new MiLogServerError("Unable to refresh the MiLog session.", 503, "unavailable");
+  }
+  if (!response.ok) throw await upstreamError(response, "Your MiLog session has expired.");
+  const payload = await parseJson<ApiLoginResponse>(response);
+  if (!payload) throw new MiLogServerError("MiLog refresh response was empty.", 502, "upstream");
+  const refreshed = sessionFromTokenPayload(payload, session.session_expires_at);
+  if (refreshed.tenant.id !== session.tenant.id || refreshed.user.id !== session.user.id) {
+    throw new MiLogServerError("Refreshed MiLog session changed identity or tenant.", 403, "forbidden");
+  }
+  return refreshed;
 }
 
 export async function validateSessionServer(session: AuthSession): Promise<AuthSession> {
+  if (Date.parse(session.expires_at) <= Date.now() + 30_000) return refreshSessionServer(session);
   const { apiUrl } = requireConfig();
-  const { tenant } = requirePassportConfig();
   let response: Response;
   try {
     response = await fetch(joinUrl(apiUrl, SESSION_PATH), {
@@ -175,32 +186,43 @@ export async function validateSessionServer(session: AuthSession): Promise<AuthS
   } catch {
     throw new MiLogServerError("Unable to verify the MiLog session.", 503, "unavailable");
   }
-  if (!response.ok) throw await upstreamError(response, "Your MiLog session has expired.");
-  const payload = await parseJson<Partial<MiLogUser>>(response);
-  if (!payload?.id || !payload.email || tenant.id !== session.tenant.id) {
-    throw new MiLogServerError("MiLog session identity could not be verified.", 403, "forbidden");
+  if (!response.ok) throw await upstreamError(response, "Your MiLog session has expired or was revoked.");
+  const payload = await parseJson<{ user?: ApiLoginResponse["user"]; expires_at?: string }>(response);
+  const apiUser = payload?.user;
+  if (!apiUser?.id || !apiUser.email || !apiUser.tenant?.id || apiUser.tenant.id !== session.tenant.id || String(apiUser.id) !== session.user.id) {
+    throw new MiLogServerError("MiLog session identity or tenant could not be verified.", 403, "forbidden");
   }
   return {
     ...session,
-    user: { id: String(payload.id), name: payload.name ?? payload.email, email: payload.email, tenant_id: tenant.id },
-    tenant,
+    user: { id: String(apiUser.id), name: apiUser.name ?? apiUser.email, email: apiUser.email, tenant_id: apiUser.tenant.id },
+    tenant: { id: apiUser.tenant.id, name: apiUser.tenant.name },
+    expires_at: payload?.expires_at ?? session.expires_at,
   };
 }
 
 export async function logoutServer(session: AuthSession | null) {
-  // The current Passport API exposes no token-revocation route. The encrypted
-  // UI session is still cleared immediately; upstream revocation remains an API dependency.
-  void session;
+  if (!session) return;
+  const { apiUrl } = requireConfig();
+  try {
+    const response = await fetch(joinUrl(apiUrl, LOGOUT_PATH), {
+      method: "POST",
+      headers: { Authorization: `Bearer ${session.token}`, Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!response.ok && response.status !== 401) throw await upstreamError(response, "Unable to revoke the MiLog session.");
+  } catch (error) {
+    if (error instanceof MiLogServerError) throw error;
+    throw new MiLogServerError("Unable to reach the MiLog API during logout.", 503, "unavailable");
+  }
 }
 
 export async function getTimelineServer(filters: TimelineFilters, session: AuthSession, cursor?: string): Promise<TimelinePage> {
   const { apiUrl } = requireConfig();
-  const { timelineApiKey } = requirePassportConfig();
   const params = buildTimelineApiSearchParams(filters, cursor);
   let response: Response;
   try {
     response = await fetch(`${joinUrl(apiUrl, TIMELINE_PATH)}?${params.toString()}`, {
-      headers: { Accept: "application/json", "X-API-Key": timelineApiKey },
+      headers: { Accept: "application/json", Authorization: `Bearer ${session.token}` },
       cache: "no-store",
     });
   } catch {

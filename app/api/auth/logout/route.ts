@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { clearSession, logoutServer, MiLogServerError, readSession } from "@/lib/milogServer";
+import { clearSession, logoutServer, MiLogServerError, readSession, validateSessionServer } from "@/lib/milogServer";
 
 export async function POST() {
   try {
-    await logoutServer(await readSession());
+    const session = await readSession();
+    await logoutServer(session ? await validateSessionServer(session) : null);
     return NextResponse.json({ ok: true });
   } catch (error) {
     const status = error instanceof MiLogServerError ? error.status : 500;

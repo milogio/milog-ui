@@ -199,6 +199,27 @@ describe("milogApi", () => {
       await expect(login("chris@example.com", "wrong-password")).rejects.toThrow("Invalid email or password.");
     });
 
+    it("returns tenant choices and resubmits the selected tenant", async () => {
+      const fetchMock = vi.spyOn(globalThis, "fetch")
+        .mockResolvedValueOnce(jsonResponse({
+          message: "Choose a tenant.",
+          tenants: [{ id: "tenant_1", name: "SonicCode" }],
+        }, { status: 409 }))
+        .mockResolvedValueOnce(jsonResponse({
+          user: { id: "user_1", name: "Chris", email: "chris@example.com", tenant_id: "tenant_1" },
+          tenant: { id: "tenant_1", name: "SonicCode" },
+        }));
+
+      await expect(login("chris@example.com", "correct-password")).rejects.toMatchObject({
+        tenants: [{ id: "tenant_1", name: "SonicCode" }],
+      });
+      await login("chris@example.com", "correct-password", "tenant_1");
+
+      expect(fetchMock).toHaveBeenLastCalledWith("/api/auth/login", expect.objectContaining({
+        body: JSON.stringify({ email: "chris@example.com", password: "correct-password", tenant_id: "tenant_1" }),
+      }));
+    });
+
     it("uses a friendly fallback message when login fails without a message", async () => {
       vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({}, { status: 500 }));
 

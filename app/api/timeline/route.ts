@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { clearSession, getTimelineServer, MiLogServerError, readSession } from "@/lib/milogServer";
+import { clearSession, getTimelineServer, MiLogServerError, readSession, validateSessionServer, writeSession } from "@/lib/milogServer";
 import { searchParamsToFilters, timelineFilterValidationMessage } from "@/lib/urlState";
 
 export async function GET(request: Request) {
@@ -16,7 +16,9 @@ export async function GET(request: Request) {
     }
     const filters = searchParamsToFilters(url.searchParams);
     const cursor = url.searchParams.get("cursor") ?? undefined;
-    const page = await getTimelineServer(filters, session, cursor);
+    const verified = await validateSessionServer(session);
+    await writeSession(verified);
+    const page = await getTimelineServer(filters, verified, cursor);
     return NextResponse.json(page);
   } catch (error) {
     const status = error instanceof MiLogServerError ? error.status : 500;

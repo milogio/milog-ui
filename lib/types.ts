@@ -52,17 +52,24 @@ export type AlertRule = {
 
 export type AuthSession = {
   token: string;
+  refresh_token: string;
   user: MiLogUser;
   tenant: MiLogTenant;
   expires_at: string;
+  session_expires_at: string;
 };
 
 export type ApiLoginResponse = {
-  token?: string;
   access_token?: string;
+  refresh_token?: string;
+  token_type?: string;
   expires_in?: number;
-  user?: Partial<MiLogUser>;
-  tenant?: MiLogTenant;
+  user?: {
+    id?: string | number;
+    name?: string;
+    email?: string;
+    tenant?: MiLogTenant & { role?: string };
+  };
 };
 
 export type ApiTimelineEvent = {

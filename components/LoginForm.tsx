@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Terminal } from "lucide-react";
-import { login } from "@/lib/milogApi";
+import { login, MiLogLoginError } from "@/lib/milogApi";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
 import { LogoMark } from "@/components/LogoMark";
@@ -16,6 +16,8 @@ export function LoginForm({ nextPath = "/timeline", reason }: { nextPath?: strin
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [tenants, setTenants] = useState<Array<{ id: string; name: string }>>([]);
+  const [tenantId, setTenantId] = useState("");
 
   return (
     <div className="w-full max-w-md rounded-2xl border border-border bg-card/90 p-6 shadow-soft">
@@ -49,11 +51,15 @@ export function LoginForm({ nextPath = "/timeline", reason }: { nextPath?: strin
           setLoading(true);
           setError("");
           try {
-            const session = await login(email, password);
+            const session = await login(email, password, tenantId || undefined);
             setSession(session);
             pushToast({ title: "Welcome to MiLog.", tone: "success" });
             router.push(nextPath);
           } catch (err) {
+            if (err instanceof MiLogLoginError && err.tenants.length) {
+              setTenants(err.tenants);
+              setTenantId((current) => current || err.tenants[0].id);
+            }
             setError(err instanceof Error ? err.message : "Login failed.");
           } finally {
             setLoading(false);
@@ -64,6 +70,16 @@ export function LoginForm({ nextPath = "/timeline", reason }: { nextPath?: strin
           <span className="text-muted-foreground">Email</span>
           <input className="input" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
         </label>
+
+        {tenants.length ? (
+          <label className="block space-y-2 text-sm">
+            <span className="text-muted-foreground">Tenant</span>
+            <select className="input" value={tenantId} onChange={(event) => setTenantId(event.target.value)}>
+              {tenants.map((tenant) => <option key={tenant.id} value={tenant.id}>{tenant.name}</option>)}
+            </select>
+            <span className="block text-xs text-muted-foreground">Your account belongs to multiple tenants. Choose which timeline to open.</span>
+          </label>
+        ) : null}
         <label className="block space-y-2 text-sm">
           <span className="text-muted-foreground">Password</span>
           <input

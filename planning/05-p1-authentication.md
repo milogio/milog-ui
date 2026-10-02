@@ -1,6 +1,6 @@
 # P1: Stabilize Authentication
 
-Status: **In progress — encrypted UI sessions are implemented, but the target tenant-bound API authentication contract is blocked on API endpoints.**
+Status: **UI implementation complete; blocked on bearer authorization for the API timeline route.**
 
 ## Goal
 
@@ -63,6 +63,8 @@ Do not retain the OAuth password grant as the long-term browser-login design.
 
 ## Architecture decision
 
-MiLog UI will use a trusted backend-for-frontend session against one dedicated API contract: `/auth/login`, `/auth/session`, and `/auth/logout`. The API login response must bind the authenticated user to a tenant and issue a bearer token; the UI encrypts that server-side session into an HTTP-only cookie and forwards the token only from route handlers.
+MiLog UI uses a trusted backend-for-frontend session against the versioned `/api/v1/auth/login`, `/api/v1/auth/refresh`, `/api/v1/auth/me`, and `/api/v1/auth/logout` contract. The API binds the authenticated user and rotating token family to a tenant; the UI encrypts those credentials into an HTTP-only cookie and forwards the access token only from route handlers.
 
-Until the API adds that contract, the UI uses one explicit compatibility flow matching the routes that exist today: Passport `/oauth/token`, `/api/user`, and the configured tenant API key for `/api/v1/timeline`. There is no endpoint probing, and credentials remain server-only. This compatibility mode cannot satisfy tenant-to-user binding or upstream logout revocation, so the stage must remain incomplete.
+The UI no longer probes endpoints, uses the Passport password grant, substitutes a deployment API key, or derives tenant identity from environment labels. Short-lived access tokens refresh server-side, tenant selection is supported for multi-membership users, logout revokes the upstream token family, and timeline responses are checked against the token-bound tenant.
+
+The API currently applies `auth:api` and `milog.ui_tenant` to the authentication routes but still exposes `/api/v1/timeline` only through `milog.api_key`. The stage can be marked complete once the API exposes timeline reads through the tenant-bound UI bearer middleware; the UI already sends that bearer token and rejects cross-tenant responses.
