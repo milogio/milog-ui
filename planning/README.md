@@ -11,13 +11,13 @@ This directory tracks the UI work required to align MiLog UI with the updated Mi
 - [x] [P1: Expand the event model](./04-p1-event-model.md) — completed 2026-09-21
 - [x] [P1: Stabilize authentication](./05-p1-authentication.md) — completed 2026-10-02
 - [x] [P2: Update deployment configuration](./06-p2-deployment.md) — completed 2026-10-02
-- [ ] [Cross-cutting: Complete contract and product testing](./07-testing-and-rollout.md)
+- [ ] [Cross-cutting: Complete contract and product testing](./07-testing-and-rollout.md) — implementation complete; non-production rollout gates pending
 
 Progress: **7 of 8 stages complete.**
 
 ## Delivery guidance
 
 - All P0 contract and filter-clarity work is complete.
-- Continue with cross-cutting contract and product testing.
+- Complete the Stage 8 non-production smoke, data-integrity, log-safety, and rollback gates.
 - Keep API keys and bearer tokens server-side.
 - Treat the API OpenAPI document as the source of truth and add automated contract-drift detection.

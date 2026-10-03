@@ -1,0 +1,15 @@
+{
+  "data": [],
+  "links": {
+    "first": null,
+    "last": null,
+    "prev": "http://localhost:8980/api/v1/timeline?pagination=cursor&cursor=previous-token",
+    "next": null
+  },
+  "meta": {
+    "next_cursor": null,
+    "prev_cursor": "previous-token",
+    "per_page": 50,
+    "total": null
+  }
+}

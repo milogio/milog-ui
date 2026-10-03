@@ -98,6 +98,6 @@ export function normalizeTimelineResponse(payload: ApiTimelineResponse): Timelin
   return {
     events: payload.data.map(normalizeEvent),
     nextCursor: nextCursor || undefined,
-    total: payload.meta?.total,
+    total: payload.meta?.total ?? undefined,
   };
 }

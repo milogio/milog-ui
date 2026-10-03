@@ -1,3 +1,10 @@
+import type {
+  ApiCursorPaginationMeta,
+  ApiTimelineEventContract,
+  ApiTimelineQuery,
+  ApiTokenResponse,
+} from "@/lib/apiContract";
+
 export type LogLevel = "debug" | "info" | "success" | "warning" | "error";
 
 export type MiLogUser = {
@@ -29,11 +36,7 @@ export type TimelineEvent = {
   metadata: Record<string, unknown>;
 };
 
-export type TimelineQuery = {
-  target_id?: string;
-  actor_id?: string;
-  type?: string;
-};
+export type TimelineQuery = Pick<ApiTimelineQuery, "target_id" | "actor_id" | "type">;
 
 export type TimelineFilters = TimelineQuery;
 
@@ -59,22 +62,33 @@ export type AuthSession = {
   session_expires_at: string;
 };
 
-export type ApiLoginResponse = {
-  access_token?: string;
-  refresh_token?: string;
-  token_type?: string;
-  expires_in?: number;
+export type ApiLoginResponse = Partial<Pick<ApiTokenResponse, "access_token" | "refresh_token" | "expires_in">> & {
+  token_type?: ApiTokenResponse["token_type"] | string;
   user?: {
-    id?: string | number;
+    id?: ApiTokenResponse["user"]["id"] | string;
     name?: string;
     email?: string;
     tenant?: MiLogTenant & { role?: string };
   };
 };
 
-export type ApiTimelineEvent = {
-  id: string;
-  tenant_id: string;
+export type ApiTimelineEvent = Partial<Omit<
+  ApiTimelineEventContract,
+  | "id"
+  | "tenant_id"
+  | "message"
+  | "occurred_at"
+  | "created_at"
+  | "log_level"
+  | "actor_id"
+  | "actor_type"
+  | "target_id"
+  | "target_type"
+  | "action"
+  | "metadata"
+>> & {
+  id: ApiTimelineEventContract["id"];
+  tenant_id: ApiTimelineEventContract["tenant_id"];
   occurrence_date?: string;
   occurred_at?: string | null;
   log_level: string | null;
@@ -85,19 +99,17 @@ export type ApiTimelineEvent = {
   target_type?: string | null;
   action?: string | null;
   created_at?: string | null;
-  message: string;
-  metadata?: Record<string, unknown>;
+  message: ApiTimelineEventContract["message"];
+  metadata?: ApiTimelineEventContract["metadata"];
 };
 
 export type ApiTimelineResponse = {
   data: ApiTimelineEvent[];
-  meta?: {
-    next_cursor?: string | null;
-    prev_cursor?: string | null;
+  meta?: ApiCursorPaginationMeta & {
     current_page?: number;
     last_page?: number;
     per_page?: number;
-    total?: number;
+    total?: number | null;
   };
   links?: {
     first?: string | null;

@@ -1,0 +1,18 @@
+{
+  "data": [],
+  "links": {
+    "first": "http://localhost:8980/api/v1/timeline?page=1",
+    "last": "http://localhost:8980/api/v1/timeline?page=3",
+    "prev": null,
+    "next": "http://localhost:8980/api/v1/timeline?page=2"
+  },
+  "meta": {
+    "current_page": 1,
+    "from": null,
+    "last_page": 3,
+    "path": "http://localhost:8980/api/v1/timeline",
+    "per_page": 50,
+    "to": null,
+    "total": 125
+  }
+}

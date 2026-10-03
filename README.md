@@ -51,6 +51,37 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Run with Docker Compose
+
+The included `compose.yaml` builds the production image and loads its container-specific runtime configuration from `.env.docker`. Set the API address from the container's point of view:
+
+```bash
+cp .env.docker.example .env.docker
+```
+
+Populate `MILOG_SESSION_SECRET` before starting Compose. The example API address connects to a separately running MiLog API container through the API's published host port. Keep `.env.local` for running the UI directly on the host.
+
+Build and start the UI:
+
+```bash
+docker compose up -d --build
+```
+
+After source changes, rebuild and recreate only the UI service:
+
+```bash
+docker compose up -d --build --force-recreate ui
+```
+
+Inspect its state and logs:
+
+```bash
+docker compose ps
+docker compose logs -f ui
+```
+
+If the API uses another published address, change `MILOG_API_URL` in `.env.docker`. `MILOG_API_URL=http://localhost:8980` is appropriate for running the UI directly on the host, but not inside a container because container-localhost refers to the UI container itself.
+
 Password testing should use HTTPS, including locally:
 
 ```bash
@@ -77,6 +108,19 @@ npm run check
 ```
 
 Use `npm run clean` to remove generated `.next` and `coverage` output.
+
+### API contract drift
+
+The API OpenAPI snapshots live in `contracts/`. TypeScript definitions generated from those documents are checked in under `lib/generated/` and the application-facing API types reference them directly. `npm run check` fails when the generated files do not match the snapshots.
+
+When the MiLog API contract changes, copy the updated `docs/public-api.oas.yaml` and `docs/ui-api.oas.yaml` files into `contracts/`, then run:
+
+```bash
+npm run contract:generate
+npm run contract:check
+```
+
+Commit the schema snapshots and generated types in the same change. CI runs the contract check before lint, typecheck, tests, and the production build.
 
 ## Production Deployment
 
@@ -132,6 +176,8 @@ Highest-priority gaps:
 - Metadata and exports: `MetadataColumnSelector`, `MetadataChips`, CSV/JSON export formatting, selected metadata columns, and download/copy side effects.
 - Share and alerts: share-state encode/decode, `ShareModal`, `AlertsModal`, `AlertBuilder`, alert matching, alert polling, enable/disable, and delete behavior.
 - Utility states and providers: `EmptyState`, `ErrorState`, `LoadingSkeleton`, `ToastProvider`, and copy/export/alert toast flows.
+
+Stage 8 adds direct coverage for OpenAPI drift, real Laravel pagination fixtures, UI route-handler status propagation, authentication restore/expiry/logout, timeline pagination and deduplication, filter URL/localStorage persistence, refresh behavior, alert persistence, sharing, and details copy actions. The remaining entries above are the next incremental coverage opportunities rather than release blockers.
 
 ## Project Notes
 

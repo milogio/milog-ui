@@ -2,6 +2,9 @@ import { createShareLink, getTimeline, login, normalizeEvent, normalizeTimelineR
 import { decodeShareState } from "@/lib/shareState";
 import { buildTimelineApiSearchParams } from "@/lib/timelineQuery";
 import type { ApiTimelineResponse, TimelineFilters } from "@/lib/types";
+import cursorPageFixture from "@/tests/fixtures/timeline-cursor-page.json";
+import cursorEndFixture from "@/tests/fixtures/timeline-cursor-end.json";
+import offsetPageFixture from "@/tests/fixtures/timeline-offset-page.json";
 
 function jsonResponse(payload: unknown, init?: ResponseInit) {
   return new Response(JSON.stringify(payload), {
@@ -100,6 +103,30 @@ describe("milogApi", () => {
   });
 
   describe("normalizeTimelineResponse", () => {
+    it("normalizes an actual Laravel cursor resource and preserves its opaque cursor byte-for-byte", () => {
+      const page = normalizeTimelineResponse(cursorPageFixture as ApiTimelineResponse);
+
+      expect(page.events[0]).toEqual(expect.objectContaining({
+        actor_id: "user-42",
+        target_id: "invoice-1001",
+      }));
+      expect(page.nextCursor).toBe("eyJpZCI6IjAxOS9kK2FiPT0ifQ==");
+      expect(page.total).toBeUndefined();
+    });
+
+    it("normalizes actual Laravel offset and end-of-cursor resources", () => {
+      expect(normalizeTimelineResponse(offsetPageFixture as ApiTimelineResponse)).toEqual({
+        events: [],
+        nextCursor: undefined,
+        total: 125,
+      });
+      expect(normalizeTimelineResponse(cursorEndFixture as ApiTimelineResponse)).toEqual({
+        events: [],
+        nextCursor: undefined,
+        total: undefined,
+      });
+    });
+
     it("maps every event and returns no cursor on the last cursor page", () => {
       const payload: ApiTimelineResponse = {
         data: [

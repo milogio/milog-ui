@@ -49,3 +49,24 @@ Prove user-visible behavior and prevent future drift between MiLog API and MiLog
 - OpenAPI-to-UI contract drift is checked automatically.
 - Deployment and rollback procedures are documented and exercised in a non-production environment.
 
+## Implementation status
+
+Completed in the UI repository:
+
+- [x] Laravel offset, cursor, nullable-total, and end-of-feed fixtures.
+- [x] Opaque-cursor and supported-filter serialization coverage.
+- [x] Route-handler status/message coverage for `401`, `403`, `409`, `422`, and `5xx` responses.
+- [x] Checked-in OpenAPI snapshots, generated TypeScript contracts, and automatic drift validation in `npm run check` and CI.
+- [x] Authentication restore, expiry, stale-request, tenant context, and logout coverage.
+- [x] Timeline initial/loading state plumbing, cursor-page deduplication, load more, end state, selection, manual refresh, auto-refresh, debounced URL updates, and localStorage persistence coverage.
+- [x] Multi-page export, repeated-cursor, size-limit, partial-failure, alert checkpoint, alert enable/disable/delete, sharing, and event-details copy coverage.
+- [x] Node 22 test tooling aligned on Vitest 5.
+- [x] Release and rollback procedure documented.
+
+Environment-dependent release gates:
+
+- [ ] Run `npm run smoke` against the deployed updated API using a dedicated tenant-bound smoke user.
+- [ ] Seed at least three cursor pages with identical timestamps, insert an event between requests, and confirm no skips or duplicates.
+- [ ] Exercise migrated saved filters, alert rules, share tokens, and session cookies in the non-production deployment.
+- [ ] Inspect browser/server logs for credential or authorization-header leakage.
+- [ ] Exercise the documented previous-image rollback in non-production.

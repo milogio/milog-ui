@@ -1,0 +1,16 @@
+services:
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: milog-ui:local
+    restart: unless-stopped
+    env_file:
+      - path: .env.docker
+        required: true
+    environment:
+      NODE_ENV: production
+    ports:
+      - "${MILOG_UI_PORT:-3000}:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
