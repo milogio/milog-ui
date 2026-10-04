@@ -35,9 +35,9 @@ export function TimelinePreview() {
     <div className="relative overflow-hidden rounded-2xl border border-border bg-card/80 shadow-soft">
       <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
         <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-muted" />
-          <span className="h-2.5 w-2.5 rounded-full bg-muted" />
-          <span className="h-2.5 w-2.5 rounded-full bg-muted" />
+          <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/70" />
+          <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/70" />
+          <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/70" />
         </div>
         <div className="font-mono text-[11px] text-muted-foreground">milog - production</div>
         <div className="flex items-center gap-1.5">
