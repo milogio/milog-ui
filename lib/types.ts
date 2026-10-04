@@ -36,7 +36,9 @@ export type TimelineEvent = {
   metadata: Record<string, unknown>;
 };
 
-export type TimelineQuery = Pick<ApiTimelineQuery, "target_id" | "actor_id" | "type">;
+export type TimelineQuery = Pick<ApiTimelineQuery, "target_id" | "actor_id" | "type"> & {
+  log_level?: LogLevel[];
+};
 
 export type TimelineFilters = TimelineQuery;
 

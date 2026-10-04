@@ -14,4 +14,10 @@ describe("LogLevelBadge", () => {
 
     expect(screen.getByText(level)).toHaveClass(colorClass);
   });
+
+  it("renders a visibly muted inactive state without changing its label", () => {
+    render(<LogLevelBadge level="error" active={false} />);
+
+    expect(screen.getByText("error")).toHaveClass("opacity-55", "grayscale");
+  });
 });

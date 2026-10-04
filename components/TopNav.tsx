@@ -4,6 +4,7 @@ import { Bell, Download, Filter, LogOut, RefreshCcw, Share2, ToggleLeft, ToggleR
 import { LogoMark } from "@/components/LogoMark";
 import { ExportMenu } from "@/components/ExportMenu";
 import { QueryFilterBar } from "@/components/QueryFilterBar";
+import { LogLevelQuickFilters } from "@/components/LogLevelQuickFilters";
 import type { TimelineFilters } from "@/lib/types";
 
 export function TopNav({
@@ -77,6 +78,7 @@ export function TopNav({
         <div>
           <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Query</p>
           <QueryFilterBar filters={filters} onChange={onFiltersChange} />
+          <LogLevelQuickFilters filters={filters} onChange={onFiltersChange} />
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">

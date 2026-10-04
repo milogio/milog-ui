@@ -197,6 +197,12 @@ describe("milogApi", () => {
       expect(params.get("cursor")).toBe("opaque+/cursor-token");
       expect(params.has("page")).toBe(false);
     });
+
+    it("forwards viewer log levels in canonical order", () => {
+      const params = buildTimelineApiSearchParams({ log_level: ["error", "debug", "warning"] });
+
+      expect(params.get("log_level")).toBe("debug,warning,error");
+    });
   });
 
   describe("login", () => {
@@ -267,6 +273,7 @@ describe("milogApi", () => {
         target_id: "invoice-1",
         actor_id: "actor-42",
         type: "invoice",
+        log_level: ["warning", "error"],
       };
 
       const page = await getTimeline(filters, "opaque-cursor-token");
@@ -274,7 +281,7 @@ describe("milogApi", () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const [url, options] = fetchMock.mock.calls[0];
       expect(String(url)).toBe(
-        "/api/timeline?target_id=invoice-1&actor_id=actor-42&type=invoice&cursor=opaque-cursor-token",
+        "/api/timeline?target_id=invoice-1&actor_id=actor-42&type=invoice&log_level=warning%2Cerror&cursor=opaque-cursor-token",
       );
       expect(options).toEqual({ credentials: "include" });
       expect(page).toEqual({ events: [], nextCursor: "2", total: 10 });
@@ -318,6 +325,7 @@ describe("milogApi", () => {
         target_id: "invoice-1",
         actor_id: "actor-42",
         type: "invoice",
+        log_level: ["warning", "error"],
       };
 
       const url = await createShareLink(filters);

@@ -1,6 +1,4 @@
-import type { TimelineFilters } from "@/lib/types";
-
-export type TimelineFilterKey = keyof TimelineFilters;
+export type TimelineFilterKey = "actor_id" | "target_id" | "type";
 
 export const TIMELINE_FILTERS: Array<{
   key: TimelineFilterKey;

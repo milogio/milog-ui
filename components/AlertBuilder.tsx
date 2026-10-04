@@ -11,7 +11,7 @@ export function AlertBuilder({
   onCreate: (name: string) => void;
 }) {
   const [name, setName] = useState("");
-  const suggestedName = filters.type || filters.target_id || filters.actor_id;
+  const suggestedName = filters.type || filters.target_id || filters.actor_id || filters.log_level?.join(", ");
 
   return (
     <div className="panel-muted rounded-3xl p-4">

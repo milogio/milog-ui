@@ -9,7 +9,7 @@ const config: Record<LogLevel, { dot: string; label: string; surface: string }> 
   error: { dot: "bg-level-error", label: "text-level-error", surface: "border-level-error/25 bg-level-error/10" },
 };
 
-export function LogLevelBadge({ level }: { level: LogLevel }) {
+export function LogLevelBadge({ level, active = true }: { level: LogLevel; active?: boolean }) {
   const styles = config[level];
   return (
     <span
@@ -17,6 +17,7 @@ export function LogLevelBadge({ level }: { level: LogLevel }) {
         "inline-flex items-center gap-1.5 rounded-full border px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-wide",
         styles.label,
         styles.surface,
+        !active && "border-border bg-transparent text-muted-foreground opacity-55 grayscale",
       )}
     >
       <span className={cn("h-1.5 w-1.5 rounded-full", styles.dot)} />

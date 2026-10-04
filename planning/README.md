@@ -15,9 +15,15 @@ This directory tracks the UI work required to align MiLog UI with the updated Mi
 
 Progress: **7 of 8 stages complete.**
 
+## Planned enhancements
+
+- [x] [P1: Add log-level quick filters](./08-p1-log-level-quick-filters.md) — completed 2026-10-03
+  - [API project handoff instructions](./08a-api-handoff-log-level-filter.md)
+
 ## Delivery guidance
 
 - All P0 contract and filter-clarity work is complete.
 - Complete the Stage 8 non-production smoke, data-integrity, log-safety, and rollback gates.
+- The API-backed display-level quick filters are complete.
 - Keep API keys and bearer tokens server-side.
 - Treat the API OpenAPI document as the source of truth and add automated contract-drift detection.

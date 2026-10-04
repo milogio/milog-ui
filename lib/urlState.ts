@@ -1,4 +1,5 @@
 import type { TimelineFilters } from "@/lib/types";
+import { canonicalizeLogLevels, LOG_LEVELS } from "@/lib/logLevels";
 
 const FILTER_KEYS = ["target_id", "actor_id", "type"] as const;
 
@@ -23,12 +24,14 @@ function normalizedFilterValue(value: unknown) {
 export function sanitizeTimelineFilters(input: unknown): TimelineFilters {
   if (!input || typeof input !== "object") return {};
   const source = input as Record<string, unknown>;
-  return Object.fromEntries(
+  const filters = Object.fromEntries(
     FILTER_KEYS.flatMap((key) => {
       const value = normalizedFilterValue(source[key]);
       return value ? [[key, value]] : [];
     }),
   ) as TimelineFilters;
+  const logLevels = canonicalizeLogLevels(source.log_level);
+  return logLevels ? { ...filters, log_level: logLevels } : filters;
 }
 
 export function hasLegacyTimelineFilters(input: unknown) {
@@ -44,6 +47,16 @@ export function timelineFilterValidationMessage(input: URLSearchParams) {
       return `${key} must be 255 characters or fewer.`;
     }
   }
+  const rawLogLevel = input.get("log_level");
+  if (rawLogLevel !== null) {
+    const values = rawLogLevel.split(",").map((value) => value.trim().toLowerCase());
+    if (
+      values.some((value) => !value || !LOG_LEVELS.includes(value as (typeof LOG_LEVELS)[number])) ||
+      new Set(values).size > LOG_LEVELS.length
+    ) {
+      return "log_level must contain only debug, info, success, warning, or error values.";
+    }
+  }
   return undefined;
 }
 
@@ -54,6 +67,8 @@ export function filtersToSearchParams(filters: TimelineFilters) {
     const value = normalizedFilterValue(filters[key]);
     if (value) params.set(key, value);
   }
+  const logLevels = canonicalizeLogLevels(filters.log_level);
+  if (logLevels) params.set("log_level", logLevels.join(","));
 
   return params;
 }
@@ -67,5 +82,8 @@ export function searchParamsToFilters(
     return Array.isArray(value) ? value[0] : value;
   };
 
-  return sanitizeTimelineFilters(Object.fromEntries(FILTER_KEYS.map((key) => [key, read(key)])));
+  return sanitizeTimelineFilters({
+    ...Object.fromEntries(FILTER_KEYS.map((key) => [key, read(key)])),
+    log_level: read("log_level"),
+  });
 }

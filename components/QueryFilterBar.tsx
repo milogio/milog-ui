@@ -17,6 +17,7 @@ export function QueryFilterBar({
   const inputRef = useRef<HTMLInputElement>(null);
   const active = TIMELINE_FILTERS.filter(({ key }) => filters[key]);
   const available = TIMELINE_FILTERS.filter(({ key }) => !filters[key]);
+  const hasActiveFilters = active.length > 0 || Boolean(filters.log_level?.length);
 
   useEffect(() => {
     if (editingKey) inputRef.current?.focus();
@@ -108,13 +109,15 @@ export function QueryFilterBar({
           </label>
         ) : null}
 
-        {!active.length && !editingDefinition ? (
+        {!hasActiveFilters && !editingDefinition ? (
           <span className="ml-auto pr-2 text-xs text-muted-foreground">No filters applied</span>
         ) : null}
       </div>
-      {active.length ? (
+      {hasActiveFilters ? (
         <div className="mt-2 flex items-center justify-between border-t border-border/70 px-1 pt-2">
-          <span className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">Match all filters</span>
+          <span className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+            {filters.log_level?.length ? "Log levels match any; other filters must match" : "Match all filters"}
+          </span>
           <button className="font-mono text-xs text-muted-foreground hover:text-foreground" onClick={() => onChange({})}>Clear all</button>
         </div>
       ) : null}

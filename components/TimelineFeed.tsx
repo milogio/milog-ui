@@ -38,12 +38,15 @@ export function TimelineFeed({
 
   if (!events.length) {
     const activeFilterCount = Object.values(filters).filter(Boolean).length;
+    const filterDescription = filters.log_level?.length
+      ? "Selected log levels match any level; actor, target, and type filters must also match. Remove a level or clear the query to broaden the results."
+      : activeFilterCount > 1
+        ? `${activeFilterCount} filters are combined with AND. Remove one or clear the query to broaden the results.`
+        : "Check the exact actor ID, target ID, or entity type, or clear the query to broaden the results.";
     return (
       <EmptyState
         title="No events match this query"
-        description={activeFilterCount > 1
-          ? `${activeFilterCount} filters are combined with AND. Remove one or clear the query to broaden the results.`
-          : "Check the exact actor ID, target ID, or entity type, or clear the query to broaden the results."}
+        description={filterDescription}
       />
     );
   }

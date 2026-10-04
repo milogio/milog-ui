@@ -92,6 +92,29 @@ describe("UI route handlers", () => {
     expect(server.getTimelineServer).not.toHaveBeenCalled();
   });
 
+  it("parses and forwards canonical viewer log levels", async () => {
+    server.getTimelineServer.mockResolvedValue({ events: [] });
+
+    const response = await timeline(new Request("http://ui.test/api/timeline?log_level=debug%2Cwarning%2Cerror"));
+
+    expect(response.status).toBe(200);
+    expect(server.getTimelineServer).toHaveBeenCalledWith(
+      { log_level: ["debug", "warning", "error"] },
+      activeSession,
+      undefined,
+    );
+  });
+
+  it("rejects malformed log-level lists before calling the API", async () => {
+    const response = await timeline(new Request("http://ui.test/api/timeline?log_level=error%2Cunknown"));
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      message: "log_level must contain only debug, info, success, warning, or error values.",
+    });
+    expect(server.getTimelineServer).not.toHaveBeenCalled();
+  });
+
   it("clears invalid sessions and preserves the upstream message", async () => {
     server.validateSessionServer.mockRejectedValue(
       new MiLogServerError("Your token was revoked.", 401, "unauthenticated"),

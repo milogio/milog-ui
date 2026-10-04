@@ -53,7 +53,7 @@ export function AlertsModal({
             <button
               className="btn btn-primary"
               onClick={() => {
-                const name = currentFilters.type || currentFilters.target_id || currentFilters.actor_id || "MiLog alert";
+                const name = currentFilters.type || currentFilters.target_id || currentFilters.actor_id || currentFilters.log_level?.join(", ") || "MiLog alert";
                 const next = [...alerts, buildAlertRule(name, currentFilters)];
                 writeAlerts(next);
                 pushToast({ title: "Alert saved locally.", tone: "success" });

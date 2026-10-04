@@ -78,6 +78,7 @@ describe("MiLog utilities", () => {
       actor_id: "actor-42",
       target_id: "invoice-1",
       type: "invoice",
+      log_level: ["debug", "warning", "error"],
     };
 
     const params = filtersToSearchParams(filters);
@@ -104,10 +105,24 @@ describe("MiLog utilities", () => {
     expect(timelineFilterValidationMessage(params)).toBe("actor_id must be 255 characters or fewer.");
   });
 
+  it("canonicalizes level filters, deduplicates values, and rejects invalid URL values", () => {
+    expect(sanitizeTimelineFilters({ log_level: ["error", "debug", "error", "unknown"] })).toEqual({
+      log_level: ["debug", "error"],
+    });
+    expect(filtersToSearchParams({ log_level: ["error", "debug"] }).toString()).toBe("log_level=debug%2Cerror");
+    expect(searchParamsToFilters(new URLSearchParams("log_level=warning%2Cerror"))).toEqual({
+      log_level: ["warning", "error"],
+    });
+    expect(timelineFilterValidationMessage(new URLSearchParams("log_level=error%2Cerror"))).toBeUndefined();
+    expect(searchParamsToFilters(new URLSearchParams("log_level=error%2Cerror"))).toEqual({ log_level: ["error"] });
+    expect(timelineFilterValidationMessage(new URLSearchParams("log_level=info%2Cnope"))).toContain("only");
+  });
+
   it("encodes and decodes share state", () => {
     const filters: TimelineFilters = {
       actor_id: "actor-42",
       type: "invoice",
+      log_level: ["warning", "error"],
     };
 
     const shareId = encodeShareState(filters);
@@ -150,6 +165,7 @@ describe("MiLog utilities", () => {
       actor_id: "actor-42",
       target_id: "invoice-1",
       type: "invoice",
+      log_level: ["info"],
     });
 
     const event: TimelineEvent = {
@@ -170,6 +186,7 @@ describe("MiLog utilities", () => {
     };
 
     expect(matchesAlert(rule, event)).toBe(true);
+    expect(matchesAlert({ ...rule, filters: { log_level: ["error"] } }, event)).toBe(false);
   });
 
   it("rejects legacy unversioned share state", () => {

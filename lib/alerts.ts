@@ -50,6 +50,7 @@ export function matchesAlert(rule: AlertRule, event: TimelineEvent) {
   if (filters.actor_id && event.actor_id !== filters.actor_id) return false;
   if (filters.target_id && event.target_id !== filters.target_id) return false;
   if (filters.type && event.actor_type !== filters.type && event.target_type !== filters.type) return false;
+  if (filters.log_level?.length && !filters.log_level.includes(event.log_level)) return false;
   return true;
 }
 
