@@ -7,9 +7,11 @@ import type { LogLevel, TimelineFilters } from "@/lib/types";
 export function LogLevelQuickFilters({
   filters,
   onChange,
+  disabled = false,
 }: {
   filters: TimelineFilters;
   onChange: (filters: TimelineFilters) => void;
+  disabled?: boolean;
 }) {
   const selected = filters.log_level ?? [];
 
@@ -34,10 +36,11 @@ export function LogLevelQuickFilters({
             type="button"
             aria-label={`Filter by ${level} log level`}
             aria-pressed={active}
-            className="rounded-full outline-none transition focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="rounded-full disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={disabled}
             onClick={() => toggle(level)}
           >
-            <LogLevelBadge level={level} active={active} />
+            <LogLevelBadge level={level} active={active} selected={active} />
           </button>
         );
       })}

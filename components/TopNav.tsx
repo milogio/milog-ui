@@ -47,7 +47,7 @@ export function TopNav({
   readOnly?: boolean;
 }) {
   return (
-    <header className="z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl md:sticky md:top-0">
+    <header className="relative z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl md:sticky md:top-0">
       <div className="mx-auto flex max-w-7xl flex-col gap-1.5 px-4 py-1.5 md:px-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">

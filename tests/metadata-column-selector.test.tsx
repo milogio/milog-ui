@@ -21,12 +21,18 @@ describe("MetadataColumnSelector", () => {
 
     await user.click(screen.getByText("Metadata"));
     expect(disclosure).toHaveAttribute("open");
-    expect(screen.getByRole("button", { name: "Hide source metadata" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Show status metadata" })).toHaveAttribute("aria-pressed", "false");
+    const source = screen.getByRole("button", { name: "Hide source metadata" });
+    const status = screen.getByRole("button", { name: "Show status metadata" });
+    expect(source).toHaveAttribute("aria-pressed", "true");
+    expect(source).toHaveClass("border-brand/70", "bg-accent");
+    expect(source.querySelector("svg")).toBeInTheDocument();
+    expect(status).toHaveAttribute("aria-pressed", "false");
+    expect(status).toHaveClass("border-border-strong/70", "bg-background");
+    expect(status.querySelector("svg")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Hide source metadata" }));
+    await user.click(source);
     expect(onChange).toHaveBeenCalledWith([]);
-    await user.click(screen.getByRole("button", { name: "Show status metadata" }));
+    await user.click(status);
     expect(onChange).toHaveBeenCalledWith(["source", "status"]);
   });
 

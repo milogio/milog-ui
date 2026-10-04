@@ -15,9 +15,18 @@ describe("LogLevelBadge", () => {
     expect(screen.getByText(level)).toHaveClass(colorClass);
   });
 
-  it("renders a visibly muted inactive state without changing its label", () => {
-    render(<LogLevelBadge level="error" active={false} />);
+  it("renders an available neutral state while retaining the severity cue", () => {
+    const { container } = render(<LogLevelBadge level="error" active={false} />);
 
-    expect(screen.getByText("error")).toHaveClass("opacity-55", "grayscale");
+    expect(screen.getByText("error")).toHaveClass("border-border-strong/70", "bg-background", "text-muted-foreground");
+    expect(screen.getByText("error")).not.toHaveClass("opacity-55", "grayscale");
+    expect(container.querySelector(".bg-level-error")).toBeInTheDocument();
+  });
+
+  it("adds a checkmark and stronger level border only for selected filters", () => {
+    const { container } = render(<LogLevelBadge level="warning" selected />);
+
+    expect(screen.getByText("warning")).toHaveClass("border-level-warn/60");
+    expect(container.querySelector("svg")).toBeInTheDocument();
   });
 });

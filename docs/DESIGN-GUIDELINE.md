@@ -36,8 +36,9 @@ Update this document when a design decision is accepted. Record the rationale, a
 - Keep per-chip removal and `Clear all` easy to find. `Clear all` and `Clear query` both remove exact fields and selected levels so the visible query, URL, and persisted state remain aligned.
 - Report the number of unique events currently loaded. Label it as loaded data and never present it as the total number of matching events.
 - Preserve OR semantics within log levels and AND semantics across other filter groups. No selected levels means no log-level restriction.
-- Unselected pills remain readable and visibly actionable. Avoid disabled-looking whole-control opacity.
-- Selected pills use a checkmark and a distinct surface, with `aria-pressed` exposing state.
+- Unselected log-level pills use full-opacity secondary text, a strong neutral boundary, and the level-colored dot. Do not grayscale or fade available controls into a disabled appearance.
+- Selected log-level pills replace the dot with a checkmark and use a stronger level-colored boundary and tinted surface. Metadata selections use the same checkmark pattern with the brand boundary and interactive surface.
+- Expose selected log levels and metadata with `aria-pressed`. Use the native `disabled` attribute plus reduced opacity and a blocked cursor only for controls that cannot currently be changed.
 - Use the supported display levels: Debug, Info, Success, Warning, Error. Preserve raw API normalization.
 
 ## Toolbar, export, and refresh
@@ -191,6 +192,7 @@ Use GPT-6 Sol with High reasoning in Codex for the scoped implementation priorit
 | 2026-10-04 | Put Timeline and tenant context in the compact header, remove the repeated workspace introduction, use a count-bearing metadata disclosure, keep the header non-sticky below `md`, and let drawers cover it | Implemented in stage 10; reviewed at 1280 × 720, 648 × 840, and a 390 × 680 narrow frame. Metadata persistence is covered by component and orchestration tests. Narrow event-row density remains stage 14 work. |
 | 2026-10-04 | Use GPT-6 Sol with High reasoning for scoped execution priorities | Accepted for stage 10 implementation; retain Astra High for later work needing wider product synthesis. |
 | 2026-10-04 | Consolidate exact filters, log levels, query semantics, loaded count, clearing, and advanced access into one query area | Implemented in stage 11; reviewed at 648 × 840 and in a 390 × 720 narrow frame. URL/localStorage clearing, canonical query keys, deduplicated counts, drawer access, and OR/AND semantics are covered by the 109-test suite. |
+| 2026-10-04 | Distinguish available, selected, focused, and disabled filter states with neutral boundaries, severity cues, checkmarks, pressed semantics, and native disabling | Implemented in stage 12; reviewed at 648 × 840 and in a 390 × 720 narrow frame with keyboard focus. Available text measures 6.54:1, its boundary 3.01:1, selected severity text 4.84:1–8.91:1, selected metadata text 14.88:1, and its checkmark 3.92:1 against the rendered role surfaces. |
 
 ## Open decisions
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Settings2 } from "lucide-react";
+import { Check, ChevronDown, Settings2 } from "lucide-react";
 
 export function MetadataColumnSelector({
   availableKeys,
@@ -42,11 +42,12 @@ export function MetadataColumnSelector({
                   type="button"
                   aria-pressed={active}
                   aria-label={`${active ? "Hide" : "Show"} ${key} metadata`}
-                  className={`rounded-md border px-2 py-1 font-mono text-[11px] ${active ? "border-brand/50 bg-accent text-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"}`}
+                  className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 font-mono text-[11px] ${active ? "border-brand/70 bg-accent text-foreground" : "border-border-strong/70 bg-background text-muted-foreground hover:border-brand/60 hover:bg-accent hover:text-foreground"}`}
                   onClick={() =>
                     onChange(active ? selectedKeys.filter((item) => item !== key) : [...selectedKeys, key])
                   }
                 >
+                  {active ? <Check className="size-3 text-brand" aria-hidden="true" /> : null}
                   {key}
                 </button>
               );
