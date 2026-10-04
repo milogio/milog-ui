@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   push: vi.fn(),
   pushToast: vi.fn(),
   logout: vi.fn(),
+  queryOptions: undefined as { queryKey: readonly unknown[] } | undefined,
   query: {
     data: undefined as { pages: TimelinePageData[] } | undefined,
     dataUpdatedAt: 0,
@@ -24,7 +25,10 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@tanstack/react-query", () => ({
-  useInfiniteQuery: () => mocks.query,
+  useInfiniteQuery: (options: { queryKey: readonly unknown[] }) => {
+    mocks.queryOptions = options;
+    return mocks.query;
+  },
   useQueryClient: () => ({ resetQueries: mocks.resetQueries }),
 }));
 
@@ -51,16 +55,23 @@ vi.mock("@/components/TopNav", () => ({
     onRefresh,
     onAutoRefreshChange,
     metadataControl,
+    onFiltersToggle,
+    loadedEventCount,
   }: {
     onFiltersChange: (filters: TimelineFilters) => void;
     onRefresh: () => void;
     onAutoRefreshChange: () => void;
     metadataControl?: ReactNode;
+    onFiltersToggle?: () => void;
+    loadedEventCount?: number;
   }) => (
     <nav>
       <button onClick={() => onFiltersChange({ actor_id: "user-42" })}>Set actor filter</button>
+      <button onClick={() => onFiltersChange({})}>Clear all filters</button>
+      <button onClick={onFiltersToggle}>Advanced filters</button>
       <button onClick={onRefresh}>Refresh</button>
       <button onClick={onAutoRefreshChange}>Toggle auto refresh</button>
+      <output data-testid="loaded-event-count">{loadedEventCount}</output>
       {metadataControl}
     </nav>
   ),
@@ -95,7 +106,7 @@ vi.mock("@/components/TimelineDetailsPanel", () => ({
 }));
 
 vi.mock("@/components/Drawer", () => ({
-  Drawer: ({ open, children }: { open: boolean; children: ReactNode }) => open ? <aside>{children}</aside> : null,
+  Drawer: ({ open, title, children }: { open: boolean; title: string; children: ReactNode }) => open ? <aside><h2>{title}</h2>{children}</aside> : null,
 }));
 
 vi.mock("@/components/MetadataColumnSelector", () => ({
@@ -151,6 +162,7 @@ describe("TimelinePage orchestration", () => {
     mocks.query.isFetchingNextPage = false;
     mocks.query.isLoading = false;
     mocks.query.refetch = vi.fn();
+    mocks.queryOptions = undefined;
   });
 
   afterEach(() => {
@@ -177,6 +189,7 @@ describe("TimelinePage orchestration", () => {
     const { rerender } = render(<TimelinePage initialFilters={{}} />);
 
     expect(screen.getAllByRole("button", { name: /^evt-/ })).toHaveLength(3);
+    expect(screen.getByTestId("loaded-event-count")).toHaveTextContent("3");
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));
     expect(mocks.query.fetchNextPage).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole("button", { name: "evt-2" }));
@@ -185,6 +198,13 @@ describe("TimelinePage orchestration", () => {
     mocks.query.hasNextPage = false;
     rerender(<TimelinePage initialFilters={{}} />);
     expect(screen.getByText("End of feed")).toBeInTheDocument();
+  });
+
+  it("opens the advanced filter drawer from the consolidated query area", () => {
+    render(<TimelinePage initialFilters={{}} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Advanced filters" }));
+    expect(screen.getByRole("heading", { name: "Advanced filters" })).toBeInTheDocument();
   });
 
   it("refreshes manually and on the 30-second interval until auto-refresh is disabled", () => {
@@ -211,6 +231,14 @@ describe("TimelinePage orchestration", () => {
 
     expect(window.localStorage.getItem("milog.filters")).toBe(JSON.stringify({ actor_id: "user-42" }));
     expect(mocks.replace).toHaveBeenLastCalledWith("/timeline?actor_id=user-42", { scroll: false });
+    expect(mocks.queryOptions?.queryKey).toEqual(["timeline", { actor_id: "user-42" }]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear all filters" }));
+    act(() => vi.advanceTimersByTime(350));
+
+    expect(window.localStorage.getItem("milog.filters")).toBe("{}");
+    expect(mocks.replace).toHaveBeenLastCalledWith("/timeline", { scroll: false });
+    expect(mocks.queryOptions?.queryKey).toEqual(["timeline", {}]);
   });
 
   it("loads and persists the selected metadata columns from the compact header control", () => {

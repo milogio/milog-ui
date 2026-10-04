@@ -36,7 +36,7 @@ Design baseline: [Design guideline](../docs/DESIGN-GUIDELINE.md). These plans ar
 
 - [x] [09 — P1: Design-token foundations](./09-p1-design-token-foundations.md) — completed 2026-10-04
 - [x] [10 — P1: Timeline hierarchy](./10-p1-timeline-hierarchy.md) — completed 2026-10-04
-- [ ] [11 — P1: Consolidated filtering](./11-p1-consolidated-filtering.md)
+- [x] [11 — P1: Consolidated filtering](./11-p1-consolidated-filtering.md) — completed 2026-10-04
 - [ ] [12 — P1: Readable filter states](./12-p1-readable-filter-states.md)
 - [ ] [13 — P1: Export and refresh controls](./13-p1-export-refresh-controls.md)
 - [ ] [14 — P2: Event scanning and density](./14-p2-event-scanning-density.md)

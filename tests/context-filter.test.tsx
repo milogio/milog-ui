@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { TopNav } from "@/components/TopNav";
@@ -59,6 +59,48 @@ describe("timeline context filters", () => {
     await user.keyboard("{Enter}");
 
     expect(screen.getByTestId("filters")).toHaveTextContent('{"type":"invoice"}');
+  });
+
+  it("keeps exact filters, quick levels, the loaded count, and advanced controls in one query area", async () => {
+    const user = userEvent.setup();
+    const onAdvancedFilters = vi.fn();
+
+    function ConsolidatedQueryHarness() {
+      const [filters, setFilters] = useState<TimelineFilters>({
+        actor_id: "user-42",
+        log_level: ["warning", "error"],
+      });
+      return (
+        <>
+          <TopNav
+            filters={filters}
+            onFiltersChange={setFilters}
+            onFiltersToggle={onAdvancedFilters}
+            loadedEventCount={17}
+            readOnly
+          />
+          <output data-testid="consolidated-filters">{JSON.stringify(filters)}</output>
+        </>
+      );
+    }
+
+    render(<ConsolidatedQueryHarness />);
+
+    const query = screen.getByLabelText("Timeline query");
+    expect(within(query).getByRole("button", { name: "Edit Actor ID filter" })).toBeInTheDocument();
+    expect(within(query).getByRole("button", { name: "Filter by warning log level" })).toHaveAttribute("aria-pressed", "true");
+    expect(within(query).getByRole("button", { name: "Filter by error log level" })).toHaveAttribute("aria-pressed", "true");
+    expect(within(query).getByText("1 exact filter must match · 2 levels match any")).toBeInTheDocument();
+    expect(within(query).getByText("17 events loaded")).toHaveAttribute(
+      "title",
+      "Count of events currently loaded, not the total number of matches",
+    );
+
+    await user.click(within(query).getByRole("button", { name: "Advanced filters" }));
+    expect(onAdvancedFilters).toHaveBeenCalledOnce();
+    await user.click(within(query).getByRole("button", { name: "Clear all" }));
+    expect(screen.getByTestId("consolidated-filters")).toHaveTextContent("{}");
+    expect(within(query).getByText("No restrictions")).toBeInTheDocument();
   });
 
   it("edits and removes a filter token without changing its role", async () => {

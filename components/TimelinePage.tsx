@@ -277,6 +277,7 @@ export function TimelinePage({
             router.push("/login");
           } : undefined}
           lastUpdated={lastUpdated}
+          loadedEventCount={query.isLoading ? undefined : events.length}
           readOnly={readOnly}
         />
 
@@ -311,7 +312,7 @@ export function TimelinePage({
           open={queryDrawerOpen}
           side="left"
           eyebrow="Query"
-          title="Timeline filters"
+          title="Advanced filters"
           onClose={() => setQueryDrawerOpen(false)}
         >
           <FilterPanel

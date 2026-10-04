@@ -31,11 +31,19 @@ describe("FilterPanel", () => {
     await user.type(screen.getByLabelText("Actor ID"), "actor-42");
     await user.type(screen.getByLabelText("Target ID"), "invoice-1");
     await user.type(screen.getByLabelText("Entity type"), "invoice");
-    await user.click(screen.getByRole("button", { name: "Clear" }));
+    await user.click(screen.getByRole("button", { name: "Clear query" }));
 
     expect(screen.getByLabelText("Actor ID")).toHaveValue("actor-42");
     expect(screen.getByLabelText("Target ID")).toHaveValue("invoice-1");
     expect(screen.getByLabelText("Entity type")).toHaveValue("invoice");
     expect(onClear).toHaveBeenCalledOnce();
+  });
+
+  it("explains how exact fields combine with selected log levels", () => {
+    render(<FilterPanel filters={{}} onChange={() => undefined} onClear={() => undefined} />);
+
+    expect(
+      screen.getByText(/Every populated field must match\. Selected log levels match any level/),
+    ).toBeInTheDocument();
   });
 });

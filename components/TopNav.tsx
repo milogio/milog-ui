@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Download, Filter, LogOut, RefreshCcw, Share2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Bell, Download, LogOut, RefreshCcw, Share2, ToggleLeft, ToggleRight } from "lucide-react";
 import { LogoMark } from "@/components/LogoMark";
 import { ExportMenu } from "@/components/ExportMenu";
 import { QueryFilterBar } from "@/components/QueryFilterBar";
@@ -24,6 +24,7 @@ export function TopNav({
   exportLoading,
   onLogout,
   lastUpdated,
+  loadedEventCount,
   readOnly = false,
 }: {
   title?: string;
@@ -42,6 +43,7 @@ export function TopNav({
   exportLoading?: boolean;
   onLogout?: () => void;
   lastUpdated?: string;
+  loadedEventCount?: number;
   readOnly?: boolean;
 }) {
   return (
@@ -82,20 +84,20 @@ export function TopNav({
           </div>
         </div>
 
-        <QueryFilterBar filters={filters} onChange={onFiltersChange} />
-
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <QueryFilterBar
+          filters={filters}
+          onChange={onFiltersChange}
+          onAdvancedFilters={onFiltersToggle}
+          loadedEventCount={loadedEventCount}
+        >
           <LogLevelQuickFilters filters={filters} onChange={onFiltersChange} />
+        </QueryFilterBar>
+
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <div className="flex w-full flex-wrap items-center justify-start gap-2 sm:w-auto sm:justify-end">
             <span className="font-mono text-xs text-muted-foreground lg:hidden">
               {lastUpdated ? `Updated ${lastUpdated}` : "Waiting for timeline"}
             </span>
-            {onFiltersToggle ? (
-              <button className="btn btn-secondary h-8 shrink-0 px-2.5 text-xs" onClick={onFiltersToggle}>
-                <Filter className="size-4" />
-                All filters
-              </button>
-            ) : null}
             {metadataControl}
             {!readOnly && onExportCsv && onExportJson ? (
               <>

@@ -17,12 +17,19 @@ export function FilterPanel({
   return (
     <div className={`rounded-lg border border-border bg-card p-4 shadow-soft ${compact ? "" : "lg:sticky lg:top-24 lg:h-fit"}`}>
       <div className="mb-4 flex items-center justify-between">
-        <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gradient-brand">Query</p>
-          <h3 className="mt-1 text-base font-semibold text-foreground">Filters</h3>
-        </div>
+        {compact ? (
+          <div>
+            <h3 className="text-base font-semibold text-foreground">Exact-match fields</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Every populated field must match.</p>
+          </div>
+        ) : (
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gradient-brand">Query</p>
+            <h3 className="mt-1 text-base font-semibold text-foreground">Filters</h3>
+          </div>
+        )}
         <button className="font-mono text-xs text-muted-foreground hover:text-foreground" onClick={onClear}>
-          Clear
+          Clear query
         </button>
       </div>
 
@@ -42,7 +49,8 @@ export function FilterPanel({
           </label>
         ))}
         <p className="rounded-md border border-border bg-background px-3 py-2 text-xs leading-5 text-muted-foreground">
-          Identifiers use exact, case-sensitive matching. When several filters are active, every filter must match.
+          Identifiers use exact, case-sensitive matching. Every populated field must match. Selected log levels match any
+          level and combine with these fields.
         </p>
       </div>
     </div>
