@@ -264,14 +264,15 @@ export function TimelinePage({
           filters={draftFilters}
           onFiltersChange={setDraftFilters}
           onFiltersToggle={() => setQueryDrawerOpen(true)}
-          onRefresh={() => void queryClient.resetQueries({ queryKey: timelineQueryKey, exact: true })}
+          onRefresh={!readOnly ? () => void queryClient.resetQueries({ queryKey: timelineQueryKey, exact: true }) : undefined}
           autoRefresh={autoRefresh}
-          onAutoRefreshChange={() => setAutoRefresh((value) => !value)}
+          onAutoRefreshChange={!readOnly ? () => setAutoRefresh((value) => !value) : undefined}
           onShare={!readOnly ? () => setShareOpen(true) : undefined}
           onAlerts={!readOnly ? () => setAlertsOpen(true) : undefined}
           onExportCsv={!readOnly ? () => void handleExport("csv") : undefined}
           onExportJson={!readOnly ? () => void handleExport("json") : undefined}
           exportLoading={exportLoading}
+          refreshing={query.isFetching && !query.isFetchingNextPage}
           onLogout={!readOnly ? async () => {
             await logout();
             router.push("/login");

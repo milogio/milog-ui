@@ -44,10 +44,13 @@ Update this document when a design decision is accepted. Record the rationale, a
 ## Toolbar, export, and refresh
 
 - Offer a single labeled Export menu with CSV and JSON on desktop and mobile.
-- Preserve full-query export scope and selected metadata behavior; communicate progress and failures.
-- Show `Auto-refresh: On/Off` with an accessible state, plus a separate manual refresh action.
-- Keep update status concise and make exact update time available.
-- Verify the rendered build before removing apparent duplicate controls: the screenshot shows an additional download button, but inspected source restricts that button to mobile.
+- Preserve full-query export scope and selected metadata behavior. Disable the menu and label it `Exporting…` while work is in progress; report success and failure through the existing toast system.
+- Open the export menu on its first item, support arrow-key movement and Escape, and return focus to the trigger after choosing a format or dismissing with Escape.
+- Show `Auto-refresh: On/Off` on wider screens and `Auto: On/Off` at narrow widths. Expose the same state with `aria-pressed` and an explicit accessible name.
+- Keep manual refresh separate. Disable it and announce `Refreshing timeline` while the active query refreshes; pagination loading remains independent.
+- Keep the latest exact update time visible to seconds and announce changes politely. Add timezone presentation during stage 15 with the event timestamp work.
+- Hide export and refresh actions at the `TimelinePage` boundary for shared read-only views as well as in the toolbar presentation.
+- The screenshot's apparent duplicate control came from separate responsive branches: desktop had CSV and JSON buttons while mobile had a CSV-only icon. The shared export menu replaces both branches.
 
 ## Events and details
 
@@ -193,6 +196,7 @@ Use GPT-6 Sol with High reasoning in Codex for the scoped implementation priorit
 | 2026-10-04 | Use GPT-6 Sol with High reasoning for scoped execution priorities | Accepted for stage 10 implementation; retain Astra High for later work needing wider product synthesis. |
 | 2026-10-04 | Consolidate exact filters, log levels, query semantics, loaded count, clearing, and advanced access into one query area | Implemented in stage 11; reviewed at 648 × 840 and in a 390 × 720 narrow frame. URL/localStorage clearing, canonical query keys, deduplicated counts, drawer access, and OR/AND semantics are covered by the 109-test suite. |
 | 2026-10-04 | Distinguish available, selected, focused, and disabled filter states with neutral boundaries, severity cues, checkmarks, pressed semantics, and native disabling | Implemented in stage 12; reviewed at 648 × 840 and in a 390 × 720 narrow frame with keyboard focus. Available text measures 6.54:1, its boundary 3.01:1, selected severity text 4.84:1–8.91:1, selected metadata text 14.88:1, and its checkmark 3.92:1 against the rendered role surfaces. |
+| 2026-10-04 | Use one accessible Export menu at every width, separate manual refresh from explicit automatic-refresh state, and surface active refresh progress | Implemented in stage 13; reviewed at 1280 × 720 and 390 × 720. The menu fits the narrow viewport, opens with focused items, returns focus on Escape, and the page has no horizontal overflow. Full-query CSV/JSON downloads, selected metadata, errors, polling, and read-only restrictions are covered by the 121-test suite. No new design tokens were required. |
 
 ## Open decisions
 

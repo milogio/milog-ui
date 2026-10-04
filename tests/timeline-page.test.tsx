@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import type { TimelineEvent, TimelineFilters, TimelinePage as TimelinePageData } from "@/lib/types";
 
@@ -10,6 +10,9 @@ const mocks = vi.hoisted(() => ({
   push: vi.fn(),
   pushToast: vi.fn(),
   logout: vi.fn(),
+  fetchTimelineForExport: vi.fn(),
+  timelineToCsv: vi.fn(),
+  downloadTextFile: vi.fn(),
   queryOptions: undefined as { queryKey: readonly unknown[] } | undefined,
   query: {
     data: undefined as { pages: TimelinePageData[] } | undefined,
@@ -19,6 +22,7 @@ const mocks = vi.hoisted(() => ({
     hasNextPage: false,
     isError: false,
     isFetchingNextPage: false,
+    isFetching: false,
     isLoading: false,
     refetch: vi.fn(),
   },
@@ -45,6 +49,20 @@ vi.mock("@/providers/toast-provider", () => ({
   useToast: () => ({ pushToast: mocks.pushToast }),
 }));
 
+vi.mock("@/lib/timelineExport", () => ({
+  fetchTimelineForExport: mocks.fetchTimelineForExport,
+}));
+
+vi.mock("@/lib/export", () => ({
+  timelineToCsv: mocks.timelineToCsv,
+}));
+
+vi.mock("@/lib/utils", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@/lib/utils")>(),
+  downloadTextFile: mocks.downloadTextFile,
+  formatDownloadDate: () => "2026-10-04",
+}));
+
 vi.mock("@/components/ProtectedRoute", () => ({
   ProtectedRoute: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
@@ -57,20 +75,29 @@ vi.mock("@/components/TopNav", () => ({
     metadataControl,
     onFiltersToggle,
     loadedEventCount,
+    onExportCsv,
+    onExportJson,
+    exportLoading,
   }: {
     onFiltersChange: (filters: TimelineFilters) => void;
-    onRefresh: () => void;
-    onAutoRefreshChange: () => void;
+    onRefresh?: () => void;
+    onAutoRefreshChange?: () => void;
     metadataControl?: ReactNode;
     onFiltersToggle?: () => void;
     loadedEventCount?: number;
+    onExportCsv?: () => void;
+    onExportJson?: () => void;
+    exportLoading?: boolean;
   }) => (
     <nav>
       <button onClick={() => onFiltersChange({ actor_id: "user-42" })}>Set actor filter</button>
       <button onClick={() => onFiltersChange({})}>Clear all filters</button>
       <button onClick={onFiltersToggle}>Advanced filters</button>
-      <button onClick={onRefresh}>Refresh</button>
-      <button onClick={onAutoRefreshChange}>Toggle auto refresh</button>
+      {onRefresh ? <button onClick={onRefresh}>Refresh</button> : null}
+      {onAutoRefreshChange ? <button onClick={onAutoRefreshChange}>Toggle auto refresh</button> : null}
+      {onExportCsv ? <button onClick={onExportCsv}>Export CSV</button> : null}
+      {onExportJson ? <button onClick={onExportJson}>Export JSON</button> : null}
+      <output data-testid="export-loading">{String(exportLoading)}</output>
       <output data-testid="loaded-event-count">{loadedEventCount}</output>
       {metadataControl}
     </nav>
@@ -160,9 +187,14 @@ describe("TimelinePage orchestration", () => {
     mocks.query.hasNextPage = false;
     mocks.query.isError = false;
     mocks.query.isFetchingNextPage = false;
+    mocks.query.isFetching = false;
     mocks.query.isLoading = false;
     mocks.query.refetch = vi.fn();
     mocks.queryOptions = undefined;
+    mocks.fetchTimelineForExport.mockReset();
+    mocks.timelineToCsv.mockReset();
+    mocks.downloadTextFile.mockReset();
+    mocks.pushToast.mockReset();
   });
 
   afterEach(() => {
@@ -249,5 +281,65 @@ describe("TimelinePage orchestration", () => {
     expect(screen.getByTestId("metadata-keys")).toHaveTextContent("source");
     fireEvent.click(screen.getByRole("button", { name: "Add status metadata" }));
     expect(window.localStorage.getItem("milog.metadata-columns")).toBe(JSON.stringify(["source", "status"]));
+  });
+
+  it("exports every filtered event to CSV with the selected metadata columns", async () => {
+    const exportedEvents = [event("evt-2"), event("evt-1")];
+    window.localStorage.setItem("milog.metadata-columns", JSON.stringify(["source"]));
+    mocks.fetchTimelineForExport.mockResolvedValue(exportedEvents);
+    mocks.timelineToCsv.mockReturnValue("csv-output");
+
+    render(<TimelinePage initialFilters={{ actor_id: "user-42" }} />);
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV" }));
+
+    expect(screen.getByTestId("export-loading")).toHaveTextContent("true");
+    await waitFor(() => expect(mocks.downloadTextFile).toHaveBeenCalledWith(
+      "milog-timeline-2026-10-04.csv",
+      "csv-output",
+      "text/csv;charset=utf-8",
+    ));
+    expect(mocks.fetchTimelineForExport).toHaveBeenCalledWith({ actor_id: "user-42" });
+    expect(mocks.timelineToCsv).toHaveBeenCalledWith(exportedEvents, ["source"]);
+    expect(mocks.pushToast).toHaveBeenCalledWith({ title: "Exported CSV successfully.", tone: "success" });
+    expect(screen.getByTestId("export-loading")).toHaveTextContent("false");
+  });
+
+  it("reports export failures without starting a download", async () => {
+    mocks.fetchTimelineForExport.mockRejectedValue(new Error("Second page unavailable."));
+
+    render(<TimelinePage initialFilters={{}} />);
+    fireEvent.click(screen.getByRole("button", { name: "Export CSV" }));
+
+    await waitFor(() => expect(mocks.pushToast).toHaveBeenCalledWith({
+      title: "Second page unavailable.",
+      tone: "error",
+    }));
+    expect(mocks.downloadTextFile).not.toHaveBeenCalled();
+    expect(screen.getByTestId("export-loading")).toHaveTextContent("false");
+  });
+
+  it("downloads the full result set as formatted JSON", async () => {
+    const exportedEvents = [event("evt-1")];
+    mocks.fetchTimelineForExport.mockResolvedValue(exportedEvents);
+
+    render(<TimelinePage initialFilters={{ log_level: ["error"] }} />);
+    fireEvent.click(screen.getByRole("button", { name: "Export JSON" }));
+
+    await waitFor(() => expect(mocks.downloadTextFile).toHaveBeenCalledWith(
+      "milog-timeline-2026-10-04.json",
+      JSON.stringify(exportedEvents, null, 2),
+      "application/json;charset=utf-8",
+    ));
+    expect(mocks.fetchTimelineForExport).toHaveBeenCalledWith({ log_level: ["error"] });
+    expect(mocks.pushToast).toHaveBeenCalledWith({ title: "Exported JSON successfully.", tone: "success" });
+  });
+
+  it("does not expose export or refresh actions in a shared read-only view", () => {
+    render(<TimelinePage initialFilters={{}} readOnly />);
+
+    expect(screen.queryByRole("button", { name: "Export CSV" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Export JSON" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Refresh" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Toggle auto refresh" })).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
 # P1: Export and refresh controls
 
-Status: **Planned**
+Status: **Completed — 2026-10-04**
 
 ## Goal
 
@@ -25,10 +25,10 @@ Follow the [living design guideline](../docs/DESIGN-GUIDELINE.md) and repository
 
 ## Acceptance criteria
 
-- [ ] Both export formats are accessible using keyboard and touch at every supported width.
-- [ ] Exports include the full filtered result set and preserve existing selected-metadata behavior.
-- [ ] Auto-refresh state is visible and announced; manual refresh, polling, loading, and failure states behave correctly.
-- [ ] Shared read-only views preserve existing action restrictions.
+- [x] Both export formats are accessible using keyboard and touch at every supported width.
+- [x] Exports include the full filtered result set and preserve existing selected-metadata behavior.
+- [x] Auto-refresh state is visible and announced; manual refresh, polling, loading, and failure states behave correctly.
+- [x] Shared read-only views preserve existing action restrictions.
 
 ## Validation
 
@@ -36,6 +36,10 @@ Test menu open/close and focus return, download side effects, export failures, a
 
 ## Completion record
 
-- Implemented changes: pending.
-- Checks and browser evidence: pending.
-- Accepted guideline decisions and remaining issues: pending.
+- Replaced the desktop CSV/JSON pair and mobile CSV-only icon with one labeled Export menu. The menu focuses its first item, supports arrow-key movement and Escape, closes on outside interaction or selection, and returns focus after selection or Escape.
+- Connected the toolbar to query activity so manual refresh disables and announces progress without conflating it with pagination. Automatic refresh now shows `Auto-refresh: On/Off` or the narrow `Auto: On/Off` label with matching pressed state.
+- Kept the exact update time visible to seconds in a polite status region. Timezone presentation remains intentionally assigned to stage 15.
+- Preserved full-query pagination and deduplication in `fetchTimelineForExport`; added orchestration coverage for filtered CSV and JSON downloads, selected metadata columns, success, failures, loading, and shared read-only restrictions.
+- Verified at 1280 × 720 and 390 × 720 in the browser. Both export choices fit inside the narrow viewport, focus enters the menu and returns on Escape, refresh exposes its loading state, auto-refresh visibly changes to Off, and the 390px page has no horizontal overflow.
+- Passed contract drift checking, lint, typecheck, all 121 tests, and the Webpack production build. The default Turbopack build reached its sandbox-only internal worker port restriction; the application compiled, typechecked, generated all routes, and completed with Next's supported Webpack path.
+- No new or changed design tokens were required. Narrow event-row composition remains stage 14 work.

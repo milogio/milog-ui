@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Download, LogOut, RefreshCcw, Share2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Bell, LoaderCircle, LogOut, RefreshCcw, Share2, ToggleLeft, ToggleRight } from "lucide-react";
 import { LogoMark } from "@/components/LogoMark";
 import { ExportMenu } from "@/components/ExportMenu";
 import { QueryFilterBar } from "@/components/QueryFilterBar";
@@ -22,6 +22,7 @@ export function TopNav({
   onExportCsv,
   onExportJson,
   exportLoading,
+  refreshing = false,
   onLogout,
   lastUpdated,
   loadedEventCount,
@@ -41,6 +42,7 @@ export function TopNav({
   onExportCsv?: () => void;
   onExportJson?: () => void;
   exportLoading?: boolean;
+  refreshing?: boolean;
   onLogout?: () => void;
   lastUpdated?: string;
   loadedEventCount?: number;
@@ -58,9 +60,13 @@ export function TopNav({
               </p>
               <h1 className="truncate text-base font-semibold tracking-tight text-foreground">{title}</h1>
             </div>
-            <span className="hidden font-mono text-[11px] text-muted-foreground lg:inline">
+            <time
+              className="hidden font-mono text-[11px] text-muted-foreground lg:inline"
+              aria-live="polite"
+              aria-label={lastUpdated ? `Timeline last updated ${lastUpdated}` : "Waiting for timeline data"}
+            >
               {lastUpdated ? `Updated ${lastUpdated}` : "Waiting for timeline"}
-            </span>
+            </time>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -95,24 +101,41 @@ export function TopNav({
 
         <div className="flex flex-wrap items-center justify-end gap-2">
           <div className="flex w-full flex-wrap items-center justify-start gap-2 sm:w-auto sm:justify-end">
-            <span className="font-mono text-xs text-muted-foreground lg:hidden">
+            <time
+              className="font-mono text-xs text-muted-foreground lg:hidden"
+              aria-live="polite"
+              aria-label={lastUpdated ? `Timeline last updated ${lastUpdated}` : "Waiting for timeline data"}
+            >
               {lastUpdated ? `Updated ${lastUpdated}` : "Waiting for timeline"}
-            </span>
+            </time>
             {metadataControl}
             {!readOnly && onExportCsv && onExportJson ? (
-              <>
-                <div className="hidden sm:flex"><ExportMenu onExportCsv={onExportCsv} onExportJson={onExportJson} loading={Boolean(exportLoading)} /></div>
-                <button className="btn btn-secondary px-2.5 sm:hidden" onClick={onExportCsv} disabled={Boolean(exportLoading)} aria-label="Export CSV" title="Export CSV"><Download className="size-4" /></button>
-              </>
+              <ExportMenu onExportCsv={onExportCsv} onExportJson={onExportJson} loading={Boolean(exportLoading)} />
             ) : null}
             {!readOnly && onRefresh ? (
-              <button className="btn btn-secondary px-2.5" onClick={onRefresh} aria-label="Refresh" title="Refresh">
-                <RefreshCcw className="size-4" />
+              <button
+                className="btn btn-secondary px-2.5"
+                onClick={onRefresh}
+                disabled={refreshing}
+                aria-label={refreshing ? "Refreshing timeline" : "Refresh timeline now"}
+                title={refreshing ? "Refreshing timeline" : "Refresh timeline now"}
+              >
+                {refreshing ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <RefreshCcw className="size-4" aria-hidden="true" />}
+                <span className="hidden sm:inline">{refreshing ? "Refreshing…" : "Refresh"}</span>
               </button>
             ) : null}
             {!readOnly && onAutoRefreshChange ? (
-              <button className="btn btn-secondary px-2.5" onClick={onAutoRefreshChange} aria-label="Toggle auto-refresh" title="Auto-refresh">
-                {autoRefresh ? <ToggleRight className="size-4 text-brand" /> : <ToggleLeft className="size-4" />}
+              <button
+                className="btn btn-secondary px-2.5"
+                onClick={onAutoRefreshChange}
+                aria-label={`Auto-refresh is ${autoRefresh ? "on" : "off"}. Toggle auto-refresh`}
+                aria-pressed={Boolean(autoRefresh)}
+                title={`Auto-refresh is ${autoRefresh ? "on" : "off"}`}
+              >
+                {autoRefresh ? <ToggleRight className="size-4 text-brand" aria-hidden="true" /> : <ToggleLeft className="size-4" aria-hidden="true" />}
+                <span className="hidden sm:inline">Auto-refresh:</span>
+                <span className="sm:hidden">Auto:</span>
+                <span>{autoRefresh ? "On" : "Off"}</span>
               </button>
             ) : null}
           </div>

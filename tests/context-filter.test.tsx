@@ -37,6 +37,52 @@ describe("timeline context filters", () => {
     expect(screen.getByLabelText("Timeline query")).toBeInTheDocument();
   });
 
+  it("labels manual refresh, export, update time, and the current auto-refresh state", async () => {
+    const user = userEvent.setup();
+    const onRefresh = vi.fn();
+    const onAutoRefreshChange = vi.fn();
+
+    render(
+      <TopNav
+        filters={{}}
+        onFiltersChange={() => undefined}
+        onRefresh={onRefresh}
+        autoRefresh
+        onAutoRefreshChange={onAutoRefreshChange}
+        onExportCsv={() => undefined}
+        onExportJson={() => undefined}
+        lastUpdated="Oct 4, 2026 09:45:49"
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Export" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByRole("button", { name: "Refresh timeline now" })).toBeEnabled();
+    const autoRefresh = screen.getByRole("button", { name: "Auto-refresh is on. Toggle auto-refresh" });
+    expect(autoRefresh).toHaveAttribute("aria-pressed", "true");
+    expect(autoRefresh).toHaveTextContent("On");
+    expect(screen.getAllByLabelText("Timeline last updated Oct 4, 2026 09:45:49")).toHaveLength(2);
+
+    await user.click(screen.getByRole("button", { name: "Refresh timeline now" }));
+    await user.click(autoRefresh);
+    expect(onRefresh).toHaveBeenCalledOnce();
+    expect(onAutoRefreshChange).toHaveBeenCalledOnce();
+  });
+
+  it("disables manual refresh and announces progress while a query refreshes", () => {
+    render(
+      <TopNav
+        filters={{}}
+        onFiltersChange={() => undefined}
+        onRefresh={() => undefined}
+        refreshing
+      />,
+    );
+
+    const refresh = screen.getByRole("button", { name: "Refreshing timeline" });
+    expect(refresh).toBeDisabled();
+    expect(refresh).toHaveTextContent("Refreshing…");
+  });
+
   it("adds a structured actor ID token instead of an ambiguous text query", async () => {
     const user = userEvent.setup();
     render(<QuickFilterHarness />);

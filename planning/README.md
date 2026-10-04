@@ -38,7 +38,7 @@ Design baseline: [Design guideline](../docs/DESIGN-GUIDELINE.md). These plans ar
 - [x] [10 — P1: Timeline hierarchy](./10-p1-timeline-hierarchy.md) — completed 2026-10-04
 - [x] [11 — P1: Consolidated filtering](./11-p1-consolidated-filtering.md) — completed 2026-10-04
 - [x] [12 — P1: Readable filter states](./12-p1-readable-filter-states.md) — completed 2026-10-04
-- [ ] [13 — P1: Export and refresh controls](./13-p1-export-refresh-controls.md)
+- [x] [13 — P1: Export and refresh controls](./13-p1-export-refresh-controls.md) — completed 2026-10-04
 - [ ] [14 — P2: Event scanning and density](./14-p2-event-scanning-density.md)
 - [ ] [15 — P2: Precise timestamps and copy actions](./15-p2-timestamps-copy-actions.md)
 - [ ] [16 — P2: Accessibility completion](./16-p2-accessibility-completion.md)
