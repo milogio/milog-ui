@@ -21,7 +21,7 @@ export function LogLevelQuickFilters({
   }
 
   return (
-    <fieldset className="mt-2 flex flex-wrap items-center gap-2" aria-label="Quick log-level filters">
+    <fieldset className="flex flex-wrap items-center gap-2" aria-label="Quick log-level filters">
       <legend className="sr-only">Log level</legend>
       <span className="mr-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground" aria-hidden="true">
         Log level

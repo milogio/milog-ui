@@ -35,7 +35,7 @@ Progress: **7 of 8 stages complete.**
 Design baseline: [Design guideline](../docs/DESIGN-GUIDELINE.md). These plans are proposed work, based on the 2026-10-04 screenshot and source review. Execute in the listed order; priority labels describe impact, while numbering captures dependencies. No design implementation is marked complete by this documentation.
 
 - [x] [09 — P1: Design-token foundations](./09-p1-design-token-foundations.md) — completed 2026-10-04
-- [ ] [10 — P1: Timeline hierarchy](./10-p1-timeline-hierarchy.md)
+- [x] [10 — P1: Timeline hierarchy](./10-p1-timeline-hierarchy.md) — completed 2026-10-04
 - [ ] [11 — P1: Consolidated filtering](./11-p1-consolidated-filtering.md)
 - [ ] [12 — P1: Readable filter states](./12-p1-readable-filter-states.md)
 - [ ] [13 — P1: Export and refresh controls](./13-p1-export-refresh-controls.md)

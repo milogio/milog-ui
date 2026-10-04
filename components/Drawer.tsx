@@ -11,7 +11,7 @@ export function Drawer({
   side,
   title,
   eyebrow,
-  topOffsetClassName = "top-[132px]",
+  topOffsetClassName = "top-0",
   onClose,
   children,
 }: {
@@ -35,7 +35,7 @@ export function Drawer({
   if (!open) return null;
 
   return (
-    <div className={cn("fixed inset-x-0 bottom-0 z-20", topOffsetClassName)}>
+    <div className={cn("fixed inset-x-0 bottom-0 z-40", topOffsetClassName)}>
       <button
         className="absolute inset-0 cursor-default bg-transparent backdrop-blur-sm"
         aria-label="Close drawer"

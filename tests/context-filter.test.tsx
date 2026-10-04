@@ -21,6 +21,22 @@ function QuickFilterHarness() {
 }
 
 describe("timeline context filters", () => {
+  it("places the tenant context and page title before the query controls", () => {
+    render(
+      <TopNav
+        title="Shared timeline"
+        tenantName="Callender"
+        filters={{}}
+        onFiltersChange={() => undefined}
+        readOnly
+      />,
+    );
+
+    expect(screen.getByText("Callender")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Shared timeline" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Timeline query")).toBeInTheDocument();
+  });
+
   it("adds a structured actor ID token instead of an ambiguous text query", async () => {
     const user = userEvent.setup();
     render(<QuickFilterHarness />);

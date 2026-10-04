@@ -1,6 +1,6 @@
 # MiLog Design Guideline
 
-Status: Living design baseline — proposed improvements, not a record of completed implementation.
+Status: Living design baseline — accepted decisions and planned improvements.
 Last updated: 2026-10-04.
 
 ## Purpose and maintenance
@@ -21,11 +21,12 @@ Update this document when a design decision is accepted. Record the rationale, a
 
 ## Page hierarchy
 
-- Place a compact Timeline heading and tenant context above the query.
-- Remove the large introductory description from the routine workspace.
-- Collapse metadata configuration into a labeled control such as `Metadata · 4 selected`; retain discoverable access and persisted selection.
+- Keep the compact Timeline heading and tenant context in the application header above the query. The desktop update timestamp shares this context row so it does not force the results toolbar onto another line.
+- Do not repeat the page title or introductory product description in the routine Timeline workspace.
+- Keep metadata configuration in a labeled `Metadata` disclosure with the selected count. Show the full `n selected` wording when space permits and the numeric count at narrow widths; retain persisted selection.
 - Aim to show the first event within the upper third of a typical desktop viewport. This is a layout target, not a reason to shrink readable text. Validate at an agreed viewport and browser zoom.
-- Keep sticky content compact so results remain useful while scrolling and on narrow screens.
+- Keep the compact header sticky from the medium breakpoint upward. Let it scroll normally on narrow screens so wrapped controls do not consume the viewport while reading events.
+- Drawers cover the full viewport above the sticky header. Do not maintain a brittle fixed top offset tied to header height.
 - Show a loaded event count without implying an API total that is not available.
 
 ## Query and filter behavior
@@ -177,7 +178,7 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 
 ## Working model recommendation
 
-Use GPT-6 Astra with High reasoning in Codex for coordinated screenshot review, source analysis, and implementation. High is a task-specific recommendation. Provide the screenshot, this guideline, and the current execution plan, and review browser renders after visual changes. Recheck availability when revisiting the choice. Reference: [official OpenAI model guidance](https://developers.openai.com/api/docs/models), consulted 2026-10-04.
+Use GPT-6 Sol with High reasoning in Codex for the scoped implementation priorities. Use GPT-6 Astra with High reasoning when a later stage needs broad product synthesis across screenshots, source, and business constraints. Provide the screenshot, this guideline, and the current execution plan, and review browser renders after visual changes. Recheck availability when revisiting the choice. Reference: [official OpenAI model guidance](https://developers.openai.com/api/docs/models), consulted 2026-10-04.
 
 ## Decision log
 
@@ -186,13 +187,15 @@ Use GPT-6 Astra with High reasoning in Codex for coordinated screenshot review, 
 | 2026-10-04 | Establish Timeline recommendations and an ordered execution backlog | Documentation baseline only; visual and interaction implementation pending. |
 | 2026-10-04 | Add marketing-home assessment, guidelines, and priorities after screenshot/source review | Documentation baseline only; offer, claim verification, and browser validation pending. |
 | 2026-10-04 | Adopt semantic surface/text/action tokens, neutral debug, dark gradient-action text, shared focus, system font stacks, radius roles, and two elevation roles | Implemented in stage 09; lint, typecheck, 102 tests, Webpack production build, contrast calculation, and browser review passed. |
+| 2026-10-04 | Put Timeline and tenant context in the compact header, remove the repeated workspace introduction, use a count-bearing metadata disclosure, keep the header non-sticky below `md`, and let drawers cover it | Implemented in stage 10; reviewed at 1280 × 720, 648 × 840, and a 390 × 680 narrow frame. Metadata persistence is covered by component and orchestration tests. Narrow event-row density remains stage 14 work. |
+| 2026-10-04 | Use GPT-6 Sol with High reasoning for scoped execution priorities | Accepted for stage 10 implementation; retain Astra High for later work needing wider product synthesis. |
 
 ## Open decisions
 
 - Branded webfont selection, if the system stacks are later replaced.
 - Default row density and whether the density preference persists.
 - Exact-time presentation and timezone preference.
-- Narrow-screen event layout and metadata configuration presentation.
+- Narrow-screen event-row layout; the compact metadata disclosure presentation was accepted in stage 10.
 - Verified free/trial offer, billing terms, plan capabilities, and onboarding/sales destinations.
 - Approved customer proof, product capability evidence, repository/docs/status URLs, and supported SDK examples.
 - Final marketing section order, typography/spacing roles, and whether the sample demo adopts the working Timeline vocabulary.

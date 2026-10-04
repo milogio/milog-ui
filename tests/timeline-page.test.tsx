@@ -50,15 +50,18 @@ vi.mock("@/components/TopNav", () => ({
     onFiltersChange,
     onRefresh,
     onAutoRefreshChange,
+    metadataControl,
   }: {
     onFiltersChange: (filters: TimelineFilters) => void;
     onRefresh: () => void;
     onAutoRefreshChange: () => void;
+    metadataControl?: ReactNode;
   }) => (
     <nav>
       <button onClick={() => onFiltersChange({ actor_id: "user-42" })}>Set actor filter</button>
       <button onClick={onRefresh}>Refresh</button>
       <button onClick={onAutoRefreshChange}>Toggle auto refresh</button>
+      {metadataControl}
     </nav>
   ),
 }));
@@ -95,7 +98,20 @@ vi.mock("@/components/Drawer", () => ({
   Drawer: ({ open, children }: { open: boolean; children: ReactNode }) => open ? <aside>{children}</aside> : null,
 }));
 
-vi.mock("@/components/MetadataColumnSelector", () => ({ MetadataColumnSelector: () => null }));
+vi.mock("@/components/MetadataColumnSelector", () => ({
+  MetadataColumnSelector: ({
+    selectedKeys,
+    onChange,
+  }: {
+    selectedKeys: string[];
+    onChange: (keys: string[]) => void;
+  }) => (
+    <div>
+      <output data-testid="metadata-keys">{selectedKeys.join(",")}</output>
+      <button onClick={() => onChange([...selectedKeys, "status"])}>Add status metadata</button>
+    </div>
+  ),
+}));
 vi.mock("@/components/ShareModal", () => ({ ShareModal: () => null }));
 vi.mock("@/components/AlertsModal", () => ({ AlertsModal: () => null }));
 vi.mock("@/components/FilterPanel", () => ({ FilterPanel: () => null }));
@@ -195,5 +211,15 @@ describe("TimelinePage orchestration", () => {
 
     expect(window.localStorage.getItem("milog.filters")).toBe(JSON.stringify({ actor_id: "user-42" }));
     expect(mocks.replace).toHaveBeenLastCalledWith("/timeline?actor_id=user-42", { scroll: false });
+  });
+
+  it("loads and persists the selected metadata columns from the compact header control", () => {
+    window.localStorage.setItem("milog.metadata-columns", JSON.stringify(["source"]));
+
+    render(<TimelinePage initialFilters={{}} />);
+
+    expect(screen.getByTestId("metadata-keys")).toHaveTextContent("source");
+    fireEvent.click(screen.getByRole("button", { name: "Add status metadata" }));
+    expect(window.localStorage.getItem("milog.metadata-columns")).toBe(JSON.stringify(["source", "status"]));
   });
 });

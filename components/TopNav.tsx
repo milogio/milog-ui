@@ -8,7 +8,9 @@ import { LogLevelQuickFilters } from "@/components/LogLevelQuickFilters";
 import type { TimelineFilters } from "@/lib/types";
 
 export function TopNav({
+  title = "Tenant event timeline",
   tenantName,
+  metadataControl,
   filters,
   onFiltersChange,
   onFiltersToggle,
@@ -24,7 +26,9 @@ export function TopNav({
   lastUpdated,
   readOnly = false,
 }: {
+  title?: string;
   tenantName?: string;
+  metadataControl?: React.ReactNode;
   filters: TimelineFilters;
   onFiltersChange: (filters: TimelineFilters) => void;
   onFiltersToggle?: () => void;
@@ -41,17 +45,20 @@ export function TopNav({
   readOnly?: boolean;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+    <header className="z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl md:sticky md:top-0">
+      <div className="mx-auto flex max-w-7xl flex-col gap-1.5 px-4 py-1.5 md:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <LogoMark />
-            <div>
-              <h1 className="text-base font-semibold tracking-tight text-foreground">MiLog</h1>
-              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                {readOnly ? "Shared timeline" : tenantName ?? "Tenant"}
+            <div className="min-w-0">
+              <p className="truncate font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                {readOnly ? tenantName ?? "Read-only view" : tenantName ?? "Tenant"}
               </p>
+              <h1 className="truncate text-base font-semibold tracking-tight text-foreground">{title}</h1>
             </div>
+            <span className="hidden font-mono text-[11px] text-muted-foreground lg:inline">
+              {lastUpdated ? `Updated ${lastUpdated}` : "Waiting for timeline"}
+            </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -75,23 +82,21 @@ export function TopNav({
           </div>
         </div>
 
-        <div>
-          <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Query</p>
-          <QueryFilterBar filters={filters} onChange={onFiltersChange} />
-          <LogLevelQuickFilters filters={filters} onChange={onFiltersChange} />
-        </div>
+        <QueryFilterBar filters={filters} onChange={onFiltersChange} />
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs text-muted-foreground">{lastUpdated ? `Updated ${lastUpdated}` : "Waiting for timeline"}</span>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <LogLevelQuickFilters filters={filters} onChange={onFiltersChange} />
+          <div className="flex w-full flex-wrap items-center justify-start gap-2 sm:w-auto sm:justify-end">
+            <span className="font-mono text-xs text-muted-foreground lg:hidden">
+              {lastUpdated ? `Updated ${lastUpdated}` : "Waiting for timeline"}
+            </span>
             {onFiltersToggle ? (
               <button className="btn btn-secondary h-8 shrink-0 px-2.5 text-xs" onClick={onFiltersToggle}>
                 <Filter className="size-4" />
                 All filters
               </button>
             ) : null}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
+            {metadataControl}
             {!readOnly && onExportCsv && onExportJson ? (
               <>
                 <div className="hidden sm:flex"><ExportMenu onExportCsv={onExportCsv} onExportJson={onExportJson} loading={Boolean(exportLoading)} /></div>

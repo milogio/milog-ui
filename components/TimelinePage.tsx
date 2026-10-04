@@ -71,7 +71,7 @@ function writeAlerts(alerts: AlertRule[]) {
 export function TimelinePage({
   initialFilters,
   readOnly = false,
-  title = "Timeline",
+  title = "Tenant event timeline",
   subtitle,
 }: {
   initialFilters: TimelineFilters;
@@ -252,7 +252,15 @@ export function TimelinePage({
     <>
       <div className="min-h-screen">
         <TopNav
+          title={title}
           tenantName={tenant?.name ?? subtitle}
+          metadataControl={
+            <MetadataColumnSelector
+              availableKeys={availableMetadataKeys}
+              selectedKeys={visibleMetadataKeys}
+              onChange={setVisibleMetadataKeys}
+            />
+          }
           filters={draftFilters}
           onFiltersChange={setDraftFilters}
           onFiltersToggle={() => setQueryDrawerOpen(true)}
@@ -272,26 +280,8 @@ export function TimelinePage({
           readOnly={readOnly}
         />
 
-        <div className="mx-auto max-w-7xl px-4 pt-5 md:px-6">
-          <div className="mb-4">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">{title}</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-normal text-foreground">
-              {readOnly ? "Shared MiLog Timeline" : "Tenant event timeline"}
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              {readOnly
-                ? "Read-only view of the selected MiLog filter state. Sign in if you need to export or create alerts."
-                : "Filter, export, and share the moments that matter across your tenant timeline."}
-            </p>
-          </div>
-
-          <div className="space-y-4 pb-6">
-            <MetadataColumnSelector
-              availableKeys={availableMetadataKeys}
-              selectedKeys={visibleMetadataKeys}
-              onChange={setVisibleMetadataKeys}
-            />
-
+        <div className="mx-auto max-w-7xl px-4 pt-2 md:px-6">
+          <div className="pb-6">
             {query.isError ? (
               <ErrorState
                 description={query.error instanceof Error ? query.error.message : "Unable to load timeline."}
