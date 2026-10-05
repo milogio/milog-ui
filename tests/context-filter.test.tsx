@@ -32,7 +32,7 @@ describe("timeline context filters", () => {
       />,
     );
 
-    expect(screen.getByText("Callender")).toBeInTheDocument();
+    expect(screen.getByText("Callender · Read-only")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Shared timeline" })).toBeInTheDocument();
     expect(screen.getByLabelText("Timeline query")).toBeInTheDocument();
   });

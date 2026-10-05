@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AlertsModal } from "@/components/AlertsModal";
@@ -89,6 +90,30 @@ describe("timeline dependent UI", () => {
     expect(url).not.toContain("token");
     expect(writeText).toHaveBeenCalledWith(url);
     expect(pushToast).toHaveBeenCalledWith({ title: "Share URL copied to clipboard.", tone: "success" });
+  });
+
+  it("labels the share modal, closes it with Escape, and returns focus", async () => {
+    const user = userEvent.setup();
+
+    function ShareHarness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>Share</button>
+          <ShareModal open={open} onClose={() => setOpen(false)} filters={{}} />
+        </>
+      );
+    }
+
+    render(<ShareHarness />);
+    const trigger = screen.getByRole("button", { name: "Share" });
+    await user.click(trigger);
+
+    expect(screen.getByRole("dialog", { name: "Share this filtered view" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: "Share this filtered view" })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 
   it("copies actor, target, and raw metadata from event details", async () => {

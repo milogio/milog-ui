@@ -41,6 +41,17 @@ describe("TimelineFeed", () => {
     expect(screen.getByText("No events match this query")).toBeInTheDocument();
   });
 
+  it("announces timeline loading once while keeping skeletons decorative", () => {
+    const { container } = render(
+      <ToastProvider>
+        <TimelineFeed events={[]} onSelect={() => undefined} visibleMetadataKeys={[]} isLoading />
+      </ToastProvider>,
+    );
+
+    expect(screen.getByRole("status", { name: "Loading timeline events" })).toHaveAttribute("aria-busy", "true");
+    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(4);
+  });
+
   it("renders timeline events and metadata chips", () => {
     render(
       <ToastProvider>
@@ -185,5 +196,25 @@ describe("TimelineFeed", () => {
 
     expect(await screen.findByText("Unable to copy metadata. Check clipboard permissions and try again.")).toBeInTheDocument();
     expect(screen.queryByText("Metadata copied to clipboard.")).not.toBeInTheDocument();
+  });
+
+  it("keeps shared read-only rows investigable without edit-only expansion", async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    render(
+      <ToastProvider>
+        <TimelineFeed
+          events={[event]}
+          onSelect={onSelect}
+          visibleMetadataKeys={["source"]}
+          readOnly
+        />
+      </ToastProvider>,
+    );
+
+    expect(screen.getByRole("button", { name: "Copy metadata" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "JSON" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Open event details/ }));
+    expect(onSelect).toHaveBeenCalledWith(event);
   });
 });

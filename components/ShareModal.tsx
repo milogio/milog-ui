@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Copy, Share2 } from "lucide-react";
 import type { TimelineFilters } from "@/lib/types";
 import { createShareLink } from "@/lib/milogApi";
 import { useToast } from "@/providers/toast-provider";
+import { useDialogFocus } from "@/hooks/use-dialog-focus";
 
 export function ShareModal({
   open,
@@ -17,6 +18,9 @@ export function ShareModal({
 }) {
   const { pushToast } = useToast();
   const [shareUrl, setShareUrl] = useState("");
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useDialogFocus({ open, dialogRef, onClose });
 
   useEffect(() => {
     if (!open) return;
@@ -27,18 +31,30 @@ export function ShareModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-xl rounded-lg border border-border bg-card p-5 shadow-soft">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="w-full max-w-xl rounded-lg border border-border bg-card p-5 shadow-soft outline-none"
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <Share2 className="size-4 text-brand" />
-              <h3 className="text-lg font-semibold">Share this filtered view</h3>
+              <Share2 className="size-4 text-brand" aria-hidden="true" />
+              <h2 id={titleId} className="text-lg font-semibold">Share this filtered view</h2>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
               Generate a read-only filter link. Recipients must sign in to the same MiLog tenant to view its events.
             </p>
           </div>
-          <button className="font-mono text-xs text-muted-foreground hover:text-foreground" onClick={onClose}>
+          <button
+            type="button"
+            className="font-mono text-xs text-muted-foreground hover:text-foreground"
+            onClick={onClose}
+            data-dialog-initial-focus
+          >
             Close
           </button>
         </div>
@@ -55,13 +71,15 @@ export function ShareModal({
 
         <div className="mt-6 flex justify-end">
           <button
+            type="button"
             className="btn btn-primary"
+            disabled={!shareUrl}
             onClick={async () => {
               await navigator.clipboard.writeText(shareUrl);
               pushToast({ title: "Share URL copied to clipboard.", tone: "success" });
             }}
           >
-            <Copy className="size-4" />
+            <Copy className="size-4" aria-hidden="true" />
             Copy link
           </button>
         </div>

@@ -21,6 +21,7 @@ describe("MetadataColumnSelector", () => {
 
     await user.click(screen.getByText("Metadata"));
     expect(disclosure).toHaveAttribute("open");
+    expect(summary).toHaveAttribute("aria-expanded", "true");
     const source = screen.getByRole("button", { name: "Hide source metadata" });
     const status = screen.getByRole("button", { name: "Show status metadata" });
     expect(source).toHaveAttribute("aria-pressed", "true");
@@ -34,6 +35,11 @@ describe("MetadataColumnSelector", () => {
     expect(onChange).toHaveBeenCalledWith([]);
     await user.click(status);
     expect(onChange).toHaveBeenCalledWith(["source", "status"]);
+
+    await user.keyboard("{Escape}");
+    expect(disclosure).not.toHaveAttribute("open");
+    expect(summary).toHaveAttribute("aria-expanded", "false");
+    expect(summary).toHaveFocus();
   });
 
   it("explains when no metadata fields are available", async () => {

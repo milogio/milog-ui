@@ -45,7 +45,7 @@ export function TimelineFeed({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" role="status" aria-label="Loading timeline events" aria-busy="true">
         {Array.from({ length: 4 }).map((_, index) => (
           <LoadingSkeleton key={index} />
         ))}

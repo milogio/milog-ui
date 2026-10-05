@@ -56,7 +56,7 @@ export function TopNav({
             <LogoMark />
             <div className="min-w-0">
               <p className="truncate font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                {readOnly ? tenantName ?? "Read-only view" : tenantName ?? "Tenant"}
+                {readOnly ? `${tenantName ?? "Tenant"} · Read-only` : tenantName ?? "Tenant"}
               </p>
               <h1 className="truncate text-base font-semibold tracking-tight text-foreground">{title}</h1>
             </div>

@@ -1,7 +1,7 @@
 # MiLog Design Guideline
 
 Status: Living design baseline — accepted decisions and planned improvements.
-Last updated: 2026-10-04.
+Last updated: 2026-10-05.
 
 ## Purpose and maintenance
 
@@ -79,11 +79,11 @@ The current source is [`app/globals.css`](../app/globals.css), with HSL custom p
 | Type sizes | Several labels use 10–11px | Establish UI, data, and label sizes; reduce tiny uppercase, widely spaced labels. |
 | Focus | Shared 2px action-color outline with 2px offset covers links, controls, summaries, and explicit tab stops | Component stages must preserve the shared indicator and add state semantics where needed. |
 | Elevation | Panel and emphasis shadows are the two shared roles used by existing soft/glow utilities | Use emphasis sparingly and review whether routine data surfaces need elevation. |
-| Motion | Row/pulse animations stop for reduced motion; global transitions become effectively immediate | Stage 22 must also stop JavaScript-driven landing streams for reduced motion. |
+| Motion | All CSS animations collapse to one effectively instantaneous iteration and global transitions become effectively immediate for reduced motion | Stage 22 must also stop JavaScript-driven landing streams for reduced motion. |
 
 Before introducing a token, identify its role and consumers. Prefer semantic tokens to new isolated color values. Keep shared token changes under review for effects on login, landing, dialogs, alerts, and shared views. Exact replacement values remain open until rendered comparison and contrast checks.
 
-Foundation contrast checks use the implemented HSL values against the dark canvas/panel. Secondary text measures 6.54:1/6.34:1, action and focus 4.74:1/4.59:1, and severity text ranges from 5.31:1 to 10.84:1. Dark CTA text measures at least 4.74:1 across the current blue-to-cyan gradient endpoints. Control borders use a stronger role that measures 3.01:1 against the canvas; panel borders remain intentionally subtle and do not communicate interactive state alone. Recheck composited opacity and component-specific states in the browser as each stage changes them.
+Foundation contrast checks use the implemented HSL values against the dark canvas/panel. Secondary text measures 6.54:1/6.34:1, action and focus 4.74:1/4.59:1, and severity text ranges from 5.31:1 to 10.84:1. Dark CTA text measures at least 4.74:1 across the current blue-to-cyan gradient endpoints. Stage 16 raised the strong control border to `230 14% 42%`; its browser-rounded color measures 3.23:1 against the canvas. Panel borders remain intentionally subtle and do not communicate interactive state alone. Recheck composited opacity and component-specific states in the browser as each stage changes them.
 
 ## Accessibility and interaction
 
@@ -91,6 +91,10 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 - Expose metadata and auto-refresh selection state; expose inline JSON expansion state and its controlled region.
 - Keep the implemented row-selection button semantics, pressed state, and visible focus box intact as later stages refine the feed.
 - Maintain accessible names, predictable focus order, drawer/menu focus return, and touch access.
+- Treat drawers and modal overlays as labelled modal dialogs. Focus their close action on open, contain sequential focus, close on Escape, prevent background scrolling, and return focus to the trigger.
+- Keep non-modal disclosures linked to their controlled panel, expose expanded state, close them on Escape, and restore trigger focus after keyboard dismissal.
+- Announce loading, empty, error, copy, and export outcomes through appropriate live semantics. Keep notification dismissal explicitly named.
+- Identify shared views visibly as read-only while retaining investigation actions such as row details and metadata copy.
 - Measure rendered text, control, and focus contrast including opacity and compositing; do not infer compliance from token values alone.
 - Preserve clear loading, empty, error, export, and copy feedback and shared read-only restrictions.
 
@@ -200,6 +204,7 @@ Use GPT-6 Sol with High reasoning in Codex for the scoped implementation priorit
 | 2026-10-04 | Use one accessible Export menu at every width, separate manual refresh from explicit automatic-refresh state, and surface active refresh progress | Implemented in stage 13; reviewed at 1280 × 720 and 390 × 720. The menu fits the narrow viewport, opens with focused items, returns focus on Escape, and the page has no horizontal overflow. Full-query CSV/JSON downloads, selected metadata, errors, polling, and read-only restrictions are covered by the 121-test suite. No new design tokens were required. |
 | 2026-10-05 | Default to Comfortable event density, persist user density changes, suppress only exact canonical-message repetition, and stack event context on narrow screens | Implemented in stage 14; reviewed at 1280 × 720 and 390 × 720 with long and missing values, four metadata chips, selected rows, keyboard focus, and expanded JSON. Compact reduced representative desktop row heights while preserving action sizes; the narrow page and expanded JSON remained within 390px. No new design tokens were required. |
 | 2026-10-05 | Use visible UTC event timestamps and make clipboard feedback reflect the actual write result | Implemented in stage 15; reviewed at 1280 × 800 and 390 × 760. Relative and exact time remain visible together, semantic row names include the exact instant, all event copy labels identify their payload, and successful metadata copy feedback was exercised in-browser. UTC boundary equivalence and rejected clipboard operations are covered by tests. No new design tokens were required. |
+| 2026-10-05 | Use labelled modal semantics with contained and returning focus, explicit disclosure state, announced utility feedback, and a visible read-only label | Implemented in stage 16; keyboard and accessibility-tree review passed at desktop and narrow sizes. Rendered muted/control/focus contrast passed, and the strong control boundary was raised to `230 14% 42%` after browser rounding put the prior value just below 3:1. Reduced motion now stops all CSS animation cycles. The 137-test suite and Webpack production build passed. Native 200% zoom and broader assistive-technology testing remain stage 17 validation. |
 
 ## Open decisions
 

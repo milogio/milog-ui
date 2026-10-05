@@ -1,10 +1,12 @@
 "use client";
 
+import { useId, useRef } from "react";
 import { Bell, BellOff, Trash2 } from "lucide-react";
 import type { AlertRule, TimelineFilters } from "@/lib/types";
 import { buildAlertRule, migrateAlertRules } from "@/lib/alerts";
 import { safeJsonParse } from "@/lib/utils";
 import { useToast } from "@/providers/toast-provider";
+import { useDialogFocus } from "@/hooks/use-dialog-focus";
 
 const STORAGE_KEY = "milog.alerts";
 
@@ -31,18 +33,33 @@ export function AlertsModal({
 }) {
   const { pushToast } = useToast();
   const alerts = readAlerts();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useDialogFocus({ open, dialogRef, onClose });
 
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-3xl rounded-lg border border-border bg-card p-5 shadow-soft">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="w-full max-w-3xl rounded-lg border border-border bg-card p-5 shadow-soft outline-none"
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold">Alerts</h3>
+            <h2 id={titleId} className="text-lg font-semibold">Alerts</h2>
             <p className="mt-2 text-sm text-muted-foreground">Get notified when new events match this filter shape.</p>
           </div>
-          <button className="font-mono text-xs text-muted-foreground hover:text-foreground" onClick={onClose}>
+          <button
+            type="button"
+            className="font-mono text-xs text-muted-foreground hover:text-foreground"
+            onClick={onClose}
+            data-dialog-initial-focus
+          >
             Close
           </button>
         </div>
@@ -51,6 +68,7 @@ export function AlertsModal({
           <h4 className="text-sm font-medium text-foreground">Create alert from current filters</h4>
           <div className="mt-3 flex gap-3">
             <button
+              type="button"
               className="btn btn-primary"
               onClick={() => {
                 const name = currentFilters.type || currentFilters.target_id || currentFilters.actor_id || currentFilters.log_level?.join(", ") || "MiLog alert";
@@ -60,7 +78,7 @@ export function AlertsModal({
                 onClose();
               }}
             >
-              <Bell className="size-4" />
+              <Bell className="size-4" aria-hidden="true" />
               Create alert
             </button>
           </div>
@@ -87,6 +105,7 @@ export function AlertsModal({
                 </div>
                 <div className="flex items-center gap-2">
                   <button
+                    type="button"
                     className="btn btn-secondary px-3 py-2 text-xs"
                     onClick={() => {
                       const next = alerts.map((item) =>
@@ -100,10 +119,11 @@ export function AlertsModal({
                       onClose();
                     }}
                   >
-                    {alert.enabled ? <BellOff className="size-3.5" /> : <Bell className="size-3.5" />}
+                    {alert.enabled ? <BellOff className="size-3.5" aria-hidden="true" /> : <Bell className="size-3.5" aria-hidden="true" />}
                     {alert.enabled ? "Disable" : "Enable"}
                   </button>
                   <button
+                    type="button"
                     className="btn btn-secondary px-3 py-2 text-xs text-red-200"
                     onClick={() => {
                       writeAlerts(alerts.filter((item) => item.id !== alert.id));
@@ -111,7 +131,7 @@ export function AlertsModal({
                       onClose();
                     }}
                   >
-                    <Trash2 className="size-3.5" />
+                    <Trash2 className="size-3.5" aria-hidden="true" />
                     Delete
                   </button>
                 </div>

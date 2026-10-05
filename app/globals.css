@@ -14,7 +14,7 @@
   --action-foreground: 230 25% 5%;
   --focus-ring: 230 90% 65%;
   --border-subtle: 230 16% 18%;
-  --border-control: 230 14% 40%;
+  --border-control: 230 14% 42%;
 
   --background: var(--surface-canvas);
   --foreground: var(--text-primary);
@@ -334,6 +334,8 @@ button {
   *::before,
   *::after {
     scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
   }

@@ -36,22 +36,26 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
+            role={toast.tone === "error" ? "alert" : "status"}
+            aria-atomic="true"
             className={cn(
               "pointer-events-auto flex items-start gap-3 rounded-lg border bg-card px-4 py-3 shadow-soft",
               toast.tone === "error" ? "border-destructive/40" : "border-border",
             )}
           >
             {toast.tone === "error" ? (
-              <CircleAlert className="mt-0.5 size-4 text-error" />
+              <CircleAlert className="mt-0.5 size-4 text-error" aria-hidden="true" />
             ) : (
-              <CheckCircle2 className="mt-0.5 size-4 text-brand" />
+              <CheckCircle2 className="mt-0.5 size-4 text-brand" aria-hidden="true" />
             )}
             <p className="flex-1 text-sm text-foreground">{toast.title}</p>
             <button
+              type="button"
               className="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+              aria-label="Dismiss notification"
               onClick={() => setToasts((current) => current.filter((item) => item.id !== toast.id))}
             >
-              <X className="size-4" />
+              <X className="size-4" aria-hidden="true" />
             </button>
           </div>
         ))}

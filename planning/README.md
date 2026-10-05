@@ -41,7 +41,7 @@ Design baseline: [Design guideline](../docs/DESIGN-GUIDELINE.md). These plans ar
 - [x] [13 — P1: Export and refresh controls](./13-p1-export-refresh-controls.md) — completed 2026-10-04
 - [x] [14 — P2: Event scanning and density](./14-p2-event-scanning-density.md) — completed 2026-10-05
 - [x] [15 — P2: Precise timestamps and copy actions](./15-p2-timestamps-copy-actions.md) — completed 2026-10-05
-- [ ] [16 — P2: Accessibility completion](./16-p2-accessibility-completion.md)
+- [x] [16 — P2: Accessibility completion](./16-p2-accessibility-completion.md) — completed 2026-10-05
 - [ ] [17 — Cross-cutting: Design validation](./17-timeline-design-validation.md)
 
 Implement accessible behavior within each stage; stage 16 closes cross-component gaps. After each stage, review the rendered result, record validation in that plan, and update the guideline with accepted decisions. Complete existing rollout gates before production release.
