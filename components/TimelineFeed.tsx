@@ -1,7 +1,17 @@
-import type { TimelineEvent, TimelineFilters } from "@/lib/types";
+"use client";
+
+import { useState } from "react";
+import type { TimelineDensity, TimelineEvent, TimelineFilters } from "@/lib/types";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { TimelineItem } from "@/components/TimelineItem";
+
+const DENSITY_STORAGE_KEY = "milog.timeline-density";
+
+function loadDensity(): TimelineDensity {
+  if (typeof window === "undefined") return "comfortable";
+  return window.localStorage.getItem(DENSITY_STORAGE_KEY) === "compact" ? "compact" : "comfortable";
+}
 
 export function TimelineFeed({
   events,
@@ -26,6 +36,13 @@ export function TimelineFeed({
   readOnly?: boolean;
   filters?: TimelineFilters;
 }) {
+  const [density, setDensity] = useState<TimelineDensity>(loadDensity);
+
+  function changeDensity(value: TimelineDensity) {
+    setDensity(value);
+    window.localStorage.setItem(DENSITY_STORAGE_KEY, value);
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -53,13 +70,35 @@ export function TimelineFeed({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
-      <div className="grid grid-cols-[78px_70px_minmax(0,1fr)_auto] gap-2 border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-wide text-muted-foreground sm:grid-cols-[120px_78px_minmax(0,1fr)_auto] sm:gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2 sm:px-4">
+        <p className="text-sm font-medium text-foreground">Event stream</p>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">Density</span>
+          <div className="inline-flex rounded-md border border-input bg-background p-0.5" role="group" aria-label="Timeline density">
+            {(["comfortable", "compact"] as const).map((value) => {
+              const active = density === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  className={`rounded-[calc(var(--radius-control)-2px)] px-2.5 py-1.5 text-xs font-medium ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  aria-pressed={active}
+                  onClick={() => changeDensity(value)}
+                >
+                  {value === "comfortable" ? "Comfortable" : "Compact"}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <div className="hidden grid-cols-[120px_78px_minmax(0,1fr)_auto] gap-3 border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-wide text-muted-foreground sm:grid">
         <span>Time</span>
         <span>Level</span>
         <span>Actor → Action → Target</span>
         <span className="text-right">Actions</span>
       </div>
-      <ul className="divide-y divide-border/60 font-mono text-[12.5px]">
+      <ul className={`divide-y divide-border/60 font-mono ${density === "compact" ? "text-xs" : "text-[13px]"}`}>
         {events.map((event) => (
           <TimelineItem
             key={event.id}
@@ -68,6 +107,7 @@ export function TimelineFeed({
             onSelect={() => onSelect(event)}
             visibleMetadataKeys={visibleMetadataKeys}
             readOnly={readOnly}
+            density={density}
           />
         ))}
       </ul>

@@ -54,14 +54,15 @@ Update this document when a design decision is accepted. Record the rationale, a
 
 ## Events and details
 
-- Keep actor, action, and target aligned and understandable without repeating their labels on every row where headers provide sufficient context.
-- Retain a message preview when it adds information. Any suppression of redundant messages must be conservative; complete content remains available in details.
-- Provide compact and comfortable density choices without shrinking essential text or hit targets below usable sizes.
+- Keep actor, action, and target aligned in desktop scan columns. Hide repeated Actor and Target labels where the desktop header provides that context; restore the labels when narrow rows stack vertically.
+- Retain a message preview when it adds information. Suppress it only when normalized message text exactly matches the complete canonical actor type, actor ID, action, target type, and target ID sequence. Missing canonical values always prevent suppression, and the complete message remains available in details.
+- Use Comfortable as the default density and persist an explicit Compact or Comfortable choice in local storage. Comfortable allows a two-line message preview; Compact uses smaller spacing and a single-line preview while keeping action controls the same size.
 - Preserve selected metadata chips, row selection, the details drawer, and inline JSON expansion.
-- Keep actions available to keyboard and touch users; do not depend exclusively on hover.
+- Use a real row-selection button with a visible focus box and pressed state. Keep copy and JSON as sibling actions so they never trigger row selection; expose JSON expansion state and its controlled panel.
+- Keep actions available to keyboard and touch users; do not depend exclusively on hover or shrink them when Compact is selected.
 - Label the existing metadata clipboard operation `Copy metadata`.
 - Offer exact timestamps with timezone alongside relative time, using a keyboard- and touch-accessible presentation rather than relying only on a native hover title.
-- Adapt rows at narrow widths so identities, actions, and essential controls remain useful without clipping or unintended page overflow.
+- At narrow widths, place time and severity first, stack actor/action/target at full row width, then show actions and wrapping metadata. Long identities and metadata values wrap instead of widening the page; the details drawer remains the complete investigation surface.
 
 ## Token audit and intended direction
 
@@ -197,13 +198,12 @@ Use GPT-6 Sol with High reasoning in Codex for the scoped implementation priorit
 | 2026-10-04 | Consolidate exact filters, log levels, query semantics, loaded count, clearing, and advanced access into one query area | Implemented in stage 11; reviewed at 648 × 840 and in a 390 × 720 narrow frame. URL/localStorage clearing, canonical query keys, deduplicated counts, drawer access, and OR/AND semantics are covered by the 109-test suite. |
 | 2026-10-04 | Distinguish available, selected, focused, and disabled filter states with neutral boundaries, severity cues, checkmarks, pressed semantics, and native disabling | Implemented in stage 12; reviewed at 648 × 840 and in a 390 × 720 narrow frame with keyboard focus. Available text measures 6.54:1, its boundary 3.01:1, selected severity text 4.84:1–8.91:1, selected metadata text 14.88:1, and its checkmark 3.92:1 against the rendered role surfaces. |
 | 2026-10-04 | Use one accessible Export menu at every width, separate manual refresh from explicit automatic-refresh state, and surface active refresh progress | Implemented in stage 13; reviewed at 1280 × 720 and 390 × 720. The menu fits the narrow viewport, opens with focused items, returns focus on Escape, and the page has no horizontal overflow. Full-query CSV/JSON downloads, selected metadata, errors, polling, and read-only restrictions are covered by the 121-test suite. No new design tokens were required. |
+| 2026-10-05 | Default to Comfortable event density, persist user density changes, suppress only exact canonical-message repetition, and stack event context on narrow screens | Implemented in stage 14; reviewed at 1280 × 720 and 390 × 720 with long and missing values, four metadata chips, selected rows, keyboard focus, and expanded JSON. Compact reduced representative desktop row heights while preserving action sizes; the narrow page and expanded JSON remained within 390px. No new design tokens were required. |
 
 ## Open decisions
 
 - Branded webfont selection, if the system stacks are later replaced.
-- Default row density and whether the density preference persists.
 - Exact-time presentation and timezone preference.
-- Narrow-screen event-row layout; the compact metadata disclosure presentation was accepted in stage 10.
 - Verified free/trial offer, billing terms, plan capabilities, and onboarding/sales destinations.
 - Approved customer proof, product capability evidence, repository/docs/status URLs, and supported SDK examples.
 - Final marketing section order, typography/spacing roles, and whether the sample demo adopts the working Timeline vocabulary.

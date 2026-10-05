@@ -59,4 +59,10 @@ describe("expanded timeline event model", () => {
     expect(screen.getByLabelText("Action: unknown")).toBeInTheDocument();
     expect(screen.getByLabelText("Target: unknown type unknown identifier")).toBeInTheDocument();
   });
+
+  it("uses an explicit fallback when the event has no message", () => {
+    renderDetails({ ...event, message: "" });
+
+    expect(screen.getByText("No message provided.")).toBeInTheDocument();
+  });
 });

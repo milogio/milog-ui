@@ -22,6 +22,10 @@ const event: TimelineEvent = {
 };
 
 describe("TimelineFeed", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it("renders an empty state with no events", () => {
     render(
       <ToastProvider>
@@ -71,5 +75,91 @@ describe("TimelineFeed", () => {
     await user.click(screen.getByText("Lead viewed pricing page"));
 
     expect(onSelect).toHaveBeenCalledWith(event);
+  });
+
+  it("persists compact and comfortable density choices", async () => {
+    const user = userEvent.setup();
+    const renderFeed = () => render(
+      <ToastProvider>
+        <TimelineFeed events={[event]} onSelect={() => undefined} visibleMetadataKeys={["source"]} />
+      </ToastProvider>,
+    );
+    const firstRender = renderFeed();
+
+    expect(screen.getByRole("button", { name: "Comfortable" })).toHaveAttribute("aria-pressed", "true");
+    await user.click(screen.getByRole("button", { name: "Compact" }));
+    expect(screen.getByRole("button", { name: "Compact" })).toHaveAttribute("aria-pressed", "true");
+    expect(window.localStorage.getItem("milog.timeline-density")).toBe("compact");
+
+    firstRender.unmount();
+    renderFeed();
+    expect(screen.getByRole("button", { name: "Compact" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("only suppresses a message that exactly repeats the complete event context", () => {
+    const redundantMessage = "user user-42 viewed page pricing";
+    render(
+      <ToastProvider>
+        <TimelineFeed
+          events={[
+            { ...event, id: "evt_redundant", message: redundantMessage },
+            { ...event, id: "evt_meaningful", message: "Lead viewed pricing page after opening a campaign email" },
+          ]}
+          onSelect={() => undefined}
+          visibleMetadataKeys={[]}
+        />
+      </ToastProvider>,
+    );
+
+    expect(screen.queryByText(redundantMessage)).not.toBeInTheDocument();
+    expect(screen.getByText("Lead viewed pricing page after opening a campaign email")).toBeInTheDocument();
+  });
+
+  it("renders missing messages and long identities without discarding their values", () => {
+    const actorId = "actor-with-an-extremely-long-identifier-that-must-remain-available";
+    const targetId = "target-with-an-equally-long-identifier-that-must-remain-available";
+    render(
+      <ToastProvider>
+        <TimelineFeed
+          events={[{ ...event, actor_id: actorId, target_id: targetId, message: "" }]}
+          onSelect={() => undefined}
+          visibleMetadataKeys={["source"]}
+        />
+      </ToastProvider>,
+    );
+
+    expect(screen.getByText(actorId)).toBeInTheDocument();
+    expect(screen.getByText(targetId)).toBeInTheDocument();
+    expect(screen.getByText("No message provided")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: new RegExp(actorId) })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("expands JSON and copies metadata without selecting the row", async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn();
+    const writeText = vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue();
+    render(
+      <ToastProvider>
+        <TimelineFeed
+          events={[event]}
+          selectedEventId="evt_1"
+          onSelect={onSelect}
+          visibleMetadataKeys={["source", "status"]}
+        />
+      </ToastProvider>,
+    );
+
+    const row = screen.getByRole("button", { name: /Open event details/ });
+    const json = screen.getByRole("button", { name: "JSON" });
+    expect(row).toHaveAttribute("aria-pressed", "true");
+    expect(json).toHaveAttribute("aria-expanded", "false");
+
+    await user.click(json);
+    expect(json).toHaveAttribute("aria-expanded", "true");
+    expect(document.getElementById(json.getAttribute("aria-controls") ?? "")).toHaveTextContent('"source": "google_ads"');
+    await user.click(screen.getByRole("button", { name: "Copy" }));
+
+    expect(writeText).toHaveBeenCalledWith(JSON.stringify(event.metadata, null, 2));
+    expect(onSelect).not.toHaveBeenCalled();
   });
 });

@@ -7,6 +7,8 @@ import type {
 
 export type LogLevel = "debug" | "info" | "success" | "warning" | "error";
 
+export type TimelineDensity = "comfortable" | "compact";
+
 export type MiLogUser = {
   id: string;
   name: string;

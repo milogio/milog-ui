@@ -46,7 +46,9 @@ export function TimelineDetailsPanel({ event }: { event: TimelineEvent }) {
             </button>
           ) : null}
         </div>
-        <p className="mt-4 border-t border-border pt-4 text-sm leading-6 text-foreground">{event.message}</p>
+        <p className="mt-4 border-t border-border pt-4 text-sm leading-6 text-foreground">
+          {event.message.trim() || "No message provided."}
+        </p>
       </div>
 
       <dl className="mt-6 space-y-4 text-sm">
