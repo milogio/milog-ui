@@ -94,6 +94,7 @@ describe("timeline context filters", () => {
     expect(screen.getByTestId("filters")).toHaveTextContent('{"actor_id":"user-42"}');
     expect(screen.getByTestId("filters")).not.toHaveTextContent('"type"');
     expect(screen.getByRole("button", { name: "Edit Actor ID filter" })).toHaveTextContent("Actor ID:user-42");
+    expect(screen.getByRole("button", { name: "Edit Actor ID filter" })).toHaveFocus();
   });
 
   it("only maps a value to type after Entity type is selected", async () => {
@@ -147,6 +148,7 @@ describe("timeline context filters", () => {
     await user.click(within(query).getByRole("button", { name: "Clear all" }));
     expect(screen.getByTestId("consolidated-filters")).toHaveTextContent("{}");
     expect(within(query).getByText("No restrictions")).toBeInTheDocument();
+    expect(within(query).getByLabelText("Add filter")).toHaveFocus();
   });
 
   it("edits and removes a filter token without changing its role", async () => {
@@ -162,6 +164,7 @@ describe("timeline context filters", () => {
     expect(screen.getByTestId("filters")).toHaveTextContent('{"target_id":"invoice-2002"}');
     await user.click(screen.getByRole("button", { name: "Remove Target ID filter" }));
     expect(screen.getByTestId("filters")).toHaveTextContent("{}");
+    expect(screen.getByLabelText("Add filter")).toHaveFocus();
   });
 
   it("shows every active AND filter and supports removing one", async () => {

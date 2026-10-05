@@ -40,14 +40,14 @@ export function AlertsModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4 py-4 backdrop-blur-sm">
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="w-full max-w-3xl rounded-lg border border-border bg-card p-5 shadow-soft outline-none"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-3xl overflow-y-auto rounded-lg border border-border bg-card p-5 shadow-soft outline-none"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -87,10 +87,10 @@ export function AlertsModal({
         <div className="mt-5 space-y-3">
           {alerts.length ? (
             alerts.map((alert) => (
-              <div key={alert.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-4">
-                <div>
+              <div key={alert.id} className="flex flex-col gap-3 rounded-lg border border-border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <h4 className="text-sm font-medium text-foreground">{alert.name}</h4>
-                  <p className="mt-1 font-mono text-xs text-muted-foreground">{JSON.stringify(alert.filters)}</p>
+                  <p className="mt-1 break-all font-mono text-xs text-muted-foreground">{JSON.stringify(alert.filters)}</p>
                   {alert.last_triggered_at ? (
                     <p className="mt-1 text-xs text-muted-foreground">
                       Last matched {new Date(alert.last_triggered_at).toLocaleString()}
@@ -103,7 +103,7 @@ export function AlertsModal({
                     </p>
                   ) : null}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 sm:flex-none">
                   <button
                     type="button"
                     className="btn btn-secondary px-3 py-2 text-xs"

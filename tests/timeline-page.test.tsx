@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import type { TimelineEvent, TimelineFilters, TimelinePage as TimelinePageData } from "@/lib/types";
+import type { AlertRule, TimelineEvent, TimelineFilters, TimelinePage as TimelinePageData } from "@/lib/types";
 
 const mocks = vi.hoisted(() => ({
   fetchNextPage: vi.fn(),
@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   push: vi.fn(),
   pushToast: vi.fn(),
   logout: vi.fn(),
+  getTimeline: vi.fn(),
   fetchTimelineForExport: vi.fn(),
   timelineToCsv: vi.fn(),
   downloadTextFile: vi.fn(),
@@ -51,6 +52,11 @@ vi.mock("@/providers/toast-provider", () => ({
 
 vi.mock("@/lib/timelineExport", () => ({
   fetchTimelineForExport: mocks.fetchTimelineForExport,
+}));
+
+vi.mock("@/lib/milogApi", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@/lib/milogApi")>(),
+  getTimeline: mocks.getTimeline,
 }));
 
 vi.mock("@/lib/export", () => ({
@@ -192,6 +198,7 @@ describe("TimelinePage orchestration", () => {
     mocks.query.refetch = vi.fn();
     mocks.queryOptions = undefined;
     mocks.fetchTimelineForExport.mockReset();
+    mocks.getTimeline.mockReset();
     mocks.timelineToCsv.mockReset();
     mocks.downloadTextFile.mockReset();
     mocks.pushToast.mockReset();
@@ -341,5 +348,86 @@ describe("TimelinePage orchestration", () => {
     expect(screen.queryByRole("button", { name: "Export JSON" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Refresh" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Toggle auto refresh" })).not.toBeInTheDocument();
+  });
+
+  it("uses only shared filters without overwriting the operator's saved query", () => {
+    window.localStorage.setItem("milog.filters", JSON.stringify({ actor_id: "private-actor" }));
+
+    render(<TimelinePage initialFilters={{ type: "invoice" }} readOnly />);
+
+    expect(mocks.queryOptions?.queryKey).toEqual(["timeline", { type: "invoice" }]);
+    expect(window.localStorage.getItem("milog.filters")).toBe(JSON.stringify({ actor_id: "private-actor" }));
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("checkpoints enabled alerts without deleting disabled rules or retriggering the same event", async () => {
+    vi.useFakeTimers();
+    const alerts: AlertRule[] = [
+      {
+        id: "enabled-alert",
+        name: "Invoice activity",
+        enabled: true,
+        filters: { type: "invoice" },
+        created_at: "2026-10-03T16:00:00Z",
+      },
+      {
+        id: "disabled-alert",
+        name: "Paused actor activity",
+        enabled: false,
+        filters: { actor_id: "user-42" },
+        created_at: "2026-10-03T16:00:00Z",
+      },
+    ];
+    window.localStorage.setItem("milog.alerts", JSON.stringify(alerts));
+    mocks.getTimeline.mockResolvedValue({ events: [event("evt-new")] });
+    render(<TimelinePage initialFilters={{}} />);
+
+    await act(async () => vi.advanceTimersByTimeAsync(60_000));
+
+    const stored = JSON.parse(window.localStorage.getItem("milog.alerts") ?? "[]") as AlertRule[];
+    expect(stored.map(({ id }) => id)).toEqual(["enabled-alert", "disabled-alert"]);
+    expect(stored[0]).toEqual(expect.objectContaining({
+      last_triggered_event_id: "evt-new",
+      last_triggered_at: "2026-10-03T17:00:00Z",
+    }));
+    expect(stored[1]).toEqual(alerts[1]);
+    expect(mocks.pushToast).toHaveBeenCalledTimes(1);
+    expect(mocks.pushToast).toHaveBeenCalledWith({
+      title: 'Alert triggered: Invoice activity matched "Event evt-new"',
+      tone: "success",
+    });
+
+    await act(async () => vi.advanceTimersByTimeAsync(60_000));
+    expect(mocks.pushToast).toHaveBeenCalledTimes(1);
+  });
+
+  it("records alert polling failures while preserving disabled rules", async () => {
+    vi.useFakeTimers();
+    const alerts: AlertRule[] = [
+      {
+        id: "enabled-alert",
+        name: "Invoice activity",
+        enabled: true,
+        filters: { type: "invoice" },
+        created_at: "2026-10-03T16:00:00Z",
+      },
+      {
+        id: "disabled-alert",
+        name: "Paused activity",
+        enabled: false,
+        filters: {},
+        created_at: "2026-10-03T16:00:00Z",
+      },
+    ];
+    window.localStorage.setItem("milog.alerts", JSON.stringify(alerts));
+    mocks.getTimeline.mockRejectedValue(new Error("Alert API unavailable."));
+    render(<TimelinePage initialFilters={{}} />);
+
+    await act(async () => vi.advanceTimersByTimeAsync(60_000));
+
+    const stored = JSON.parse(window.localStorage.getItem("milog.alerts") ?? "[]") as AlertRule[];
+    expect(stored).toHaveLength(2);
+    expect(stored[0]).toEqual(expect.objectContaining({ last_error: "Alert API unavailable." }));
+    expect(stored[1]).toEqual(alerts[1]);
   });
 });

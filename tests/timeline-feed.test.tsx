@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TimelineFeed } from "@/components/TimelineFeed";
@@ -216,5 +217,45 @@ describe("TimelineFeed", () => {
     expect(screen.queryByRole("button", { name: "JSON" })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /Open event details/ }));
     expect(onSelect).toHaveBeenCalledWith(event);
+  });
+
+  it("moves focus to the end status after loading the final page", async () => {
+    const user = userEvent.setup();
+
+    function PaginatedFeed() {
+      const [hasNextPage, setHasNextPage] = useState(true);
+      return (
+        <ToastProvider>
+          <TimelineFeed
+            events={[event]}
+            onSelect={() => undefined}
+            visibleMetadataKeys={[]}
+            hasNextPage={hasNextPage}
+            onLoadMore={() => setHasNextPage(false)}
+          />
+        </ToastProvider>
+      );
+    }
+
+    render(<PaginatedFeed />);
+    await user.click(screen.getByRole("button", { name: "Load more" }));
+
+    const end = screen.getByRole("status", { name: "End of timeline" });
+    expect(end).toHaveFocus();
+  });
+
+  it("focuses the event stream heading after error recovery", () => {
+    render(
+      <ToastProvider>
+        <TimelineFeed
+          events={[event]}
+          onSelect={() => undefined}
+          visibleMetadataKeys={[]}
+          focusHeading
+        />
+      </ToastProvider>,
+    );
+
+    expect(screen.getByRole("heading", { level: 2, name: "Event stream" })).toHaveFocus();
   });
 });

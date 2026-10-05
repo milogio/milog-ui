@@ -56,13 +56,14 @@ describe("timeline dependent UI", () => {
   });
 
   it.each([
-    ["Disable", false, "Alert paused."],
-    ["Delete", undefined, "Alert deleted."],
-  ] as const)("persists the %s alert action", async (action, enabled, toastTitle) => {
+    ["Disable", true, false, "Alert paused."],
+    ["Enable", false, true, "Alert enabled."],
+    ["Delete", true, undefined, "Alert deleted."],
+  ] as const)("persists the %s alert action", async (action, initialEnabled, enabled, toastTitle) => {
     const saved: AlertRule = {
       id: "alert-1",
       name: "Invoice activity",
-      enabled: true,
+      enabled: initialEnabled,
       filters: { type: "invoice" },
       created_at: "2026-10-03T17:00:00Z",
     };
@@ -90,6 +91,19 @@ describe("timeline dependent UI", () => {
     expect(url).not.toContain("token");
     expect(writeText).toHaveBeenCalledWith(url);
     expect(pushToast).toHaveBeenCalledWith({ title: "Share URL copied to clipboard.", tone: "success" });
+  });
+
+  it("reports a rejected share-link copy without claiming success", async () => {
+    vi.spyOn(navigator.clipboard, "writeText").mockRejectedValue(new DOMException("Not allowed", "NotAllowedError"));
+    render(<ShareModal open onClose={() => undefined} filters={{ type: "invoice" }} />);
+
+    await userEvent.setup().click(await screen.findByRole("button", { name: "Copy link" }));
+
+    expect(pushToast).toHaveBeenCalledWith({
+      title: "Unable to copy the share URL. Check clipboard permissions and try again.",
+      tone: "error",
+    });
+    expect(pushToast).not.toHaveBeenCalledWith(expect.objectContaining({ tone: "success" }));
   });
 
   it("labels the share modal, closes it with Escape, and returns focus", async () => {

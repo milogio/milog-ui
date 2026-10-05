@@ -84,7 +84,14 @@ export function TimelinePage({
   const queryClient = useQueryClient();
   const { tenant, logout } = useAuth();
   const { pushToast } = useToast();
-  const [storedFilterState] = useState(() => loadStoredFilters(initialFilters));
+  const [storedFilterState] = useState(() =>
+    readOnly
+      ? {
+          filters: sanitizeTimelineFilters(initialFilters),
+          hadLegacy: hasLegacyTimelineFilters(initialFilters),
+        }
+      : loadStoredFilters(initialFilters),
+  );
   const [draftFilters, setDraftFilters] = useState<TimelineFilters>(storedFilterState.filters);
   const [selectedEventId, setSelectedEventId] = useState<string>();
   const [visibleMetadataKeys, setVisibleMetadataKeys] = useState<string[]>(() => loadMetadataKeys());
@@ -94,6 +101,7 @@ export function TimelinePage({
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [exportLoading, setExportLoading] = useState(false);
+  const [focusFeedAfterRetry, setFocusFeedAfterRetry] = useState(false);
 
   const debouncedFilters = useDebounce(draftFilters, 350);
   const timelineQueryKey = useMemo(() => ["timeline", debouncedFilters] as const, [debouncedFilters]);
@@ -107,10 +115,11 @@ export function TimelinePage({
   }, [pushToast, storedFilterState.hadLegacy]);
 
   useEffect(() => {
+    if (readOnly) return;
     window.localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(debouncedFilters));
     const params = filtersToSearchParams(debouncedFilters).toString();
     router.replace(params ? `${pathname}?${params}` : pathname, { scroll: false });
-  }, [debouncedFilters, pathname, router]);
+  }, [debouncedFilters, pathname, readOnly, router]);
 
   useEffect(() => {
     window.localStorage.setItem(METADATA_COLUMNS_STORAGE_KEY, JSON.stringify(visibleMetadataKeys));
@@ -168,14 +177,15 @@ export function TimelinePage({
   useEffect(() => {
     if (readOnly) return;
     const interval = window.setInterval(async () => {
-      const alerts = readAlerts().filter((alert) => alert.enabled);
-      if (!alerts.length) return;
+      const alerts = readAlerts();
+      if (!alerts.some((alert) => alert.enabled)) return;
 
       let mutated = false;
       const nextAlerts = [...alerts];
 
       await Promise.all(
-        nextAlerts.map(async (alert, index) => {
+        alerts.map(async (alert, index) => {
+          if (!alert.enabled) return;
           try {
             const page = await getTimeline(alert.filters);
             const match = page.events.find((event) => {
@@ -287,7 +297,10 @@ export function TimelinePage({
             {query.isError ? (
               <ErrorState
                 description={query.error instanceof Error ? query.error.message : "Unable to load timeline."}
-                onRetry={() => void query.refetch()}
+                onRetry={() => {
+                  setFocusFeedAfterRetry(true);
+                  void query.refetch();
+                }}
               />
             ) : (
               <TimelineFeed
@@ -304,6 +317,7 @@ export function TimelinePage({
                 isFetchingNextPage={query.isFetchingNextPage}
                 readOnly={readOnly}
                 filters={draftFilters}
+                focusHeading={focusFeedAfterRetry}
               />
             )}
           </div>

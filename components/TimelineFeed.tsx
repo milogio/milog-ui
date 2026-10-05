@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TimelineDensity, TimelineEvent, TimelineFilters } from "@/lib/types";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
@@ -24,6 +24,7 @@ export function TimelineFeed({
   isFetchingNextPage,
   readOnly = false,
   filters = {},
+  focusHeading = false,
 }: {
   events: TimelineEvent[];
   selectedEventId?: string;
@@ -35,8 +36,22 @@ export function TimelineFeed({
   isFetchingNextPage?: boolean;
   readOnly?: boolean;
   filters?: TimelineFilters;
+  focusHeading?: boolean;
 }) {
   const [density, setDensity] = useState<TimelineDensity>(loadDensity);
+  const loadMoreRequestedRef = useRef(false);
+  const endOfTimelineRef = useRef<HTMLParagraphElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (focusHeading && !isLoading) headingRef.current?.focus();
+  }, [focusHeading, isLoading]);
+
+  useEffect(() => {
+    if (!loadMoreRequestedRef.current || isFetchingNextPage) return;
+    if (!hasNextPage) endOfTimelineRef.current?.focus();
+    loadMoreRequestedRef.current = false;
+  }, [hasNextPage, isFetchingNextPage]);
 
   function changeDensity(value: TimelineDensity) {
     setDensity(value);
@@ -71,7 +86,13 @@ export function TimelineFeed({
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2 sm:px-4">
-        <p className="text-sm font-medium text-foreground">Event stream</p>
+        <h2
+          ref={headingRef}
+          tabIndex={focusHeading ? -1 : undefined}
+          className="text-sm font-medium text-foreground outline-none"
+        >
+          Event stream
+        </h2>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Density</span>
           <div className="inline-flex rounded-md border border-input bg-background p-0.5" role="group" aria-label="Timeline density">
@@ -113,10 +134,27 @@ export function TimelineFeed({
       </ul>
       {hasNextPage && onLoadMore ? (
         <div className="flex justify-center border-t border-border px-4 py-3">
-          <button className="btn btn-secondary min-w-40" onClick={onLoadMore} disabled={isFetchingNextPage}>
+          <button
+            className="btn btn-secondary min-w-40"
+            onClick={() => {
+              loadMoreRequestedRef.current = true;
+              onLoadMore();
+            }}
+            disabled={isFetchingNextPage}
+          >
             {isFetchingNextPage ? "Loading..." : "Load more"}
           </button>
         </div>
+      ) : onLoadMore ? (
+        <p
+          ref={endOfTimelineRef}
+          role="status"
+          aria-label="End of timeline"
+          tabIndex={-1}
+          className="border-t border-border px-4 py-3 text-center text-xs text-muted-foreground outline-none"
+        >
+          End of timeline
+        </p>
       ) : null}
     </div>
   );

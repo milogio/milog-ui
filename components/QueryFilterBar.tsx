@@ -21,6 +21,9 @@ export function QueryFilterBar({
   const [editingKey, setEditingKey] = useState<TimelineFilterKey>();
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const addFilterRef = useRef<HTMLSelectElement>(null);
+  const filterButtonRefs = useRef<Partial<Record<TimelineFilterKey, HTMLButtonElement | null>>>({});
+  const focusReturnRef = useRef<TimelineFilterKey | "add" | undefined>(undefined);
   const active = TIMELINE_FILTERS.filter(({ key }) => filters[key]);
   const available = TIMELINE_FILTERS.filter(({ key }) => !filters[key]);
   const selectedLogLevels = filters.log_level ?? [];
@@ -37,21 +40,33 @@ export function QueryFilterBar({
     if (editingKey) inputRef.current?.focus();
   }, [editingKey]);
 
+  useEffect(() => {
+    if (editingKey || !focusReturnRef.current) return;
+    const target = focusReturnRef.current;
+    focusReturnRef.current = undefined;
+    if (target === "add") addFilterRef.current?.focus();
+    else filterButtonRefs.current[target]?.focus();
+  });
+
   function beginEditing(key: TimelineFilterKey) {
     setEditingKey(key);
     setValue(filters[key] ?? "");
   }
 
   function cancelEditing() {
+    if (editingKey) focusReturnRef.current = filters[editingKey] ? editingKey : "add";
     setEditingKey(undefined);
     setValue("");
   }
 
   function commitFilter() {
     if (!editingKey) return;
+    const committedKey = editingKey;
     const nextValue = value.trim();
+    focusReturnRef.current = nextValue ? committedKey : "add";
     onChange({ ...filters, [editingKey]: nextValue || undefined });
-    cancelEditing();
+    setEditingKey(undefined);
+    setValue("");
   }
 
   const editingDefinition = editingKey ? timelineFilterDefinition(editingKey) : undefined;
@@ -63,6 +78,9 @@ export function QueryFilterBar({
           {active.map(({ key, label }) => (
             <span key={key} className="inline-flex h-8 max-w-full items-center rounded-md border border-border bg-background font-mono text-xs text-foreground">
               <button
+                ref={(element) => {
+                  filterButtonRefs.current[key] = element;
+                }}
                 className="flex min-w-0 items-center gap-1.5 px-2.5 py-1.5 hover:bg-accent"
                 onClick={() => beginEditing(key)}
                 aria-label={`Edit ${label} filter`}
@@ -72,7 +90,10 @@ export function QueryFilterBar({
               </button>
               <button
                 className="mr-1 rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-                onClick={() => onChange({ ...filters, [key]: undefined })}
+                onClick={() => {
+                  focusReturnRef.current = "add";
+                  onChange({ ...filters, [key]: undefined });
+                }}
                 aria-label={`Remove ${label} filter`}
               >
                 <X className="size-3" />
@@ -113,6 +134,7 @@ export function QueryFilterBar({
               <Plus className="size-3.5" />
               <span className="sr-only">Add filter</span>
               <select
+                ref={addFilterRef}
                 className="cursor-pointer appearance-none bg-transparent pr-1 font-mono outline-none"
                 aria-label="Add filter"
                 value=""
@@ -147,7 +169,13 @@ export function QueryFilterBar({
           ) : null}
           <span>{querySummary}</span>
           {hasActiveFilters ? (
-            <button className="font-mono text-xs text-muted-foreground hover:text-foreground" onClick={() => onChange({})}>
+            <button
+              className="font-mono text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                focusReturnRef.current = "add";
+                onChange({});
+              }}
+            >
               Clear all
             </button>
           ) : null}

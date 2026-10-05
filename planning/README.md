@@ -32,7 +32,7 @@ Progress: **7 of 8 stages complete.**
 
 ## Timeline design execution order
 
-Design baseline: [Design guideline](../docs/DESIGN-GUIDELINE.md). These plans are proposed work, based on the 2026-10-04 screenshot and source review. Execute in the listed order; priority labels describe impact, while numbering captures dependencies. No design implementation is marked complete by this documentation.
+Design baseline: [Design guideline](../docs/DESIGN-GUIDELINE.md). These plans began with the 2026-10-04 screenshot and source review. Stages 09–17 are implemented and validated in order; priority labels describe impact, while numbering captures dependencies.
 
 - [x] [09 — P1: Design-token foundations](./09-p1-design-token-foundations.md) — completed 2026-10-04
 - [x] [10 — P1: Timeline hierarchy](./10-p1-timeline-hierarchy.md) — completed 2026-10-04
@@ -42,7 +42,7 @@ Design baseline: [Design guideline](../docs/DESIGN-GUIDELINE.md). These plans ar
 - [x] [14 — P2: Event scanning and density](./14-p2-event-scanning-density.md) — completed 2026-10-05
 - [x] [15 — P2: Precise timestamps and copy actions](./15-p2-timestamps-copy-actions.md) — completed 2026-10-05
 - [x] [16 — P2: Accessibility completion](./16-p2-accessibility-completion.md) — completed 2026-10-05
-- [ ] [17 — Cross-cutting: Design validation](./17-timeline-design-validation.md)
+- [x] [17 — Cross-cutting: Design validation](./17-timeline-design-validation.md) — completed 2026-10-05
 
 Implement accessible behavior within each stage; stage 16 closes cross-component gaps. After each stage, review the rendered result, record validation in that plan, and update the guideline with accepted decisions. Complete existing rollout gates before production release.
 

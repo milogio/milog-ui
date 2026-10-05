@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Copy, Share2 } from "lucide-react";
 import type { TimelineFilters } from "@/lib/types";
+import { writeClipboardText } from "@/lib/clipboard";
 import { createShareLink } from "@/lib/milogApi";
 import { useToast } from "@/providers/toast-provider";
 import { useDialogFocus } from "@/hooks/use-dialog-focus";
@@ -75,8 +76,10 @@ export function ShareModal({
             className="btn btn-primary"
             disabled={!shareUrl}
             onClick={async () => {
-              await navigator.clipboard.writeText(shareUrl);
-              pushToast({ title: "Share URL copied to clipboard.", tone: "success" });
+              const copied = await writeClipboardText(shareUrl);
+              pushToast(copied
+                ? { title: "Share URL copied to clipboard.", tone: "success" }
+                : { title: "Unable to copy the share URL. Check clipboard permissions and try again.", tone: "error" });
             }}
           >
             <Copy className="size-4" aria-hidden="true" />

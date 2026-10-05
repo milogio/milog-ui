@@ -34,12 +34,14 @@ Update this document when a design decision is accepted. Record the rationale, a
 - Keep exact-filter chips, the add-filter control, quick log-level filters, query summary, loaded-event count, clear-all action, and `Advanced filters` entry inside one bordered query area.
 - Use `Advanced filters` for the detailed drawer. Label its field group `Exact-match fields` and keep the drawer-level `Clear query` action explicit.
 - Keep per-chip removal and `Clear all` easy to find. `Clear all` and `Clear query` both remove exact fields and selected levels so the visible query, URL, and persisted state remain aligned.
+- After applying an exact filter, move focus to its resulting edit chip. After cancelling, removing, or clearing filters, return focus to the surviving chip or Add filter control so a disappearing control never drops keyboard users at the document root.
 - Report the number of unique events currently loaded. Label it as loaded data and never present it as the total number of matching events.
 - Preserve OR semantics within log levels and AND semantics across other filter groups. No selected levels means no log-level restriction.
 - Unselected log-level pills use full-opacity secondary text, a strong neutral boundary, and the level-colored dot. Do not grayscale or fade available controls into a disabled appearance.
 - Selected log-level pills replace the dot with a checkmark and use a stronger level-colored boundary and tinted surface. Metadata selections use the same checkmark pattern with the brand boundary and interactive surface.
 - Expose selected log levels and metadata with `aria-pressed`. Use the native `disabled` attribute plus reduced opacity and a blocked cursor only for controls that cannot currently be changed.
 - Use the supported display levels: Debug, Info, Success, Warning, Error. Preserve raw API normalization.
+- Treat encoded filters in shared read-only views as an isolated query. Do not merge them with, persist them over, or rewrite the signed-in operator's private saved filters.
 
 ## Toolbar, export, and refresh
 
@@ -63,10 +65,11 @@ Update this document when a design decision is accepted. Record the rationale, a
 - Label metadata clipboard operations `Copy metadata`; keep Actor ID and Target ID labels aligned with their actual payloads. Only report success after the Clipboard API resolves, and use an error toast when clipboard access is unavailable or rejected.
 - Use UTC as the canonical exact-time policy so timestamps remain consistent across operators, daylight-saving changes, shared links, and server/client rendering. Show `YYYY-MM-DD HH:mm:ss UTC` directly beneath relative event time and in details, with the source ISO value in the semantic `datetime` attribute. Do not rely on a native hover title for exact time.
 - At narrow widths, place time and severity first, stack actor/action/target at full row width, then show actions and wrapping metadata. Long identities and metadata values wrap instead of widening the page; the details drawer remains the complete investigation surface.
+- When pagination reaches the final page after an explicit Load more action, replace the disappearing control with a focused `End of timeline` status. After an error retry succeeds, focus the Event stream heading so recovery has a clear destination.
 
 ## Token audit and intended direction
 
-The current source is [`app/globals.css`](../app/globals.css), with HSL custom properties mapped through Tailwind's inline theme. The table describes the reviewed source and proposed direction, not completed changes.
+The current source is [`app/globals.css`](../app/globals.css), with HSL custom properties mapped through Tailwind's inline theme. The table describes the accepted implemented foundation and remaining follow-up direction.
 
 | Area | Accepted foundation | Follow-up direction |
 | --- | --- | --- |
@@ -92,9 +95,11 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 - Keep the implemented row-selection button semantics, pressed state, and visible focus box intact as later stages refine the feed.
 - Maintain accessible names, predictable focus order, drawer/menu focus return, and touch access.
 - Treat drawers and modal overlays as labelled modal dialogs. Focus their close action on open, contain sequential focus, close on Escape, prevent background scrolling, and return focus to the trigger.
+- Keep modal content within the viewport. Alert rules stack their summary and actions at narrow widths, wrap serialized filters, and scroll vertically when the list exceeds the available height.
 - Keep non-modal disclosures linked to their controlled panel, expose expanded state, close them on Escape, and restore trigger focus after keyboard dismissal.
 - Announce loading, empty, error, copy, and export outcomes through appropriate live semantics. Keep notification dismissal explicitly named.
 - Identify shared views visibly as read-only while retaining investigation actions such as row details and metadata copy.
+- Preserve disabled alert rules during polling and report share-copy failure accurately; background state changes and utility feedback must not imply work succeeded or silently discard user configuration.
 - Measure rendered text, control, and focus contrast including opacity and compositing; do not infer compliance from token values alone.
 - Preserve clear loading, empty, error, export, and copy feedback and shared read-only restrictions.
 
@@ -106,6 +111,7 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 - Follow repository testing guidance: prioritize user-visible behavior, state persistence, API normalization, and failure handling; avoid markup snapshots and tests that merely mirror styling.
 - Read the relevant installed Next.js guide before implementation involving Next.js APIs or conventions, as required by `AGENTS.md`.
 - Record actual checks and remaining issues in each execution plan. Documentation alone does not satisfy acceptance criteria.
+- Stages 09–17 are the accepted Timeline baseline after combined desktop and narrow-screen validation. The environment-dependent release gates in `planning/07-testing-and-rollout.md` remain required before production release.
 
 ## Marketing home page: assessment and direction
 
@@ -204,7 +210,8 @@ Use GPT-6 Sol with High reasoning in Codex for the scoped implementation priorit
 | 2026-10-04 | Use one accessible Export menu at every width, separate manual refresh from explicit automatic-refresh state, and surface active refresh progress | Implemented in stage 13; reviewed at 1280 × 720 and 390 × 720. The menu fits the narrow viewport, opens with focused items, returns focus on Escape, and the page has no horizontal overflow. Full-query CSV/JSON downloads, selected metadata, errors, polling, and read-only restrictions are covered by the 121-test suite. No new design tokens were required. |
 | 2026-10-05 | Default to Comfortable event density, persist user density changes, suppress only exact canonical-message repetition, and stack event context on narrow screens | Implemented in stage 14; reviewed at 1280 × 720 and 390 × 720 with long and missing values, four metadata chips, selected rows, keyboard focus, and expanded JSON. Compact reduced representative desktop row heights while preserving action sizes; the narrow page and expanded JSON remained within 390px. No new design tokens were required. |
 | 2026-10-05 | Use visible UTC event timestamps and make clipboard feedback reflect the actual write result | Implemented in stage 15; reviewed at 1280 × 800 and 390 × 760. Relative and exact time remain visible together, semantic row names include the exact instant, all event copy labels identify their payload, and successful metadata copy feedback was exercised in-browser. UTC boundary equivalence and rejected clipboard operations are covered by tests. No new design tokens were required. |
-| 2026-10-05 | Use labelled modal semantics with contained and returning focus, explicit disclosure state, announced utility feedback, and a visible read-only label | Implemented in stage 16; keyboard and accessibility-tree review passed at desktop and narrow sizes. Rendered muted/control/focus contrast passed, and the strong control boundary was raised to `230 14% 42%` after browser rounding put the prior value just below 3:1. Reduced motion now stops all CSS animation cycles. The 137-test suite and Webpack production build passed. Native 200% zoom and broader assistive-technology testing remain stage 17 validation. |
+| 2026-10-05 | Use labelled modal semantics with contained and returning focus, explicit disclosure state, announced utility feedback, and a visible read-only label | Implemented in stage 16; keyboard and accessibility-tree review passed at desktop and narrow sizes. Rendered muted/control/focus contrast passed, and the strong control boundary was raised to `230 14% 42%` after browser rounding put the prior value just below 3:1. Reduced motion now stops all CSS animation cycles. The 137-test suite and Webpack production build passed. Native 200% zoom and broader assistive-technology checks remain useful pre-production manual coverage beyond the browser accessibility-tree baseline. |
+| 2026-10-05 | Accept stages 09–17 as the combined Timeline design baseline, with deterministic focus recovery, isolated shared filters, durable alert polling, honest share-copy feedback, and overflow-safe alert rules | Implemented in stage 17; reviewed at 1280 × 800 and 390 × 760 across populated, loading, empty, error/retry, selected, expanded, pagination, refresh/export, share, alert, read-only, and invalid-link states. Page and dialog overflow checks passed after the narrow alert-row correction; browser logs were clean. Contract check, lint, typecheck, 144 tests with coverage, and the Webpack production build passed. Environment-dependent production gates remain in stage 07. |
 
 ## Open decisions
 
