@@ -92,7 +92,7 @@ export function TimelineFeed({
           </div>
         </div>
       </div>
-      <div className="hidden grid-cols-[120px_78px_minmax(0,1fr)_auto] gap-3 border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-wide text-muted-foreground sm:grid">
+      <div className="hidden grid-cols-[150px_78px_minmax(0,1fr)_auto] gap-3 border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-wide text-muted-foreground sm:grid">
         <span>Time</span>
         <span>Level</span>
         <span>Actor → Action → Target</span>

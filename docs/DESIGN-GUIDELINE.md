@@ -48,7 +48,7 @@ Update this document when a design decision is accepted. Record the rationale, a
 - Open the export menu on its first item, support arrow-key movement and Escape, and return focus to the trigger after choosing a format or dismissing with Escape.
 - Show `Auto-refresh: On/Off` on wider screens and `Auto: On/Off` at narrow widths. Expose the same state with `aria-pressed` and an explicit accessible name.
 - Keep manual refresh separate. Disable it and announce `Refreshing timeline` while the active query refreshes; pagination loading remains independent.
-- Keep the latest exact update time visible to seconds and announce changes politely. Add timezone presentation during stage 15 with the event timestamp work.
+- Keep the latest update time visible to seconds and announce changes politely. Timeline event timestamps use the UTC policy below; the header continues to present its concise update status.
 - Hide export and refresh actions at the `TimelinePage` boundary for shared read-only views as well as in the toolbar presentation.
 - The screenshot's apparent duplicate control came from separate responsive branches: desktop had CSV and JSON buttons while mobile had a CSV-only icon. The shared export menu replaces both branches.
 
@@ -60,8 +60,8 @@ Update this document when a design decision is accepted. Record the rationale, a
 - Preserve selected metadata chips, row selection, the details drawer, and inline JSON expansion.
 - Use a real row-selection button with a visible focus box and pressed state. Keep copy and JSON as sibling actions so they never trigger row selection; expose JSON expansion state and its controlled panel.
 - Keep actions available to keyboard and touch users; do not depend exclusively on hover or shrink them when Compact is selected.
-- Label the existing metadata clipboard operation `Copy metadata`.
-- Offer exact timestamps with timezone alongside relative time, using a keyboard- and touch-accessible presentation rather than relying only on a native hover title.
+- Label metadata clipboard operations `Copy metadata`; keep Actor ID and Target ID labels aligned with their actual payloads. Only report success after the Clipboard API resolves, and use an error toast when clipboard access is unavailable or rejected.
+- Use UTC as the canonical exact-time policy so timestamps remain consistent across operators, daylight-saving changes, shared links, and server/client rendering. Show `YYYY-MM-DD HH:mm:ss UTC` directly beneath relative event time and in details, with the source ISO value in the semantic `datetime` attribute. Do not rely on a native hover title for exact time.
 - At narrow widths, place time and severity first, stack actor/action/target at full row width, then show actions and wrapping metadata. Long identities and metadata values wrap instead of widening the page; the details drawer remains the complete investigation surface.
 
 ## Token audit and intended direction
@@ -89,7 +89,7 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 
 - Provide visible keyboard focus for buttons, links, inputs, menus, and drawer controls.
 - Expose metadata and auto-refresh selection state; expose inline JSON expansion state and its controlled region.
-- Review the row-selection button using `display: contents` for dependable semantics and visible focus. Choose the replacement based on browser and assistive-technology behavior.
+- Keep the implemented row-selection button semantics, pressed state, and visible focus box intact as later stages refine the feed.
 - Maintain accessible names, predictable focus order, drawer/menu focus return, and touch access.
 - Measure rendered text, control, and focus contrast including opacity and compositing; do not infer compliance from token values alone.
 - Preserve clear loading, empty, error, export, and copy feedback and shared read-only restrictions.
@@ -199,11 +199,11 @@ Use GPT-6 Sol with High reasoning in Codex for the scoped implementation priorit
 | 2026-10-04 | Distinguish available, selected, focused, and disabled filter states with neutral boundaries, severity cues, checkmarks, pressed semantics, and native disabling | Implemented in stage 12; reviewed at 648 × 840 and in a 390 × 720 narrow frame with keyboard focus. Available text measures 6.54:1, its boundary 3.01:1, selected severity text 4.84:1–8.91:1, selected metadata text 14.88:1, and its checkmark 3.92:1 against the rendered role surfaces. |
 | 2026-10-04 | Use one accessible Export menu at every width, separate manual refresh from explicit automatic-refresh state, and surface active refresh progress | Implemented in stage 13; reviewed at 1280 × 720 and 390 × 720. The menu fits the narrow viewport, opens with focused items, returns focus on Escape, and the page has no horizontal overflow. Full-query CSV/JSON downloads, selected metadata, errors, polling, and read-only restrictions are covered by the 121-test suite. No new design tokens were required. |
 | 2026-10-05 | Default to Comfortable event density, persist user density changes, suppress only exact canonical-message repetition, and stack event context on narrow screens | Implemented in stage 14; reviewed at 1280 × 720 and 390 × 720 with long and missing values, four metadata chips, selected rows, keyboard focus, and expanded JSON. Compact reduced representative desktop row heights while preserving action sizes; the narrow page and expanded JSON remained within 390px. No new design tokens were required. |
+| 2026-10-05 | Use visible UTC event timestamps and make clipboard feedback reflect the actual write result | Implemented in stage 15; reviewed at 1280 × 800 and 390 × 760. Relative and exact time remain visible together, semantic row names include the exact instant, all event copy labels identify their payload, and successful metadata copy feedback was exercised in-browser. UTC boundary equivalence and rejected clipboard operations are covered by tests. No new design tokens were required. |
 
 ## Open decisions
 
 - Branded webfont selection, if the system stacks are later replaced.
-- Exact-time presentation and timezone preference.
 - Verified free/trial offer, billing terms, plan capabilities, and onboarding/sales destinations.
 - Approved customer proof, product capability evidence, repository/docs/status URLs, and supported SDK examples.
 - Final marketing section order, typography/spacing roles, and whether the sample demo adopts the working Timeline vocabulary.

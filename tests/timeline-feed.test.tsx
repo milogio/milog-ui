@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { TimelineFeed } from "@/components/TimelineFeed";
 import { ToastProvider } from "@/providers/toast-provider";
 import type { TimelineEvent } from "@/lib/types";
+import { formatExactTimestamp } from "@/lib/utils";
 
 const event: TimelineEvent = {
   id: "evt_1",
@@ -24,6 +25,10 @@ const event: TimelineEvent = {
 describe("TimelineFeed", () => {
   beforeEach(() => {
     window.localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("renders an empty state with no events", () => {
@@ -55,6 +60,10 @@ describe("TimelineFeed", () => {
     expect(screen.getByText("source")).toBeInTheDocument();
     expect(screen.getByText("google_ads")).toBeInTheDocument();
     expect(screen.getByText("status")).toBeInTheDocument();
+    const exactTime = screen.getByText(formatExactTimestamp(event.occurred_at));
+    expect(exactTime.closest("time")).toHaveAttribute("datetime", event.occurred_at);
+    expect(exactTime.closest("time")).not.toHaveAttribute("title");
+    expect(screen.getByRole("button", { name: new RegExp(formatExactTimestamp(event.occurred_at)) })).toBeInTheDocument();
   });
 
   it("selects a row when the event message is clicked", async () => {
@@ -157,9 +166,24 @@ describe("TimelineFeed", () => {
     await user.click(json);
     expect(json).toHaveAttribute("aria-expanded", "true");
     expect(document.getElementById(json.getAttribute("aria-controls") ?? "")).toHaveTextContent('"source": "google_ads"');
-    await user.click(screen.getByRole("button", { name: "Copy" }));
+    await user.click(screen.getByRole("button", { name: "Copy metadata" }));
 
     expect(writeText).toHaveBeenCalledWith(JSON.stringify(event.metadata, null, 2));
     expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("reports a rejected metadata copy without claiming success", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(navigator.clipboard, "writeText").mockRejectedValue(new DOMException("Not allowed", "NotAllowedError"));
+    render(
+      <ToastProvider>
+        <TimelineFeed events={[event]} onSelect={() => undefined} visibleMetadataKeys={["source"]} />
+      </ToastProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Copy metadata" }));
+
+    expect(await screen.findByText("Unable to copy metadata. Check clipboard permissions and try again.")).toBeInTheDocument();
+    expect(screen.queryByText("Metadata copied to clipboard.")).not.toBeInTheDocument();
   });
 });

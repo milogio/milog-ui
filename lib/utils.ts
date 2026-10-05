@@ -44,7 +44,9 @@ export function formatRelativeTime(value: string | null | undefined) {
 
 export function formatExactTimestamp(value: string | null | undefined) {
   if (!value) return "Unknown";
-  return formatDate(new Date(value), "PPP p");
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Unknown";
+  return `${date.toISOString().slice(0, 19).replace("T", " ")} UTC`;
 }
 
 export function formatDownloadDate(value = new Date()) {

@@ -40,7 +40,7 @@ Design baseline: [Design guideline](../docs/DESIGN-GUIDELINE.md). These plans ar
 - [x] [12 — P1: Readable filter states](./12-p1-readable-filter-states.md) — completed 2026-10-04
 - [x] [13 — P1: Export and refresh controls](./13-p1-export-refresh-controls.md) — completed 2026-10-04
 - [x] [14 — P2: Event scanning and density](./14-p2-event-scanning-density.md) — completed 2026-10-05
-- [ ] [15 — P2: Precise timestamps and copy actions](./15-p2-timestamps-copy-actions.md)
+- [x] [15 — P2: Precise timestamps and copy actions](./15-p2-timestamps-copy-actions.md) — completed 2026-10-05
 - [ ] [16 — P2: Accessibility completion](./16-p2-accessibility-completion.md)
 - [ ] [17 — Cross-cutting: Design validation](./17-timeline-design-validation.md)
 

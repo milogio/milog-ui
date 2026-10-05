@@ -38,7 +38,8 @@ describe("expanded timeline event model", () => {
     expect(screen.getByText("warn (displayed as warning)")).toBeInTheDocument();
     expect(screen.getByText("evt-42")).toBeInTheDocument();
     expect(screen.getByText("tenant-7")).toBeInTheDocument();
-    expect(screen.getAllByText(/September 21st, 2026/)).toHaveLength(2);
+    expect(screen.getByText("2026-09-21 12:00:00 UTC")).toBeInTheDocument();
+    expect(screen.getByText("2026-09-21 12:00:01 UTC")).toBeInTheDocument();
   });
 
   it("renders missing nullable values safely", () => {

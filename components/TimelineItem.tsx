@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { ChevronDown, ChevronUp, Copy } from "lucide-react";
 import type { TimelineDensity, TimelineEvent } from "@/lib/types";
+import { writeClipboardText } from "@/lib/clipboard";
 import { formatExactTimestamp, formatRelativeTime } from "@/lib/utils";
 import { useToast } from "@/providers/toast-provider";
 import { EventContext } from "@/components/EventContext";
@@ -47,22 +48,29 @@ export function TimelineItem({
     event.target_type ?? "unknown target type",
     event.target_id ?? "unknown target identifier",
   ].join(" ");
+  const exactTimestamp = formatExactTimestamp(event.occurred_at);
+  const relativeTimestamp = formatRelativeTime(event.occurred_at);
+
+  async function copyMetadata() {
+    const copied = await writeClipboardText(JSON.stringify(event.metadata, null, 2));
+    pushToast(copied
+      ? { title: "Metadata copied to clipboard.", tone: "success" }
+      : { title: "Unable to copy metadata. Check clipboard permissions and try again.", tone: "error" });
+  }
 
   return (
     <li className={`animate-row-in ${selected ? "bg-accent/30" : "hover:bg-accent/40"}`}>
       <div className={`grid min-w-0 gap-x-3 ${compact ? "px-3 py-2" : "px-4 py-3"} sm:grid-cols-[minmax(0,1fr)_auto] sm:px-4`}>
         <button
           type="button"
-          className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 rounded-md text-left sm:grid-cols-[120px_78px_minmax(0,1fr)] sm:items-center"
+          className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 rounded-md text-left sm:grid-cols-[150px_78px_minmax(0,1fr)] sm:items-center"
           onClick={onSelect}
-          aria-label={`Open event details: ${contextLabel}${showMessage && message ? `. ${message}` : ""}`}
+          aria-label={`Open event details at ${exactTimestamp}: ${contextLabel}${showMessage && message ? `. ${message}` : ""}`}
           aria-pressed={selected}
         >
-          <time
-            title={formatExactTimestamp(event.occurred_at)}
-            className="truncate tabular-nums text-muted-foreground"
-          >
-            {formatRelativeTime(event.occurred_at)}
+          <time dateTime={event.occurred_at ?? undefined} className="min-w-0 tabular-nums text-muted-foreground">
+            <span className="block truncate">{relativeTimestamp}</span>
+            <span className="mt-0.5 block text-[10px] leading-4 text-foreground/75">{exactTimestamp}</span>
           </time>
           <LogLevelBadge level={event.log_level} />
           <span className="col-span-2 min-w-0 sm:col-span-1">
@@ -78,13 +86,10 @@ export function TimelineItem({
           <button
             type="button"
             className="btn btn-secondary min-h-9 px-2 py-1.5 text-xs"
-            onClick={async () => {
-              await navigator.clipboard.writeText(JSON.stringify(event.metadata, null, 2));
-              pushToast({ title: "Metadata copied to clipboard.", tone: "success" });
-            }}
+            onClick={() => void copyMetadata()}
           >
-            <Copy className="size-3.5" />
-            Copy
+            <Copy className="size-3.5" aria-hidden="true" />
+            Copy metadata
           </button>
           {!readOnly ? (
             <button
@@ -94,12 +99,12 @@ export function TimelineItem({
               aria-expanded={expanded}
               aria-controls={jsonPanelId}
             >
-              {expanded ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+              {expanded ? <ChevronUp className="size-3.5" aria-hidden="true" /> : <ChevronDown className="size-3.5" aria-hidden="true" />}
               JSON
             </button>
           ) : null}
         </div>
-        <div className="min-w-0 sm:col-span-full sm:pl-[210px]">
+        <div className="min-w-0 sm:col-span-full sm:pl-[252px]">
           <MetadataChips event={event} visibleKeys={visibleMetadataKeys} compact={compact} />
         </div>
       </div>

@@ -34,6 +34,10 @@ describe("timeline dependent UI", () => {
     pushToast.mockClear();
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("creates an alert from canonical filters", async () => {
     const onClose = vi.fn();
     render(<AlertsModal open onClose={onClose} currentFilters={{ actor_id: "user-42" }} />);
@@ -94,12 +98,31 @@ describe("timeline dependent UI", () => {
 
     await user.click(screen.getByRole("button", { name: "Copy actor ID" }));
     await user.click(screen.getByRole("button", { name: "Copy target ID" }));
-    await user.click(screen.getByRole("button", { name: /^Copy$/ }));
+    await user.click(screen.getByRole("button", { name: "Copy metadata" }));
 
     expect(writeText.mock.calls).toEqual([
       ["user-42"],
       ["invoice-1001"],
       [JSON.stringify(event.metadata, null, 2)],
     ]);
+    expect(pushToast.mock.calls).toEqual([
+      [{ title: "Actor ID copied to clipboard.", tone: "success" }],
+      [{ title: "Target ID copied to clipboard.", tone: "success" }],
+      [{ title: "Metadata copied to clipboard.", tone: "success" }],
+    ]);
+  });
+
+  it.each([
+    ["Copy actor ID", "Unable to copy actor ID. Check clipboard permissions and try again."],
+    ["Copy target ID", "Unable to copy target ID. Check clipboard permissions and try again."],
+    ["Copy metadata", "Unable to copy metadata. Check clipboard permissions and try again."],
+  ])("reports failure when %s is rejected", async (buttonName, errorTitle) => {
+    vi.spyOn(navigator.clipboard, "writeText").mockRejectedValue(new DOMException("Not allowed", "NotAllowedError"));
+    render(<TimelineDetailsPanel event={event} />);
+
+    await userEvent.setup().click(screen.getByRole("button", { name: buttonName }));
+
+    expect(pushToast).toHaveBeenCalledWith({ title: errorTitle, tone: "error" });
+    expect(pushToast).not.toHaveBeenCalledWith(expect.objectContaining({ tone: "success" }));
   });
 });

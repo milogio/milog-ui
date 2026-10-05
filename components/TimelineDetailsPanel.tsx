@@ -1,5 +1,6 @@
 import { Copy } from "lucide-react";
 import type { TimelineEvent } from "@/lib/types";
+import { writeClipboardText } from "@/lib/clipboard";
 import { formatExactTimestamp } from "@/lib/utils";
 import { useToast } from "@/providers/toast-provider";
 import { LogLevelBadge } from "@/components/LogLevelBadge";
@@ -7,6 +8,14 @@ import { EventContext } from "@/components/EventContext";
 
 export function TimelineDetailsPanel({ event }: { event: TimelineEvent }) {
   const { pushToast } = useToast();
+
+  async function copyWithFeedback(value: string, label: "Actor ID" | "Target ID" | "Metadata") {
+    const copied = await writeClipboardText(value);
+    const sentenceLabel = `${label[0].toLowerCase()}${label.slice(1)}`;
+    pushToast(copied
+      ? { title: `${label} copied to clipboard.`, tone: "success" }
+      : { title: `Unable to copy ${sentenceLabel}. Check clipboard permissions and try again.`, tone: "error" });
+  }
 
   return (
     <div>
@@ -24,24 +33,18 @@ export function TimelineDetailsPanel({ event }: { event: TimelineEvent }) {
           {event.actor_id ? (
             <button
               className="btn btn-secondary px-3 py-2 text-xs"
-              onClick={async () => {
-                await navigator.clipboard.writeText(event.actor_id!);
-                pushToast({ title: "Actor ID copied to clipboard.", tone: "success" });
-              }}
+              onClick={() => void copyWithFeedback(event.actor_id!, "Actor ID")}
             >
-              <Copy className="size-3.5" />
+              <Copy className="size-3.5" aria-hidden="true" />
               Copy actor ID
             </button>
           ) : null}
           {event.target_id ? (
             <button
               className="btn btn-secondary px-3 py-2 text-xs"
-              onClick={async () => {
-                await navigator.clipboard.writeText(event.target_id!);
-                pushToast({ title: "Target ID copied to clipboard.", tone: "success" });
-              }}
+              onClick={() => void copyWithFeedback(event.target_id!, "Target ID")}
             >
-              <Copy className="size-3.5" />
+              <Copy className="size-3.5" aria-hidden="true" />
               Copy target ID
             </button>
           ) : null}
@@ -54,11 +57,15 @@ export function TimelineDetailsPanel({ event }: { event: TimelineEvent }) {
       <dl className="mt-6 space-y-4 text-sm">
         <div>
           <dt className="text-muted-foreground">Occurred</dt>
-          <dd className="mt-1 font-mono text-foreground">{formatExactTimestamp(event.occurred_at)}</dd>
+          <dd className="mt-1 font-mono text-foreground">
+            <time dateTime={event.occurred_at ?? undefined}>{formatExactTimestamp(event.occurred_at)}</time>
+          </dd>
         </div>
         <div>
           <dt className="text-muted-foreground">Created</dt>
-          <dd className="mt-1 font-mono text-foreground">{formatExactTimestamp(event.created_at)}</dd>
+          <dd className="mt-1 font-mono text-foreground">
+            <time dateTime={event.created_at ?? undefined}>{formatExactTimestamp(event.created_at)}</time>
+          </dd>
         </div>
         <div>
           <dt className="text-muted-foreground">Log level</dt>
@@ -78,13 +85,10 @@ export function TimelineDetailsPanel({ event }: { event: TimelineEvent }) {
         <h4 className="text-sm font-medium text-foreground">Metadata JSON</h4>
         <button
           className="btn btn-secondary px-3 py-2 text-xs"
-          onClick={async () => {
-            await navigator.clipboard.writeText(JSON.stringify(event.metadata, null, 2));
-            pushToast({ title: "Metadata copied to clipboard.", tone: "success" });
-          }}
+          onClick={() => void copyWithFeedback(JSON.stringify(event.metadata, null, 2), "Metadata")}
         >
-          <Copy className="size-3.5" />
-          Copy
+          <Copy className="size-3.5" aria-hidden="true" />
+          Copy metadata
         </button>
       </div>
 

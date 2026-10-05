@@ -10,7 +10,7 @@ import {
   timelineFilterValidationMessage,
 } from "@/lib/urlState";
 import type { TimelineEvent, TimelineFilters } from "@/lib/types";
-import { createRuntimeId } from "@/lib/utils";
+import { createRuntimeId, formatExactTimestamp, formatRelativeTime } from "@/lib/utils";
 
 describe("MiLog utilities", () => {
   it("creates IDs when randomUUID is unavailable", () => {
@@ -23,6 +23,17 @@ describe("MiLog utilities", () => {
 
     expect(createRuntimeId()).toBe("00000001-00000002-00000003-00000004");
     vi.unstubAllGlobals();
+  });
+
+  it("formats equivalent event instants as the same exact UTC timestamp", () => {
+    const utcValue = "2026-01-01T00:30:45Z";
+    const offsetValue = "2025-12-31T16:30:45-08:00";
+
+    expect(formatExactTimestamp(utcValue)).toBe("2026-01-01 00:30:45 UTC");
+    expect(formatExactTimestamp(offsetValue)).toBe("2026-01-01 00:30:45 UTC");
+    expect(formatRelativeTime(offsetValue)).toBe(formatRelativeTime(utcValue));
+    expect(formatExactTimestamp(null)).toBe("Unknown");
+    expect(formatExactTimestamp("invalid timestamp")).toBe("Unknown");
   });
 
   it("normalizes backend timeline events", () => {
