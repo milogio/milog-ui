@@ -2,16 +2,16 @@ import Link from "next/link";
 import { Logo } from "@/components/landing/Logo";
 
 const links = [
+  ["Sample demo", "#demo"],
   ["Features", "#features"],
   ["API example", "#api-example"],
-  ["Sample demo", "#demo"],
   ["Access", "#access"],
   ["Sign in", "/login"],
 ] as const;
 
 export function Footer() {
   return (
-    <footer>
+    <footer className="border-t border-border">
       <div className="container grid gap-10 py-12 md:grid-cols-[1fr_auto] md:items-start">
         <div>
           <Link href="/" aria-label="MiLog home" className="inline-flex">

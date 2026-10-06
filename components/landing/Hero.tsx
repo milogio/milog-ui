@@ -4,20 +4,20 @@ import { TimelinePreview } from "@/components/landing/TimelinePreview";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-border">
+    <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-grid" />
       <div className="absolute inset-0 bg-radial-glow" />
-      <div className="container relative grid min-h-[calc(100vh-3.5rem)] items-center gap-12 py-16 lg:grid-cols-[0.92fr_1.08fr] lg:py-20">
+      <div className="container relative grid items-center gap-12 py-16 lg:grid-cols-[0.92fr_1.08fr] lg:py-20">
         <div className="max-w-3xl">
           <div className="inline-flex rounded-full border border-border bg-card/70 px-3 py-1 font-mono text-xs text-muted-foreground">
             Tenant-scoped event history
           </div>
-          <h2 className="marketing-display mt-6 font-semibold text-foreground">
+          <h1 className="marketing-display mt-6 font-semibold text-foreground">
             The timeline your <span className="text-gradient-brand">logs deserve.</span>
-          </h2>
+          </h1>
           <p className="marketing-prose marketing-lede mt-6 max-w-2xl">
-            Review structured events, filter exact actor and target context, inspect metadata, export
-            results, and share filter state within your authenticated tenant.
+            For developers investigating tenant activity: review structured events, filter exact actor
+            and target context, inspect metadata, export results, and share filter state.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link

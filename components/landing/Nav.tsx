@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/landing/Logo";
 
 const links = [
+  ["Sample demo", "#demo"],
   ["Features", "#features"],
   ["API example", "#api-example"],
-  ["Sample demo", "#demo"],
   ["Access", "#access"],
 ] as const;
 

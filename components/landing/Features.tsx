@@ -1,68 +1,50 @@
-import { Activity, BellRing, Boxes, Download, FileJson2, Search } from "lucide-react";
+import { BellRing, FileJson2, Search } from "lucide-react";
 
-const features = [
-  {
-    icon: Activity,
-    title: "Tenant timelines",
-    description:
-      "Review events for the signed-in tenant in stable occurrence order, with cursor pagination for longer histories.",
-  },
-  {
-    icon: Boxes,
-    title: "Structured event context",
-    description:
-      "Keep actor, action, target, severity, timestamps, and metadata together in one inspectable event record.",
-  },
+const benefits = [
   {
     icon: Search,
-    title: "Exact filters",
+    title: "Find the event that matters",
     description:
-      "Filter by actor ID, target ID, entity type, and normalized log levels while keeping the URL and saved query aligned.",
+      "Use tenant scope, exact actor, target, type, and level filters, stable ordering, and cursor pagination to narrow long histories.",
   },
   {
     icon: FileJson2,
-    title: "Event investigation",
+    title: "Reconstruct what happened",
     description:
-      "Open a focused details view, copy identifiers, and inspect the event metadata JSON without leaving the timeline.",
+      "Read actor, action, target, severity, and time together, then open details and inspect metadata JSON without leaving the timeline.",
   },
   {
     icon: BellRing,
-    title: "Saved matching alerts",
+    title: "Carry the result forward",
     description:
-      "Save filter-based rules in the browser and receive an in-app notice when a new matching event appears while the timeline is open.",
-  },
-  {
-    icon: Download,
-    title: "Export and filtered sharing",
-    description:
-      "Export the filtered result as CSV or JSON, or create a filter-only link for authenticated recipients in the same tenant.",
+      "Export filtered results, share filter state with an authenticated tenant recipient, or save a browser rule for new matching events.",
   },
 ];
 
 export function Features() {
   return (
-    <section id="features" className="border-b border-border">
+    <section id="features" className="bg-card/30">
       <div className="container marketing-section">
         <div className="marketing-copy">
-          <p className="marketing-section-label text-gradient-brand">Features</p>
+          <p className="marketing-section-label text-gradient-brand">Benefits</p>
           <h2 className="marketing-heading mt-3 font-semibold">
-            Investigate the event history you have.
+            Move from event history to an explanation.
           </h2>
           <p className="marketing-prose mt-4">
-            MiLog keeps structured context, query controls, and investigation actions together in one
-            tenant-scoped timeline.
+            MiLog keeps the steps of an investigation together, from narrowing a tenant timeline to
+            sharing a useful result.
           </p>
         </div>
-        <div className="mt-10 grid gap-px overflow-hidden rounded-2xl bg-border md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => {
-            const Icon = feature.icon;
+        <div className="mt-10 grid gap-px overflow-hidden rounded-2xl bg-border lg:grid-cols-3">
+          {benefits.map((benefit) => {
+            const Icon = benefit.icon;
             return (
-              <div key={feature.title} className="bg-card p-6">
+              <div key={benefit.title} className="bg-card p-6 sm:p-8">
                 <div className="flex h-9 w-9 items-center justify-center rounded-md border border-border bg-background">
                   <Icon className="h-4 w-4 text-brand" />
                 </div>
-                <h3 className="mt-5 text-base font-semibold">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.description}</p>
+                <h3 className="mt-5 text-lg font-semibold">{benefit.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{benefit.description}</p>
               </div>
             );
           })}

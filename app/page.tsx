@@ -11,13 +11,12 @@ import { TrustedBy } from "@/components/landing/TrustedBy";
 export default function Page() {
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <h1 className="sr-only">MiLog - the timeline your logs deserve</h1>
       <Nav />
       <Hero />
       <TrustedBy />
+      <InteractiveDemo />
       <Features />
       <CodeSection />
-      <InteractiveDemo />
       <Pricing />
       <FinalCTA />
       <Footer />

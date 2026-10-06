@@ -2,7 +2,7 @@ const capabilities = ["structured events", "exact filters", "event details", "CS
 
 export function TrustedBy() {
   return (
-    <section className="border-b border-border">
+    <section className="border-y border-border bg-card/30" aria-label="Verified product capabilities">
       <div className="container flex flex-col items-center gap-4 py-8 text-center">
         <p className="marketing-section-label font-medium text-muted-foreground">
           Built for event investigation

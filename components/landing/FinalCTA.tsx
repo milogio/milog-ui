@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function FinalCTA() {
   return (
-    <section className="border-b border-border">
+    <section>
       <div className="container py-20">
         <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-10 text-center shadow-soft sm:p-16">
           <div className="absolute inset-0 bg-grid" />

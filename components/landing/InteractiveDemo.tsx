@@ -71,7 +71,7 @@ export function InteractiveDemo() {
     );
 
   return (
-    <section id="demo" className="border-b border-border">
+    <section id="demo">
       <div className="container marketing-section">
         <div className="marketing-copy">
           <p className="marketing-section-label text-gradient-brand">Sample demo</p>
@@ -79,8 +79,8 @@ export function InteractiveDemo() {
             Explore a simulated event stream.
           </h2>
           <p className="marketing-prose mt-4">
-            Filter and inspect generated sample events. This demonstration is not connected to
-            production traffic or the authenticated Timeline workspace.
+            Choose a severity, open an event, and inspect its generated payload. This demonstration is
+            not connected to production traffic or the authenticated Timeline workspace.
           </p>
         </div>
 

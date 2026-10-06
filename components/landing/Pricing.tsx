@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function Pricing() {
   return (
-    <section id="access" className="border-b border-border">
+    <section id="access" className="bg-card/30">
       <div className="container marketing-section">
         <div className="marketing-copy">
           <p className="marketing-section-label text-gradient-brand">Access</p>

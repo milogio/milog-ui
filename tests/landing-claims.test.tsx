@@ -35,8 +35,8 @@ describe("marketing claim guardrails", () => {
     );
 
     expect(screen.getByText("structured events · exact filters · event details · CSV + JSON export")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Tenant timelines" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Saved matching alerts" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Find the event that matters" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Carry the result forward" })).toBeInTheDocument();
     expect(screen.queryByText(/Trusted by engineering teams/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/MQL|anomaly detection|SDKs for every stack/i)).not.toBeInTheDocument();
   });
