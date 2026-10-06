@@ -1,41 +1,41 @@
-import { Activity, BellRing, Boxes, Code2, GitBranch, Search } from "lucide-react";
+import { Activity, BellRing, Boxes, Download, FileJson2, Search } from "lucide-react";
 
 const features = [
   {
     icon: Activity,
-    title: "Real-time streaming",
+    title: "Tenant timelines",
     description:
-      "Sub-second ingest. Watch events land on the timeline as they happen, with backpressure handled for you.",
+      "Review events for the signed-in tenant in stable occurrence order, with cursor pagination for longer histories.",
   },
   {
     icon: Boxes,
-    title: "Structured events",
+    title: "Structured event context",
     description:
-      "First-class JSON. Index any field, attach metadata, and stop grepping unstructured text forever.",
+      "Keep actor, action, target, severity, timestamps, and metadata together in one inspectable event record.",
   },
   {
     icon: Search,
-    title: "Powerful query language",
+    title: "Exact filters",
     description:
-      "MQL - a typed, expressive query language. Filter, aggregate, and pivot millions of events in milliseconds.",
+      "Filter by actor ID, target ID, entity type, and normalized log levels while keeping the URL and saved query aligned.",
   },
   {
-    icon: GitBranch,
-    title: "Trace correlation",
+    icon: FileJson2,
+    title: "Event investigation",
     description:
-      "Stitch logs to traces and spans automatically. Follow a request from edge to database without context-switching.",
+      "Open a focused details view, copy identifiers, and inspect the event metadata JSON without leaving the timeline.",
   },
   {
     icon: BellRing,
-    title: "Smart alerting",
+    title: "Saved matching alerts",
     description:
-      "Anomaly detection on any metric, routed to Slack, PagerDuty, or webhooks. Quiet, actionable, and tunable.",
+      "Save filter-based rules in the browser and receive an in-app notice when a new matching event appears while the timeline is open.",
   },
   {
-    icon: Code2,
-    title: "SDKs for every stack",
+    icon: Download,
+    title: "Export and filtered sharing",
     description:
-      "Drop-in libraries for Node, Python, Go, Rust, and Ruby. Or just POST JSON - your call.",
+      "Export the filtered result as CSV or JSON, or create a filter-only link for authenticated recipients in the same tenant.",
   },
 ];
 
@@ -46,11 +46,11 @@ export function Features() {
         <div className="max-w-2xl">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">Features</p>
           <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">
-            Everything you need to debug production.
+            Investigate the event history you have.
           </h2>
           <p className="mt-4 text-muted-foreground">
-            A single platform for logs, traces, and events - designed by developers who got tired of
-            duct-taping observability tools together.
+            MiLog keeps structured context, query controls, and investigation actions together in one
+            tenant-scoped timeline.
           </p>
         </div>
         <div className="mt-10 grid gap-px overflow-hidden rounded-2xl bg-border md:grid-cols-2 lg:grid-cols-3">

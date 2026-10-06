@@ -39,10 +39,10 @@ export function TimelinePreview() {
           <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/70" />
           <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/70" />
         </div>
-        <div className="font-mono text-[11px] text-muted-foreground">milog - production</div>
+        <div className="font-mono text-[11px] text-muted-foreground">simulated event stream</div>
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 animate-pulse-dot rounded-full bg-level-info" />
-          <span className="font-mono text-[11px] text-muted-foreground">live</span>
+          <span className="font-mono text-[11px] text-muted-foreground">sample</span>
         </div>
       </div>
       <div ref={scroller} className="relative max-h-[360px] overflow-hidden">

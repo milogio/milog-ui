@@ -76,10 +76,10 @@ export const LOG_EVENTS: LogEvent[] = [
     ts: ts(2.7),
     level: "info",
     service: "worker",
-    message: "Webhook delivered to acme.com",
+    message: "Webhook delivered to example.test",
     latencyMs: 213,
     traceId: "tr_a01f3c",
-    payload: { event: "invoice.paid", url: "https://acme.com/hooks", status: 200 },
+    payload: { event: "invoice.paid", url: "https://example.test/hooks", status: 200 },
   },
   {
     id: "e7",

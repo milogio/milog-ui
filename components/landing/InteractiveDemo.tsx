@@ -74,13 +74,13 @@ export function InteractiveDemo() {
     <section id="demo" className="border-b border-border">
       <div className="container py-20 lg:py-28">
         <div className="max-w-2xl">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">Live demo</p>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">Sample demo</p>
           <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">
-            Replay any incident, frame by frame.
+            Explore a simulated event stream.
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Filter, scrub, and dive into any event. The same UI you&apos;ll use every day - try it
-            right here, with sample production traffic.
+            Filter and inspect generated sample events. This demonstration is not connected to
+            production traffic or the authenticated Timeline workspace.
           </p>
         </div>
 
@@ -194,11 +194,8 @@ export function InteractiveDemo() {
                         <div className="border-t border-border/60 bg-background/40 px-4 py-3">
                           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-muted-foreground">
                             <span>
-                              trace_id: <span className="text-foreground">{event.traceId}</span>
+                              sample_trace_id: <span className="text-foreground">{event.traceId}</span>
                             </span>
-                            <a href="#demo" className="text-gradient-brand hover:underline">
-                              View full trace -&gt;
-                            </a>
                           </div>
                           <pre className="mt-3 overflow-x-auto rounded-md border border-border bg-card p-3 text-[12px] text-foreground/90">
                             {JSON.stringify(event.payload, null, 2)}

@@ -35,8 +35,7 @@ export function Footer() {
       </div>
       <div className="border-t border-border">
         <div className="container flex flex-col gap-3 py-5 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <span>© 2026 MiLog, Inc. All rights reserved.</span>
-          <span className="font-mono">all systems operational · v2.0.4</span>
+          <span>© 2026 MiLog.</span>
         </div>
       </div>
     </footer>

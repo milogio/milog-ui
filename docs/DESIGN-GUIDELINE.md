@@ -119,36 +119,37 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 
 - The dark developer-tool identity, restrained blue/cyan accent, and consistent rounded panels.
 - A strong headline paired with product evidence, rather than an abstract illustration.
-- The SDK example and interactive demonstration as tangible ways to understand the product.
-- A clearly emphasized recommended pricing tier and a final next-step section.
+- The contract-backed HTTP example and interactive demonstration as tangible ways to understand the product.
+- A clearly stated access status and a final next-step section. Add a recommended pricing tier only after verified plans and a useful recommendation rationale exist.
 
 ### Findings and evidence boundaries
 
 | Finding | Evidence | Design consequence |
 | --- | --- | --- |
-| Free offer is inconsistent | Hero/nav promise free access; Starter is $9/month with 1M events; Growth offers a 14-day trial; final CTA promises 1M free events every month | Resolve the actual offer before polishing conversion copy. |
+| Free offer is inconsistent | Hero/nav promise free access; Starter is $9/month with 1M events; Growth offers a 14-day trial; final CTA promises 1M free events every month | Stage 18 removed the conflicting terms and presents existing-account sign-in until product-owned commercial terms are available. |
 | Navigation promises exceed destinations | GitHub links to the generic GitHub home; API links target the footer; footer links use `#`; Contact sales routes to login | Make labels and destinations match the action users expect. |
-| Trust and capability claims need substantiation | Customer names, performance claims, SDK support, MQL, anomaly detection, SSO, and operational status are hardcoded in landing components | Treat these as unverified claims, not proof of current product capabilities or customer relationships. |
+| Trust and capability claims need substantiation | Customer names, performance claims, SDK support, MQL, anomaly detection, SSO, and operational status are hardcoded in landing components | Stage 18 removed unsupported claims, customer names, SDK packages, and static status; only contract-backed and implemented behaviors remain. |
 | Page rhythm is repetitive | Screenshot shows long dark bands, repeated separators and card treatments; source uses a viewport-height hero and repeated 80/112px section padding | Establish deliberate spacing and a shorter route from promise to product proof. |
 | Supporting content appears visually quiet | Screenshot shows subdued feature copy, navigation, pricing details, and footer; source uses small mono labels and additional opacity in places | Verify actual CSS size and contrast at normal browser zoom before choosing adjustments. |
-| Demo is distinct from the working Timeline | Separate data/components use warn/trace, service filters, and playback controls; copy calls it the same UI and promises scrubbing | Label the sample honestly and reconcile vocabulary or explain the distinction. |
+| Demo is distinct from the working Timeline | Separate data/components use warn/trace, service filters, and playback controls; copy calls it the same UI and promises scrubbing | Stage 18 labels it as simulated sample data and removes same-UI, production-traffic, scrubbing, and full-trace claims; Stage 22 will finish interaction and vocabulary work. |
 | Responsive/accessibility gaps are visible in source | Nav links disappear below md without a replacement menu; active tabs/filters and expansion lack explicit state semantics; hero preview auto-updates without a pause control | Plan explicit mobile navigation and interaction states, then verify in a live browser. |
 
 ### Offer, proof, and conversion language
 
 - Establish one documented offer covering free access versus trial, price, currency, billing period, event allowance, retention, and what happens at limits. Do not invent commercial terms during a visual redesign.
+- Until product-owned commercial terms exist, present sign-in for existing account holders as the only access path. State that public plans are unavailable; do not imply free access, a trial, published prices, or a signup flow.
 - Make hero, navigation, pricing, and final CTA language agree with that offer and with the actual onboarding destination.
-- Use an action label that accurately describes the next screen. If signup or a sales path does not exist, resolve the destination or change the label; do not silently funnel every action to login.
-- Retain customer names only when the relationship and use of the reference are confirmed. If evidence is unavailable, remove the trust strip or replace it with verified product evidence; do not create testimonials or numbers.
-- Verify SDK/package availability, API examples, performance promises, integrations, trace support, MQL, and plan features against authoritative project/product information. The inspected UI alone cannot establish backend capability.
-- Do not show hardcoded operational status as a live health signal. Link to a verified status source or omit the claim.
-- Keep pricing comparisons aligned and readable, with accessible Included/Not included meanings for icons. Prefer a useful recommendation rationale over an unsupported Best value claim.
+- Use an action label that accurately describes the next screen. Stage 18 uses `Sign in` for `/login`; a future signup or sales label requires a corresponding verified destination.
+- Retain customer names only when the relationship and use of the reference are confirmed. Stage 18 replaces the unsupported customer strip with implemented product capabilities; do not create testimonials or numbers.
+- Verify SDK/package availability, API examples, performance promises, integrations, trace support, MQL, and plan features against authoritative project/product information. Stage 18 retains only the OpenAPI-documented HTTP ingestion shape and removes unverified packages and advanced capability claims.
+- Do not show hardcoded operational status as a live health signal. Stage 18 omits the prior status/version statement; restore status only with a verified public source.
+- If verified plan comparisons return, keep them aligned and readable, give Included/Not included icons accessible meanings, and explain any recommended plan with a useful rationale.
 
 ### Information hierarchy and page rhythm
 
 - Keep one clear primary CTA and use a working demo or documentation destination as the secondary action. Retain GitHub only with a verified repository destination.
 - Pair the headline with a concise audience/problem/outcome statement and a readable preview. Do not force the hero to fill the viewport if it creates excessive empty space.
-- Evaluate this proposed sequence: hero → verified proof, if available → interactive product example → focused benefits → SDK integration → pricing → final CTA → useful footer.
+- Evaluate this proposed sequence: hero → verified proof, if available → interactive product example → focused benefits → API integration → access terms → final CTA → useful footer.
 - Give the hero preview and full demo different jobs: an immediate visual explanation versus a guided investigation. Avoid two undifferentiated moving log tables.
 - Replace the equal-weight feature inventory with a few prioritized, verified outcomes and supporting details. Retain the grid only if the resulting content benefits from it.
 - Use consistent section spacing with intentional variation around major transitions. Reduce empty bands and redundant separators without compressing paragraphs or control targets.
@@ -158,7 +159,7 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 
 - Share palette, focus, severity, radius, and control tokens with the product, but define separate marketing display, section-heading, body, caption, content-width, and section-spacing roles.
 - Use readable body copy and keep line lengths controlled. Initial comparison targets are 16–18px prose and 14px secondary copy; these are proposed CSS values to validate, not measured defects in the screenshot.
-- Use monospace for code and log data; avoid making key navigation, offer conditions, and pricing comparisons depend on tiny uppercase labels.
+- Use monospace for code and log data; avoid making key navigation, offer conditions, and any future pricing comparisons depend on tiny uppercase labels.
 - Make important links and text readable against actual surfaces. Gradient text and white text over blue/cyan CTA gradients require checks across the entire gradient, including hover and focus states.
 - Reserve strong gradients and glow for primary emphasis. Maintain distinguishable secondary actions and calm comparison surfaces.
 - Preserve landing severity consumers during token cleanup: `TimelinePreview` and `InteractiveDemo` currently use `--level-trace`. Do not remove trace merely because it is absent from the product display-level map.
@@ -166,11 +167,12 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 ### Demo and SDK experience
 
 - Identify generated events as sample data and make it clear when playback is simulated. Do not imply a connection to real production traffic.
+- Keep the Stage 18 `simulated event stream` and `sample` labels visible wherever generated data moves or can be inspected.
 - Give visitors a short supported task, such as filtering errors and opening an event payload, with a clear reset path and helpful empty state.
-- Remove unsupported scrub/frame-by-frame/full-trace promises unless those interactions actually exist. The current View full trace link loops back to the demo section.
+- Stage 18 removed unsupported scrub, frame-by-frame, and full-trace promises. Reintroduce them only with implemented interactions and an accurate destination.
 - Align with the product's normalized level names when representing the actual Timeline. If a raw-log example is intentionally different, label it and remove the same-UI claim.
 - Provide a pause/static option for the hero preview and demo, respect reduced motion in JavaScript as well as CSS, and avoid moving content while it is being inspected. Limit ongoing work when the sample is offscreen or hidden.
-- Present SDK tabs as an accessible selection control with an associated code panel. Copy the active snippet and report clipboard failure as well as success.
+- Add SDK tabs only after supported packages and examples are confirmed. If they are supplied, present them as an accessible selection control with an associated code panel; otherwise retain the single contract-backed HTTP example. Report clipboard failure as well as success.
 - Verify examples against the supported SDK/API contract. Include required imports/context or clearly mark excerpts; the inspected snippets reference context such as `req`, `trace_id`, and `os` without supplying it consistently.
 - Keep code and data scrolling inside their panels. Adapt narrow-screen event rows so message content remains available rather than squeezed out by fixed columns.
 
@@ -212,12 +214,13 @@ Use GPT-6 Sol with High reasoning in Codex for the scoped implementation priorit
 | 2026-10-05 | Use visible UTC event timestamps and make clipboard feedback reflect the actual write result | Implemented in stage 15; reviewed at 1280 × 800 and 390 × 760. Relative and exact time remain visible together, semantic row names include the exact instant, all event copy labels identify their payload, and successful metadata copy feedback was exercised in-browser. UTC boundary equivalence and rejected clipboard operations are covered by tests. No new design tokens were required. |
 | 2026-10-05 | Use labelled modal semantics with contained and returning focus, explicit disclosure state, announced utility feedback, and a visible read-only label | Implemented in stage 16; keyboard and accessibility-tree review passed at desktop and narrow sizes. Rendered muted/control/focus contrast passed, and the strong control boundary was raised to `230 14% 42%` after browser rounding put the prior value just below 3:1. Reduced motion now stops all CSS animation cycles. The 137-test suite and Webpack production build passed. Native 200% zoom and broader assistive-technology checks remain useful pre-production manual coverage beyond the browser accessibility-tree baseline. |
 | 2026-10-05 | Accept stages 09–17 as the combined Timeline design baseline, with deterministic focus recovery, isolated shared filters, durable alert polling, honest share-copy feedback, and overflow-safe alert rules | Implemented in stage 17; reviewed at 1280 × 800 and 390 × 760 across populated, loading, empty, error/retry, selected, expanded, pagination, refresh/export, share, alert, read-only, and invalid-link states. Page and dialog overflow checks passed after the narrow alert-row correction; browser logs were clean. Contract check, lint, typecheck, 144 tests with coverage, and the Webpack production build passed. Environment-dependent production gates remain in stage 07. |
+| 2026-10-05 | Publish only evidence-backed marketing claims: existing-account sign-in, implemented Timeline capabilities, the OpenAPI ingestion shape, and explicitly simulated sample data | Implemented in stage 18. Conflicting prices/free/trial copy, named customer references, unsupported SDK packages and advanced capabilities, and static operational status were removed. Reviewed at 1280 × 720 and 390 × 760 without page overflow or browser warnings. Contract check, lint, typecheck, 147 tests with coverage, and the Webpack production build passed. Commercial terms, customer proof, public destinations, and supported SDK packages remain product-owned open decisions. |
 
 ## Open decisions
 
 - Branded webfont selection, if the system stacks are later replaced.
-- Verified free/trial offer, billing terms, plan capabilities, and onboarding/sales destinations.
-- Approved customer proof, product capability evidence, repository/docs/status URLs, and supported SDK examples.
+- Verified free/trial offer, billing terms, plan capabilities, and signup/sales destinations; existing-account sign-in is the current accepted path.
+- Approved customer proof, repository/docs/status URLs, and supported SDK packages; the current HTTP example is limited to the checked-in public API contract.
 - Final marketing section order, typography/spacing roles, and whether the sample demo adopts the working Timeline vocabulary.
 
 Resolve these during the relevant stage using rendered evidence and record the accepted choice above.

@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "MiLog - The timeline your logs deserve",
   description:
-    "MiLog is a developer-first logging platform with a real-time event timeline, structured queries, and SDKs for every stack.",
+    "MiLog provides authenticated, tenant-scoped timelines for filtering, inspecting, exporting, and sharing structured events.",
 };
 
 export default function RootLayout({

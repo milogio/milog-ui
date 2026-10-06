@@ -23,18 +23,12 @@ export function Nav() {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/login"
-            className="hidden h-9 items-center rounded-md px-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground sm:inline-flex"
-          >
-            Sign in
-          </Link>
+        <div className="flex items-center">
           <Link
             href="/login"
             className="inline-flex h-9 items-center rounded-md bg-gradient-brand px-3 text-sm font-medium text-brand-foreground hover:opacity-90"
           >
-            Start free
+            Sign in
           </Link>
         </div>
       </div>
