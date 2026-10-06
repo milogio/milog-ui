@@ -55,6 +55,6 @@ Continue with 18–23 after the existing design sequence. These priorities come 
 - [x] [20 — P1: Marketing readability and tokens](./20-p1-marketing-readability-and-tokens.md) — completed 2026-10-05
 - [x] [21 — P2: Home-page hierarchy and rhythm](./21-p2-marketing-hierarchy-and-rhythm.md) — completed 2026-10-05
 - [x] [22 — P1: Demo and SDK experience](./22-p1-marketing-demo-and-sdk.md) — completed 2026-10-06
-- [ ] [23 — Cross-cutting: Marketing design validation](./23-marketing-design-validation.md)
+- [x] [23 — Cross-cutting: Marketing design validation](./23-marketing-design-validation.md) — completed 2026-10-06
 
 Follow the marketing section of the [design guideline](../docs/DESIGN-GUIDELINE.md). Priority expresses impact; execution order also accounts for content and layout dependencies. Preserve the Timeline baseline and record accepted marketing decisions and browser evidence as each plan is completed.
