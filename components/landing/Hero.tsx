@@ -12,10 +12,10 @@ export function Hero() {
           <div className="inline-flex rounded-full border border-border bg-card/70 px-3 py-1 font-mono text-xs text-muted-foreground">
             Tenant-scoped event history
           </div>
-          <h2 className="mt-6 text-5xl font-semibold tracking-normal text-foreground sm:text-6xl lg:text-7xl">
+          <h2 className="marketing-display mt-6 font-semibold text-foreground">
             The timeline your <span className="text-gradient-brand">logs deserve.</span>
           </h2>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
+          <p className="marketing-prose marketing-lede mt-6 max-w-2xl">
             Review structured events, filter exact actor and target context, inspect metadata, export
             results, and share filter state within your authenticated tenant.
           </p>
@@ -28,7 +28,7 @@ export function Hero() {
             </Link>
             <Link
               href="#demo"
-              className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-background px-5 text-sm font-medium text-foreground hover:bg-accent"
+              className="marketing-control inline-flex h-11 items-center gap-2 rounded-md border bg-background px-5 text-sm font-medium text-foreground hover:bg-accent"
             >
               <Play aria-hidden="true" className="h-4 w-4" />
               Explore the sample

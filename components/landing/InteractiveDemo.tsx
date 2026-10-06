@@ -72,13 +72,13 @@ export function InteractiveDemo() {
 
   return (
     <section id="demo" className="border-b border-border">
-      <div className="container py-20 lg:py-28">
-        <div className="max-w-2xl">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">Sample demo</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">
+      <div className="container marketing-section">
+        <div className="marketing-copy">
+          <p className="marketing-section-label text-gradient-brand">Sample demo</p>
+          <h2 className="marketing-heading mt-3 font-semibold">
             Explore a simulated event stream.
           </h2>
-          <p className="mt-4 text-muted-foreground">
+          <p className="marketing-prose mt-4">
             Filter and inspect generated sample events. This demonstration is not connected to
             production traffic or the authenticated Timeline workspace.
           </p>
@@ -95,7 +95,7 @@ export function InteractiveDemo() {
                     "rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-wide",
                     levelFilter === level
                       ? "border-foreground/40 bg-accent text-foreground"
-                      : "border-border text-muted-foreground hover:text-foreground",
+                      : "marketing-control text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {level}
@@ -104,7 +104,7 @@ export function InteractiveDemo() {
             </div>
 
             <details className="group relative">
-              <summary className="flex h-8 cursor-pointer list-none items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm">
+              <summary className="marketing-control flex h-8 cursor-pointer list-none items-center gap-1.5 rounded-md border bg-background px-3 text-sm">
                 <Filter className="h-3.5 w-3.5" />
                 <span className="font-mono text-xs">
                   {services.length}/{SERVICES.length} services
@@ -137,7 +137,7 @@ export function InteractiveDemo() {
                 <span className="tabular-nums text-foreground">{eps}</span>
                 <span>events/sec</span>
               </div>
-              <div className="flex h-8 gap-0 rounded-md border border-border bg-background p-0.5">
+              <div className="marketing-control flex h-8 gap-0 rounded-md border bg-background p-0.5">
                 {(["1", "2", "4"] as const).map((value) => (
                   <button
                     key={value}
@@ -152,7 +152,7 @@ export function InteractiveDemo() {
                 ))}
               </div>
               <button
-                className="flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm"
+                className="marketing-control flex h-8 items-center gap-1.5 rounded-md border bg-background px-3 text-sm"
                 onClick={() => setPlaying((value) => !value)}
               >
                 {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}

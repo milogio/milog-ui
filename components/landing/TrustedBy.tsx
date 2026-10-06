@@ -4,10 +4,10 @@ export function TrustedBy() {
   return (
     <section className="border-b border-border">
       <div className="container flex flex-col items-center gap-4 py-8 text-center">
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="marketing-section-label font-medium text-muted-foreground">
           Built for event investigation
         </p>
-        <p className="font-mono text-sm text-muted-foreground opacity-70">
+        <p className="font-mono text-sm text-muted-foreground">
           {capabilities.join(" · ")}
         </p>
       </div>

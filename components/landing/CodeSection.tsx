@@ -22,13 +22,13 @@ export function CodeSection() {
 
   return (
     <section id="api-example" className="border-b border-border">
-      <div className="container grid gap-10 py-20 lg:grid-cols-[0.85fr_1.15fr] lg:py-28">
-        <div className="max-w-xl">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">Public API</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">
+      <div className="container marketing-section grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="marketing-copy">
+          <p className="marketing-section-label text-gradient-brand">Public API</p>
+          <h2 className="marketing-heading mt-3 font-semibold">
             Send a structured event over HTTP.
           </h2>
-          <p className="mt-4 text-muted-foreground">
+          <p className="marketing-prose mt-4">
             The documented ingestion endpoint accepts tenant-scoped events with actor, action, target,
             level, timestamp, and metadata fields. Idempotency keys make safe retries possible.
           </p>
@@ -37,7 +37,7 @@ export function CodeSection() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
             <span className="font-mono text-xs text-muted-foreground">cURL · documented request shape</span>
             <button
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-xs text-muted-foreground hover:text-foreground"
+              className="marketing-control inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-3 text-xs text-muted-foreground hover:text-foreground"
               onClick={async () => {
                 await navigator.clipboard.writeText(SNIPPET);
                 setCopied(true);

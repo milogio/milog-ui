@@ -1,6 +1,6 @@
 # P1: Marketing readability and tokens
 
-Status: **Planned**
+Status: **Completed 2026-10-05**
 
 ## Goal
 
@@ -26,10 +26,10 @@ Follow the marketing section of the [living design guideline](../docs/DESIGN-GUI
 
 ## Acceptance criteria
 
-- [ ] Core proposition, navigation, pricing details, and offer terms remain readable at desktop/mobile sizes and browser zoom.
-- [ ] Marketing token roles and accepted values are documented in the guideline.
-- [ ] Text, essential control boundaries, and focus indicators have recorded contrast measurements.
-- [ ] Shared token changes preserve Timeline, login, and landing severity rendering.
+- [x] Core proposition, navigation, pricing details, and offer terms remain readable at desktop/mobile sizes and browser zoom.
+- [x] Marketing token roles and accepted values are documented in the guideline.
+- [x] Text, essential control boundaries, and focus indicators have recorded contrast measurements.
+- [x] Shared token changes preserve Timeline, login, and landing severity rendering.
 
 ## Validation
 
@@ -37,6 +37,37 @@ Capture normal-scale sections and measure actual colors including opacity/gradie
 
 ## Completion record
 
-- Implemented changes: pending.
-- Checks and browser evidence: pending.
-- Accepted guideline decisions and remaining issues: pending.
+### Implemented changes
+
+- Added marketing roles for display text, section headings, prose, hero ledes, captions, readable copy width, section spacing, and essential control boundaries.
+- Applied the roles to the hero, feature introduction, API example, sample demo, access disclosure, and final CTA while retaining 14px supporting copy in cards, navigation, and the footer.
+- Removed the extra opacity from the capability strip so secondary text renders directly from the shared text token.
+- Reused the shared strong boundary value through a marketing control role. This local rule is necessary because the existing unlayered universal border declaration overrides Tailwind border-color utilities; changing that global cascade would alter the accepted Timeline baseline.
+- Kept strong glow on the hero primary action only and retained every landing severity token, including trace.
+
+### Accepted marketing roles
+
+Typography values are font size / line height.
+
+| Role | Mobile | `sm` | `lg` / shared value |
+| --- | --- | --- | --- |
+| Display | 48px / 48px | 60px / 60px | 72px / 72px |
+| Section heading | 30px / 34.5px | 36px / 41.4px | 36px / 41.4px |
+| Hero lede | 18px / 32px | same | same |
+| Prose | 16px / 28px | same | same |
+| Caption | 12px / 18px | same | same |
+| Copy width | up to 42rem | same | same |
+| Section spacing | 80px per edge | same | 112px per edge |
+
+### Checks and browser evidence
+
+- Reviewed the hero, access terms, card copy, CTA controls, focus ring, and login at 1280 × 720, 640 × 720 effective high-magnification reflow, and 390 × 760. Page width matched each viewport and the system font stack reported loaded.
+- Recorded rendered contrast: primary text 17.97:1 on canvas; secondary text 6.53:1 on canvas and 6.35:1 on panels; essential control boundaries 3.23:1 and 3.14:1; focus 4.71:1 and 4.58:1; gradient text 4.71:1–11.18:1 on canvas; primary-button text at least 4.71:1 normally and 4.02:1 through hover opacity.
+- Landing severity contrast on panels remains info 8.36:1, warning 10.53:1, error 5.34:1, trace 6.12:1, and debug 8.04:1.
+- Browser warnings/errors were empty. `npm run contract:check`, `npm run lint`, `npm run typecheck`, 150 Vitest tests with coverage, and `npm run build -- --webpack` pass.
+
+### Accepted guideline decisions and remaining issues
+
+- Keep shared palette, radius, focus, severity, and elevation foundations unchanged; marketing roles control only landing typography, width, spacing, and essential boundaries.
+- Continue using the zero-request system stacks until branded webfonts are selected and measured.
+- Native browser zoom and broader assistive-technology coverage remain part of the final Stage 23 release review; the 640px CSS viewport validates the responsive reflow expected from a 1280px layout at 200% magnification.

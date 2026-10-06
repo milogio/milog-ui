@@ -57,6 +57,17 @@
     0 0 0 1px hsl(var(--brand) / 0.25),
     0 20px 60px -10px hsl(var(--brand) / 0.35);
 
+  /* Marketing roles reuse the product palette while keeping type and rhythm explicit. */
+  --marketing-display-size: 3rem;
+  --marketing-heading-size: 1.875rem;
+  --marketing-prose-size: 1rem;
+  --marketing-prose-leading: 1.75;
+  --marketing-lede-size: 1.125rem;
+  --marketing-lede-leading: 1.7778;
+  --marketing-caption-size: 0.75rem;
+  --marketing-copy-width: 42rem;
+  --marketing-section-space: 5rem;
+
   /* Deliberate zero-request stacks; replace with next/font variables when font files are selected. */
   --font-family-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-family-mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -243,6 +254,63 @@ button {
 .container {
   width: min(100% - 2rem, 1400px);
   margin-inline: auto;
+}
+
+.marketing-section {
+  padding-block: var(--marketing-section-space);
+}
+
+.marketing-copy {
+  max-width: var(--marketing-copy-width);
+}
+
+.marketing-display {
+  font-size: var(--marketing-display-size);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.marketing-heading {
+  font-size: var(--marketing-heading-size);
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.marketing-prose {
+  color: hsl(var(--muted-foreground));
+  font-size: var(--marketing-prose-size);
+  line-height: var(--marketing-prose-leading);
+}
+
+.marketing-lede {
+  font-size: var(--marketing-lede-size);
+  line-height: var(--marketing-lede-leading);
+}
+
+.marketing-section-label {
+  font-family: var(--font-family-mono);
+  font-size: var(--marketing-caption-size);
+  line-height: 1.5;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.marketing-control {
+  border-color: hsl(var(--input));
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --marketing-display-size: 3.75rem;
+    --marketing-heading-size: 2.25rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --marketing-display-size: 4.5rem;
+    --marketing-section-space: 7rem;
+  }
 }
 
 .bg-grid {

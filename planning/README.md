@@ -52,7 +52,7 @@ Continue with 18–23 after the existing design sequence. These priorities come 
 
 - [x] [18 — P1: Credible offer and product claims](./18-p1-marketing-offer-and-claims.md) — completed 2026-10-05
 - [x] [19 — P1: Working navigation and conversion paths](./19-p1-marketing-navigation-and-conversion.md) — completed 2026-10-05
-- [ ] [20 — P1: Marketing readability and tokens](./20-p1-marketing-readability-and-tokens.md)
+- [x] [20 — P1: Marketing readability and tokens](./20-p1-marketing-readability-and-tokens.md) — completed 2026-10-05
 - [ ] [21 — P2: Home-page hierarchy and rhythm](./21-p2-marketing-hierarchy-and-rhythm.md)
 - [ ] [22 — P1: Demo and SDK experience](./22-p1-marketing-demo-and-sdk.md)
 - [ ] [23 — Cross-cutting: Marketing design validation](./23-marketing-design-validation.md)

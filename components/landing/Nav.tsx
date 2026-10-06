@@ -66,7 +66,7 @@ export function Nav() {
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
             aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background text-foreground hover:bg-accent md:hidden"
+            className="marketing-control inline-flex h-10 w-10 items-center justify-center rounded-md border bg-background text-foreground hover:bg-accent md:hidden"
             onClick={() => setMenuOpen((open) => !open)}
           >
             {menuOpen ? <X aria-hidden="true" className="h-5 w-5" /> : <Menu aria-hidden="true" className="h-5 w-5" />}

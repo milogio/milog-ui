@@ -11,7 +11,7 @@ export function FinalCTA() {
             <h2 className="text-3xl font-semibold tracking-normal sm:text-5xl">
               Return to your <span className="text-gradient-brand">timeline.</span>
             </h2>
-            <p className="mt-5 text-muted-foreground">
+            <p className="marketing-prose mt-5">
               Existing account holders can sign in to review and filter tenant-scoped event history,
               export results, and share filtered views.
             </p>
@@ -24,7 +24,7 @@ export function FinalCTA() {
               </Link>
               <Link
                 href="#demo"
-                className="inline-flex h-11 items-center rounded-md border border-border bg-background px-5 text-sm font-medium hover:bg-accent"
+                className="marketing-control inline-flex h-11 items-center rounded-md border bg-background px-5 text-sm font-medium hover:bg-accent"
               >
                 Explore the sample
               </Link>

@@ -3,13 +3,13 @@ import Link from "next/link";
 export function Pricing() {
   return (
     <section id="access" className="border-b border-border">
-      <div className="container py-20 lg:py-28">
-        <div className="max-w-3xl">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">Access</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-normal sm:text-4xl">
+      <div className="container marketing-section">
+        <div className="marketing-copy">
+          <p className="marketing-section-label text-gradient-brand">Access</p>
+          <h2 className="marketing-heading mt-3 font-semibold">
             Public plans are not available yet.
           </h2>
-          <p className="mt-4 text-muted-foreground">
+          <p className="marketing-prose mt-4">
             Pricing, trial availability, event allowances, retention, team limits, and support terms
             are not published yet. Existing account holders can continue to their tenant timeline.
           </p>
