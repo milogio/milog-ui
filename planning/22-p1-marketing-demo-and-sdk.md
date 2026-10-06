@@ -1,6 +1,6 @@
 # P1: Demo and SDK experience
 
-Status: **Planned**
+Status: **Completed 2026-10-06**
 
 ## Goal
 
@@ -28,11 +28,11 @@ Follow the marketing section of the [living design guideline](../docs/DESIGN-GUI
 
 ## Acceptance criteria
 
-- [ ] Every advertised demo interaction works, and sample data is clearly distinguished from production connectivity.
-- [ ] Visitors can filter, reset, pause, and inspect an event using keyboard and touch without losing the inspected content.
-- [ ] Reduced-motion preference stops unsolicited motion/stream changes as designed; continuous playback does not accumulate unnecessary work.
-- [ ] Log messages, controls, and code remain accessible on narrow screens without page overflow.
-- [ ] SDK examples match verified supported interfaces; selected tabs/panels and clipboard failure are accessible and accurate.
+- [x] Every advertised demo interaction works, and sample data is clearly distinguished from production connectivity.
+- [x] Visitors can filter, reset, pause, and inspect an event using keyboard and touch without losing the inspected content.
+- [x] Reduced-motion preference stops unsolicited motion/stream changes as designed; continuous playback does not accumulate unnecessary work.
+- [x] Log messages, controls, and code remain accessible on narrow screens without page overflow.
+- [x] The retained HTTP example matches the checked-in public API contract, and clipboard failure is accessible and accurate. SDK tabs remain withheld until supported packages are verified.
 
 ## Validation
 
@@ -40,6 +40,6 @@ Test demo filtering/reset/empty results, speed/pause, expansion stability, reduc
 
 ## Completion record
 
-- Implemented changes: pending.
-- Checks and browser evidence: pending.
-- Accepted guideline decisions and remaining issues: pending.
+- Implemented changes: both simulated streams now have explicit pause/play controls, reduced-motion defaults, visibility and viewport suspension, bounded event buffers, and fixed preview height. The guided demo exposes pressed and expanded states, sample-specific vocabulary, filter reset and empty recovery, stable inspection, disclosure dismissal, and responsive rows. The API example reports clipboard success or failure through visible button state and an announced message.
+- Checks and browser evidence: contract check, lint, typecheck, 160 tests with coverage, and the Webpack production build passed. The default Turbopack build was also attempted but the execution environment blocked its internal CSS helper from binding a port. In-app browser review at 648 × 838 exercised severity filtering, service disclosure, event expansion, inspection pause, and horizontal-overflow measurement; body and root widths remained 648px, the expanded row stayed within the 614px demo panel, and browser logs contained no application errors. Automated coverage exercises reduced motion, offscreen suspension, reset/empty behavior, selected states, expansion stability, and both clipboard outcomes.
+- Accepted guideline decisions and remaining issues: the marketing stream is an explicitly simulated sample, so its raw-style `warn`, `trace`, and service vocabulary may differ from the normalized authenticated Timeline. Keep the single contract-backed HTTP request until supported SDK packages and examples are product-verified. Native 390px and broader assistive-technology checks remain useful pre-production manual coverage; responsive behavior is also protected by stacked narrow-row CSS and overflow-contained code/JSON panels.

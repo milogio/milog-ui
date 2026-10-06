@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, Check, Copy } from "lucide-react";
+import { writeClipboardText } from "@/lib/clipboard";
+import { cn } from "@/lib/utils";
 
 const SNIPPET = `curl "$MILOG_API_URL/api/v1/events" \\
   -H "X-API-Key: $MILOG_API_KEY" \\
@@ -18,7 +20,22 @@ const SNIPPET = `curl "$MILOG_API_URL/api/v1/events" \\
   }'`;
 
 export function CodeSection() {
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
+  const resetTimer = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (resetTimer.current !== null) window.clearTimeout(resetTimer.current);
+    },
+    [],
+  );
+
+  const copySnippet = async () => {
+    if (resetTimer.current !== null) window.clearTimeout(resetTimer.current);
+    const didCopy = await writeClipboardText(SNIPPET);
+    setCopyStatus(didCopy ? "success" : "error");
+    resetTimer.current = window.setTimeout(() => setCopyStatus("idle"), 2400);
+  };
 
   return (
     <section id="api-example">
@@ -37,16 +54,30 @@ export function CodeSection() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
             <span className="font-mono text-xs text-muted-foreground">cURL · documented request shape</span>
             <button
-              className="marketing-control inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-3 text-xs text-muted-foreground hover:text-foreground"
-              onClick={async () => {
-                await navigator.clipboard.writeText(SNIPPET);
-                setCopied(true);
-                window.setTimeout(() => setCopied(false), 1400);
-              }}
+              type="button"
+              aria-describedby="api-copy-status"
+              className={cn(
+                "marketing-control inline-flex h-8 items-center gap-1.5 rounded-md border bg-background px-3 text-xs text-muted-foreground hover:text-foreground",
+                copyStatus === "error" && "text-level-error",
+              )}
+              onClick={copySnippet}
             >
-              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? "Copied" : "Copy"}
+              {copyStatus === "success" ? (
+                <Check className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : copyStatus === "error" ? (
+                <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              {copyStatus === "success" ? "Copied" : copyStatus === "error" ? "Copy failed" : "Copy"}
             </button>
+            <span id="api-copy-status" className="sr-only" role="status" aria-live="polite">
+              {copyStatus === "success"
+                ? "API example copied to the clipboard."
+                : copyStatus === "error"
+                  ? "The API example could not be copied. Select the code and copy it manually."
+                  : ""}
+            </span>
           </div>
           <pre className="overflow-x-auto p-5 font-mono text-[12.5px] leading-6 text-foreground/90">
             {SNIPPET}
