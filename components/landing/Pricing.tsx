@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function Pricing() {
   return (
-    <section id="pricing" className="border-b border-border">
+    <section id="access" className="border-b border-border">
       <div className="container py-20 lg:py-28">
         <div className="max-w-3xl">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">Access</p>

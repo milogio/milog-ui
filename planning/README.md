@@ -51,7 +51,7 @@ Implement accessible behavior within each stage; stage 16 closes cross-component
 Continue with 18–23 after the existing design sequence. These priorities come from the 2026-10-04 home-page screenshot and source review. Stage 18 establishes the evidence boundary for later marketing work; shared-token work uses stage 09. Missing product facts stay explicitly unresolved until product-owned evidence is available.
 
 - [x] [18 — P1: Credible offer and product claims](./18-p1-marketing-offer-and-claims.md) — completed 2026-10-05
-- [ ] [19 — P1: Working navigation and conversion paths](./19-p1-marketing-navigation-and-conversion.md)
+- [x] [19 — P1: Working navigation and conversion paths](./19-p1-marketing-navigation-and-conversion.md) — completed 2026-10-05
 - [ ] [20 — P1: Marketing readability and tokens](./20-p1-marketing-readability-and-tokens.md)
 - [ ] [21 — P2: Home-page hierarchy and rhythm](./21-p2-marketing-hierarchy-and-rhythm.md)
 - [ ] [22 — P1: Demo and SDK experience](./22-p1-marketing-demo-and-sdk.md)

@@ -21,7 +21,7 @@ export function CodeSection() {
   const [copied, setCopied] = useState(false);
 
   return (
-    <section id="docs" className="border-b border-border">
+    <section id="api-example" className="border-b border-border">
       <div className="container grid gap-10 py-20 lg:grid-cols-[0.85fr_1.15fr] lg:py-28">
         <div className="max-w-xl">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-gradient-brand">Public API</p>

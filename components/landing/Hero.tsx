@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Code2 } from "lucide-react";
+import { Play } from "lucide-react";
 import { TimelinePreview } from "@/components/landing/TimelinePreview";
 
 export function Hero() {
@@ -26,13 +26,13 @@ export function Hero() {
             >
               Sign in to MiLog
             </Link>
-            <a
-              href="https://github.com"
+            <Link
+              href="#demo"
               className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-background px-5 text-sm font-medium text-foreground hover:bg-accent"
             >
-              <Code2 className="h-4 w-4" />
-              View on GitHub
-            </a>
+              <Play aria-hidden="true" className="h-4 w-4" />
+              Explore the sample
+            </Link>
           </div>
           <div className="mt-5 font-mono text-sm text-muted-foreground">
             authenticated · tenant-scoped · cursor-paginated

@@ -127,12 +127,12 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 | Finding | Evidence | Design consequence |
 | --- | --- | --- |
 | Free offer is inconsistent | Hero/nav promise free access; Starter is $9/month with 1M events; Growth offers a 14-day trial; final CTA promises 1M free events every month | Stage 18 removed the conflicting terms and presents existing-account sign-in until product-owned commercial terms are available. |
-| Navigation promises exceed destinations | GitHub links to the generic GitHub home; API links target the footer; footer links use `#`; Contact sales routes to login | Make labels and destinations match the action users expect. |
+| Navigation promises exceed destinations | GitHub links to the generic GitHub home; API links target the footer; footer links use `#`; Contact sales routes to login | Stage 19 removes unavailable destinations and exposes only verified section anchors and existing-account sign-in. |
 | Trust and capability claims need substantiation | Customer names, performance claims, SDK support, MQL, anomaly detection, SSO, and operational status are hardcoded in landing components | Stage 18 removed unsupported claims, customer names, SDK packages, and static status; only contract-backed and implemented behaviors remain. |
 | Page rhythm is repetitive | Screenshot shows long dark bands, repeated separators and card treatments; source uses a viewport-height hero and repeated 80/112px section padding | Establish deliberate spacing and a shorter route from promise to product proof. |
 | Supporting content appears visually quiet | Screenshot shows subdued feature copy, navigation, pricing details, and footer; source uses small mono labels and additional opacity in places | Verify actual CSS size and contrast at normal browser zoom before choosing adjustments. |
 | Demo is distinct from the working Timeline | Separate data/components use warn/trace, service filters, and playback controls; copy calls it the same UI and promises scrubbing | Stage 18 labels it as simulated sample data and removes same-UI, production-traffic, scrubbing, and full-trace claims; Stage 22 will finish interaction and vocabulary work. |
-| Responsive/accessibility gaps are visible in source | Nav links disappear below md without a replacement menu; active tabs/filters and expansion lack explicit state semantics; hero preview auto-updates without a pause control | Plan explicit mobile navigation and interaction states, then verify in a live browser. |
+| Responsive/accessibility gaps are visible in source | Nav links disappear below md without a replacement menu; active tabs/filters and expansion lack explicit state semantics; hero preview auto-updates without a pause control | Stage 19 adds a labelled mobile navigation disclosure with expanded state, Escape dismissal, and focus return; demo state and motion remain Stage 22 work. |
 
 ### Offer, proof, and conversion language
 
@@ -147,7 +147,7 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 
 ### Information hierarchy and page rhythm
 
-- Keep one clear primary CTA and use a working demo or documentation destination as the secondary action. Retain GitHub only with a verified repository destination.
+- Keep one clear primary CTA and use a working demo or documentation destination as the secondary action. Stage 19 uses the sample demo and withholds GitHub until a verified repository destination exists.
 - Pair the headline with a concise audience/problem/outcome statement and a readable preview. Do not force the hero to fill the viewport if it creates excessive empty space.
 - Evaluate this proposed sequence: hero → verified proof, if available → interactive product example → focused benefits → API integration → access terms → final CTA → useful footer.
 - Give the hero preview and full demo different jobs: an immediate visual explanation versus a guided investigation. Avoid two undifferentiated moving log tables.
@@ -178,11 +178,12 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 
 ### Navigation and accessibility
 
-- Provide a mobile navigation alternative with access to the same important destinations and sign-in action.
-- Replace placeholder links with verified destinations or remove unavailable entries. Label a code example as an example rather than full API documentation.
+- Preserve the Stage 19 desktop/mobile destination set: Features, API example, Sample demo, Access, and Sign in. Add a destination only when the corresponding section or route exists.
+- Keep the mobile navigation as a labelled disclosure with explicit expanded state, a close control, Escape/outside dismissal, and Escape focus return. Maintain at least 44px mobile link targets.
+- Keep repository, documentation, status, legal, sales, and company links withheld until verified destinations exist. Label the current contract-shaped code as an API example rather than full documentation.
 - Use the visible hero headline as the page's meaningful primary heading and keep subsequent headings hierarchical.
 - Provide visible focus, selected and expanded states, logical tab order, and reliable menu focus return. Avoid hover-only access to essential content.
-- Account for sticky navigation in in-page anchor offsets. Keep focused headings and controls visible at narrow widths and browser zoom.
+- Retain the 4.5rem document scroll offset for the 3.5rem sticky header. Revalidate it if header height changes; keep focused headings and controls visible at narrow widths and browser zoom.
 - Expose pricing inclusion icons with text equivalents; keep decorative icons and backgrounds out of the accessibility tree where appropriate.
 
 ### Marketing acceptance review
@@ -215,6 +216,7 @@ Use GPT-6 Sol with High reasoning in Codex for the scoped implementation priorit
 | 2026-10-05 | Use labelled modal semantics with contained and returning focus, explicit disclosure state, announced utility feedback, and a visible read-only label | Implemented in stage 16; keyboard and accessibility-tree review passed at desktop and narrow sizes. Rendered muted/control/focus contrast passed, and the strong control boundary was raised to `230 14% 42%` after browser rounding put the prior value just below 3:1. Reduced motion now stops all CSS animation cycles. The 137-test suite and Webpack production build passed. Native 200% zoom and broader assistive-technology checks remain useful pre-production manual coverage beyond the browser accessibility-tree baseline. |
 | 2026-10-05 | Accept stages 09–17 as the combined Timeline design baseline, with deterministic focus recovery, isolated shared filters, durable alert polling, honest share-copy feedback, and overflow-safe alert rules | Implemented in stage 17; reviewed at 1280 × 800 and 390 × 760 across populated, loading, empty, error/retry, selected, expanded, pagination, refresh/export, share, alert, read-only, and invalid-link states. Page and dialog overflow checks passed after the narrow alert-row correction; browser logs were clean. Contract check, lint, typecheck, 144 tests with coverage, and the Webpack production build passed. Environment-dependent production gates remain in stage 07. |
 | 2026-10-05 | Publish only evidence-backed marketing claims: existing-account sign-in, implemented Timeline capabilities, the OpenAPI ingestion shape, and explicitly simulated sample data | Implemented in stage 18. Conflicting prices/free/trial copy, named customer references, unsupported SDK packages and advanced capabilities, and static operational status were removed. Reviewed at 1280 × 720 and 390 × 760 without page overflow or browser warnings. Contract check, lint, typecheck, 147 tests with coverage, and the Webpack production build passed. Commercial terms, customer proof, public destinations, and supported SDK packages remain product-owned open decisions. |
+| 2026-10-05 | Expose only working marketing destinations, use the sample as the secondary action, and provide equivalent desktop/mobile navigation | Implemented in stage 19. Generic GitHub and placeholder footer links were removed; Features, API example, Sample demo, Access, and Sign in now resolve to implemented destinations. The mobile disclosure exposes expanded state and supports close, Escape, outside dismissal, and focus return. Reviewed at 1280 × 720 and 390 × 760 without overflow or browser warnings; anchored content landed 72px below the viewport top. Contract check, lint, typecheck, 150 tests with coverage, and the Webpack production build passed. |
 
 ## Open decisions
 
