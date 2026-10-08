@@ -2,10 +2,13 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { MiLogTenant, MiLogUser } from "@/lib/types";
+import type { ApiEntitlement } from "@/lib/apiContract";
+import { getEntitlement } from "@/lib/accountApi";
 
 type AuthState = {
   user: MiLogUser | null;
   tenant: MiLogTenant | null;
+  entitlement: ApiEntitlement | null;
   loading: boolean;
   sessionMessage: string | null;
   refresh: () => Promise<void>;
@@ -18,6 +21,7 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<MiLogUser | null>(null);
   const [tenant, setTenant] = useState<MiLogTenant | null>(null);
+  const [entitlement, setEntitlement] = useState<ApiEntitlement | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionMessage, setSessionMessage] = useState<string | null>(null);
   const sessionRevision = useRef(0);
@@ -31,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSessionMessage(payload?.message ?? null);
         setUser(null);
         setTenant(null);
+        setEntitlement(null);
         return;
       }
       const payload = (await response.json()) as { user: MiLogUser; tenant: MiLogTenant };
@@ -56,6 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setSessionMessage(payload?.message ?? null);
             setUser(null);
             setTenant(null);
+            setEntitlement(null);
           }
           return;
         }
@@ -79,11 +85,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [refresh]);
 
+  useEffect(() => {
+    if (!user || !tenant) return;
+    let cancelled = false;
+    void getEntitlement().then((value) => {
+      if (!cancelled && value?.state) setEntitlement(value);
+    }).catch(() => {
+      if (!cancelled) setEntitlement(null);
+    });
+    return () => { cancelled = true; };
+  }, [user, tenant]);
+
   const logout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     sessionRevision.current += 1;
     setUser(null);
     setTenant(null);
+    setEntitlement(null);
     setSessionMessage(null);
   }, []);
 
@@ -91,13 +109,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     sessionRevision.current += 1;
     setUser(session.user);
     setTenant(session.tenant);
+    setEntitlement(null);
     setSessionMessage(null);
     setLoading(false);
   }, []);
 
   const value = useMemo(
-    () => ({ user, tenant, loading, sessionMessage, refresh, logout, setSession }),
-    [loading, logout, refresh, sessionMessage, setSession, tenant, user],
+    () => ({ user, tenant, entitlement, loading, sessionMessage, refresh, logout, setSession }),
+    [entitlement, loading, logout, refresh, sessionMessage, setSession, tenant, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

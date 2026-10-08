@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Bell, LoaderCircle, LogOut, RefreshCcw, Share2, ToggleLeft, ToggleRight } from "lucide-react";
 import { LogoMark } from "@/components/LogoMark";
 import { ExportMenu } from "@/components/ExportMenu";
@@ -70,6 +71,7 @@ export function TopNav({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {!readOnly ? <Link href="/account" className="btn btn-secondary">Account</Link> : null}
             {!readOnly && onShare ? (
               <button className="btn btn-secondary" onClick={onShare}>
                 <Share2 className="size-4" />

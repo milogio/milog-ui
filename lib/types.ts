@@ -3,6 +3,7 @@ import type {
   ApiTimelineEventContract,
   ApiTimelineQuery,
   ApiTokenResponse,
+  ApiTenantRole,
 } from "@/lib/apiContract";
 
 export type LogLevel = "debug" | "info" | "success" | "warning" | "error";
@@ -19,6 +20,7 @@ export type MiLogUser = {
 export type MiLogTenant = {
   id: string;
   name: string;
+  role: ApiTenantRole;
 };
 
 export type TimelineEvent = {
@@ -72,7 +74,7 @@ export type ApiLoginResponse = Partial<Pick<ApiTokenResponse, "access_token" | "
     id?: ApiTokenResponse["user"]["id"] | string;
     name?: string;
     email?: string;
-    tenant?: MiLogTenant & { role?: string };
+    tenant?: MiLogTenant;
   };
 };
 

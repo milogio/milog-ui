@@ -16,10 +16,10 @@ export async function POST(request: Request) {
     const status = error instanceof MiLogServerError ? error.status : 500;
     return NextResponse.json(
       {
-        message: error instanceof Error ? error.message : "Login failed.",
+        message: status === 401 ? "Invalid email or password." : error instanceof Error ? error.message : "Login failed.",
         ...(error instanceof MiLogServerError && error.details?.tenants ? { tenants: error.details.tenants } : {}),
       },
-      { status },
+      { status, headers: { "Cache-Control": "no-store" } },
     );
   }
 }

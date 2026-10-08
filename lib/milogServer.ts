@@ -14,13 +14,19 @@ const REFRESH_PATH = "/api/v1/auth/refresh";
 const SESSION_PATH = "/api/v1/auth/me";
 const LOGOUT_PATH = "/api/v1/auth/logout";
 const TIMELINE_PATH = "/api/v1/timeline";
+const TENANT_ROLES = new Set(["owner", "admin", "member"]);
 
 export class MiLogServerError extends Error {
   constructor(
     message: string,
     public readonly status: number,
     public readonly code: "configuration" | "unauthenticated" | "forbidden" | "validation" | "unavailable" | "upstream",
-    public readonly details?: { tenants?: Array<{ id: string; name: string }> },
+    public readonly details?: {
+      tenants?: Array<{ id: string; name: string }>;
+      apiCode?: string;
+      fieldErrors?: Record<string, string[]>;
+      retryAfter?: string;
+    },
   ) {
     super(message);
     this.name = "MiLogServerError";
@@ -49,14 +55,24 @@ async function parseJson<T>(response: Response): Promise<T | null> {
   }
 }
 
-async function upstreamError(response: Response, fallback: string): Promise<MiLogServerError> {
-  const payload = await parseJson<{ message?: string; error?: { message?: string; tenants?: Array<{ id: string; name: string }> } }>(response);
+export async function upstreamError(response: Response, fallback: string): Promise<MiLogServerError> {
+  const payload = await parseJson<{
+    message?: string;
+    errors?: Record<string, string[]>;
+    error?: { code?: string; message?: string; tenants?: Array<{ id: string; name: string }> };
+  }>(response);
   const message = payload?.error?.message ?? payload?.message ?? fallback;
-  if (response.status === 401) return new MiLogServerError(message, 401, "unauthenticated");
-  if (response.status === 403) return new MiLogServerError(message, 403, "forbidden");
-  if (response.status === 400 || response.status === 422) return new MiLogServerError(message, response.status, "validation");
+  const details = {
+    tenants: payload?.error?.tenants,
+    apiCode: payload?.error?.code,
+    fieldErrors: payload?.errors,
+    retryAfter: response.headers.get("Retry-After") ?? undefined,
+  };
+  if (response.status === 401) return new MiLogServerError(message, 401, "unauthenticated", details);
+  if (response.status === 403) return new MiLogServerError(message, 403, "forbidden", details);
+  if (response.status === 400 || response.status === 422) return new MiLogServerError(message, response.status, "validation", details);
   if (response.status >= 500) return new MiLogServerError("MiLog API is temporarily unavailable.", 503, "unavailable");
-  return new MiLogServerError(message, response.status, "upstream", { tenants: payload?.error?.tenants });
+  return new MiLogServerError(message, response.status, "upstream", details);
 }
 
 function sessionKey(secret: string) {
@@ -112,7 +128,7 @@ function sessionFromTokenPayload(payload: ApiLoginResponse, sessionExpiresAt?: s
   const refreshToken = payload.refresh_token;
   const apiUser = payload.user;
   const tenant = apiUser?.tenant;
-  if (!token || !refreshToken || !apiUser?.id || !apiUser.email || !tenant?.id) {
+  if (!token || !refreshToken || !apiUser?.id || !apiUser.email || !tenant?.id || !TENANT_ROLES.has(tenant.role)) {
     throw new MiLogServerError("MiLog authentication response was incomplete.", 502, "upstream");
   }
   const expiresIn = Math.max(payload.expires_in ?? 0, 60);
@@ -120,7 +136,7 @@ function sessionFromTokenPayload(payload: ApiLoginResponse, sessionExpiresAt?: s
     token,
     refresh_token: refreshToken,
     user: { id: String(apiUser.id), name: apiUser.name ?? apiUser.email, email: apiUser.email, tenant_id: tenant.id },
-    tenant: { id: tenant.id, name: tenant.name },
+    tenant: { id: tenant.id, name: tenant.name, role: tenant.role },
     expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
     session_expires_at: sessionExpiresAt ?? new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000).toISOString(),
   };
@@ -183,13 +199,13 @@ export async function validateSessionServer(session: AuthSession): Promise<AuthS
   if (!response.ok) throw await upstreamError(response, "Your MiLog session has expired or was revoked.");
   const payload = await parseJson<{ user?: ApiLoginResponse["user"]; expires_at?: string }>(response);
   const apiUser = payload?.user;
-  if (!apiUser?.id || !apiUser.email || !apiUser.tenant?.id || apiUser.tenant.id !== session.tenant.id || String(apiUser.id) !== session.user.id) {
+  if (!apiUser?.id || !apiUser.email || !apiUser.tenant?.id || !TENANT_ROLES.has(apiUser.tenant.role) || apiUser.tenant.id !== session.tenant.id || String(apiUser.id) !== session.user.id) {
     throw new MiLogServerError("MiLog session identity or tenant could not be verified.", 403, "forbidden");
   }
   return {
     ...session,
     user: { id: String(apiUser.id), name: apiUser.name ?? apiUser.email, email: apiUser.email, tenant_id: apiUser.tenant.id },
-    tenant: { id: apiUser.tenant.id, name: apiUser.tenant.name },
+    tenant: { id: apiUser.tenant.id, name: apiUser.tenant.name, role: apiUser.tenant.role },
     expires_at: payload?.expires_at ?? session.expires_at,
   };
 }

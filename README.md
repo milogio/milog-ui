@@ -39,6 +39,16 @@ UI sessions last no longer than eight hours, are revalidated when restored, and 
 
 Users with multiple active memberships are prompted to select a tenant before the session is issued. Revoked credentials, inactive memberships, and expired sessions return the viewer to login with an understandable message.
 
+## Signup and API credentials
+
+The UI now supports owner signup, email verification, entitlement status, and owner/admin API-key management through server-side `/api/v1` calls. The API owns users, tenants, evaluation policy, and keys. `MILOG_TERMS_URL` must point to approved terms before the UI enables signup or links to it from login; production URLs must use HTTPS. Configure `MILOG_UI_URL` in the API to this UI's actual origin and enable production SMTP with SPF, DKIM, and DMARC before publishing signup.
+
+The `/verify-email` page removes its token from browser history before submitting it and uses `Referrer-Policy: no-referrer`. Created API keys are shown once; the list contains only metadata. Owners and admins can create temporary keys when `GET /entitlement` allows it and can revoke keys. Current passwords are required for creation and cleared from the form after submission. Paid checkout and paid-key creation are not exposed because billing integration is not available.
+
+Because the email link initially contains `?token=`, redact that query parameter from UI reverse-proxy, access, error, and analytics logs before enabling signup. The page itself does not log or retain the token.
+
+Public marketing signup and evaluation claims remain withheld until approved onboarding terms and launch policy are ready. The API's evaluation and key limits are configuration, so the UI uses entitlement eligibility rather than copying their default values.
+
 Do not commit `.env.local`; it is ignored by git.
 
 ## Run

@@ -47,7 +47,7 @@ export async function login(email: string, password: string, tenantId?: string) 
 
   const payload = await response.json();
   if (!response.ok) {
-    throw new MiLogLoginError(payload.message ?? "Login failed.", payload.tenants ?? []);
+    throw new MiLogLoginError(response.status === 401 ? "Invalid email or password." : payload.message ?? "Login failed.", payload.tenants ?? []);
   }
 
   return payload as { user: MiLogUser; tenant: MiLogTenant };

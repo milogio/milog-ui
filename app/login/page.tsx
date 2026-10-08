@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/LoginForm";
 import { readSession } from "@/lib/milogServer";
 import { safeInternalPath } from "@/lib/navigation";
+import { approvedTermsUrl } from "@/lib/terms";
 
 export default async function LoginPage({
   searchParams,
@@ -11,6 +12,7 @@ export default async function LoginPage({
   const params = await searchParams;
   const nextPath = safeInternalPath(params.next);
   const reason = typeof params.reason === "string" ? params.reason : undefined;
+  const fromSignup = params.from === "signup";
   const session = await readSession();
   if (session) redirect(nextPath);
 
@@ -19,7 +21,7 @@ export default async function LoginPage({
       <div className="absolute inset-0 bg-grid" />
       <div className="absolute inset-0 bg-radial-glow" />
       <div className="relative z-10 flex w-full justify-center">
-        <LoginForm nextPath={nextPath} reason={reason} />
+        <LoginForm nextPath={nextPath} reason={reason} fromSignup={fromSignup} signupAvailable={Boolean(approvedTermsUrl())} />
       </div>
     </main>
   );

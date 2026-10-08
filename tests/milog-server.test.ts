@@ -8,7 +8,7 @@ function session(overrides: Partial<AuthSession> = {}): AuthSession {
     token: "tenant-bound-secret-token",
     refresh_token: "rotating-refresh-token",
     user: { id: "user-42", name: "Chris", email: "chris@example.com", tenant_id: "tenant-1" },
-    tenant: { id: "tenant-1", name: "SonicCode" },
+    tenant: { id: "tenant-1", name: "SonicCode", role: "admin" },
     expires_at: new Date(Date.now() + 60_000).toISOString(),
     session_expires_at: new Date(Date.now() + 60 * 60_000).toISOString(),
     ...overrides,
@@ -51,6 +51,7 @@ describe("MiLog server authentication boundary", () => {
     expect(fetchMock).toHaveBeenCalledOnce();
     expect(fetchMock).toHaveBeenCalledWith("https://api.milog.test/api/v1/auth/login", expect.objectContaining({ method: "POST" }));
     expect(result.session.tenant.id).toBe("tenant-1");
+    expect(result.session.tenant.role).toBe("admin");
     expect(result.session.expires_at).toBeTruthy();
   });
 
@@ -95,6 +96,7 @@ describe("MiLog server authentication boundary", () => {
 
     expect(refreshed.token).toBe("token-2");
     expect(refreshed.refresh_token).toBe("refresh-2");
+    expect(refreshed.tenant.role).toBe("admin");
     expect(refreshed.session_expires_at).toBe(expiring.session_expires_at);
     expect(fetchMock).toHaveBeenCalledWith(
       "https://api.milog.test/api/v1/auth/refresh",

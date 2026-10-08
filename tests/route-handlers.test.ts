@@ -35,7 +35,7 @@ const activeSession: AuthSession = {
   token: "access-token",
   refresh_token: "refresh-token",
   user: { id: "user-1", name: "Chris", email: "chris@example.com", tenant_id: "tenant-1" },
-  tenant: { id: "tenant-1", name: "Callender" },
+  tenant: { id: "tenant-1", name: "Callender", role: "owner" },
   expires_at: "2026-10-03T20:00:00Z",
   session_expires_at: "2026-10-04T03:00:00Z",
 };
@@ -64,6 +64,16 @@ describe("UI route handlers", () => {
       message: "Choose a tenant.",
       tenants: [{ id: "tenant-1", name: "Callender" }],
     });
+  });
+
+  it("keeps login failures generic even if an upstream message is specific", async () => {
+    server.loginServer.mockRejectedValue(new MiLogServerError("Account is pending verification.", 401, "unauthenticated"));
+    const response = await login(new Request("http://ui.test/api/auth/login", {
+      method: "POST", body: JSON.stringify({ email: "ada@example.com", password: "password" }),
+    }));
+    expect(response.status).toBe(401);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+    await expect(response.json()).resolves.toEqual({ message: "Invalid email or password." });
   });
 
   it.each([

@@ -7,8 +7,10 @@ import { login, MiLogLoginError } from "@/lib/milogApi";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/providers/toast-provider";
 import { LogoMark } from "@/components/LogoMark";
+import Link from "next/link";
+import { getEntitlement } from "@/lib/accountApi";
 
-export function LoginForm({ nextPath = "/timeline", reason }: { nextPath?: string; reason?: string }) {
+export function LoginForm({ nextPath = "/timeline", reason, fromSignup = false, signupAvailable = false }: { nextPath?: string; reason?: string; fromSignup?: boolean; signupAvailable?: boolean }) {
   const router = useRouter();
   const { setSession } = useAuth();
   const { pushToast } = useToast();
@@ -38,6 +40,7 @@ export function LoginForm({ nextPath = "/timeline", reason }: { nextPath?: strin
           Your session expired or was revoked. Please sign in again.
         </p>
       ) : null}
+      {fromSignup ? <p className="mt-4 rounded-md border border-border bg-background px-3 py-2 text-sm">Check your email and verify your address before signing in.</p> : null}
 
       <div className="mt-5 flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-muted-foreground">
         <Terminal className="h-3.5 w-3.5 text-brand" />
@@ -53,8 +56,15 @@ export function LoginForm({ nextPath = "/timeline", reason }: { nextPath?: strin
           try {
             const session = await login(email, password, tenantId || undefined);
             setSession(session);
+            let destination = nextPath;
+            try {
+              const entitlement = await getEntitlement();
+              if (entitlement.state === "suspended" || entitlement.state === "inactive") destination = "/account";
+            } catch {
+              // Account status remains available from the account screen if this request fails.
+            }
             pushToast({ title: "Welcome to MiLog.", tone: "success" });
-            router.replace(nextPath);
+            router.replace(destination);
             router.refresh();
           } catch (err) {
             if (err instanceof MiLogLoginError && err.tenants.length) {
@@ -102,6 +112,7 @@ export function LoginForm({ nextPath = "/timeline", reason }: { nextPath?: strin
           {!loading ? <ArrowRight className="size-4" /> : null}
         </button>
       </form>
+      {signupAvailable ? <p className="mt-5 text-sm text-muted-foreground">New to MiLog? <Link href="/signup" className="text-brand underline">Create an account</Link></p> : null}
     </div>
   );
 }

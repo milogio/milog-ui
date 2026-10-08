@@ -58,3 +58,9 @@ Continue with 18–23 after the existing design sequence. These priorities come 
 - [x] [23 — Cross-cutting: Marketing design validation](./23-marketing-design-validation.md) — completed 2026-10-06
 
 Follow the marketing section of the [design guideline](../docs/DESIGN-GUIDELINE.md). Priority expresses impact; execution order also accounts for content and layout dependencies. Preserve the Timeline baseline and record accepted marketing decisions and browser evidence as each plan is completed.
+
+## Account onboarding and credentials
+
+- [ ] [24 — P1: Signup, evaluation, and API credentials](./24-p1-signup-and-api-credentials.md) — UI implementation complete 2026-10-08; live API and launch gates pending.
+
+This stage extends the completed authentication contract. Public signup and marketing claims remain gated on approved onboarding terms and the API email-delivery configuration; paid upgrades remain a separate future stage.
