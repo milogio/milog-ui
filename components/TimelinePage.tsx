@@ -77,7 +77,7 @@ function writeAlerts(alerts: AlertRule[]) {
 export function TimelinePage({
   initialFilters,
   readOnly = false,
-  title = "Tenant event timeline",
+  title = "Event timeline",
   subtitle,
 }: {
   initialFilters: TimelineFilters;

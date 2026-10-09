@@ -9,7 +9,7 @@ import { LogLevelQuickFilters } from "@/components/LogLevelQuickFilters";
 import type { TimelineFilters } from "@/lib/types";
 
 export function TopNav({
-  title = "Tenant event timeline",
+  title = "Event timeline",
   tenantName,
   metadataControl,
   filters,
