@@ -293,6 +293,14 @@ describe("TimelinePage orchestration", () => {
     expect(window.localStorage.getItem("milog.metadata-columns")).toBe(JSON.stringify(["source", "status"]));
   });
 
+  it("starts with event-log metadata suggestions when no selection is saved", () => {
+    render(<TimelinePage initialFilters={{}} />);
+
+    const expected = ["request_id", "service", "duration_ms", "error_code"];
+    expect(screen.getByTestId("metadata-keys")).toHaveTextContent(expected.join(","));
+    expect(window.localStorage.getItem("milog.metadata-columns")).toBe(JSON.stringify(expected));
+  });
+
   it("suggests event-log metadata and replaces the old saved default selection", () => {
     window.localStorage.setItem("milog.metadata-columns", JSON.stringify(["source", "campaign", "status", "lead_score"]));
 
@@ -305,6 +313,11 @@ describe("TimelinePage orchestration", () => {
   });
 
   it("adds metadata keys from timeline events across loaded pages", () => {
+    const { rerender } = render(<TimelinePage initialFilters={{}} />);
+    expect(screen.getByTestId("available-metadata-keys")).toHaveTextContent(
+      "request_id,service,duration_ms,error_code",
+    );
+
     mocks.query.data = {
       pages: [
         { events: [{ ...event("evt-1"), metadata: { trace_id: "trace-1" } }], nextCursor: "next" },
@@ -312,7 +325,7 @@ describe("TimelinePage orchestration", () => {
       ],
     };
 
-    render(<TimelinePage initialFilters={{}} />);
+    rerender(<TimelinePage initialFilters={{}} />);
 
     expect(screen.getByTestId("available-metadata-keys")).toHaveTextContent(
       "request_id,service,duration_ms,error_code,trace_id,retry_count",
