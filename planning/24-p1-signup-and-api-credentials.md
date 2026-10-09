@@ -81,7 +81,7 @@ Read the relevant installed Next.js 16.3.8 guides in `node_modules/next/dist/doc
 
 - [ ] Deploy the API contract and configure `MILOG_UI_URL` to the actual UI origin before enabling signup. Configure production SMTP credentials/from address and SPF, DKIM, and DMARC.
 - [ ] Redact the verification `token` query parameter from UI proxy, access, error, and analytics logs before enabling signup; its initial email-link request necessarily reaches the web server before browser history can be cleaned.
-- [ ] Provide an approved terms destination and decide whether a separate legal/business ownership check is required before public signup. Until then, do not publish a public signup CTA or new trial claims.
+- [ ] Have the product/legal owner approve the completed public `/terms` and `/privacy` pages, sourced from `docs/MiLog_Terms_of_Service.docx` and `docs/MiLog_Privacy_Policy.docx`. Both documents now identify 1435529 B.C. LTD. as the legal operating entity and show October 8, 2026 as the effective date. Terms lists legal@milog.ca; Privacy lists privacy@milog.ca. After approval, the UI operator sets `MILOG_TERMS_URL=/terms` (or another approved HTTPS destination); this is not an API approval setting. Until then, do not publish a public signup CTA or new trial claims.
 - [ ] Confirm the API-side `MILOG_*` trial and key policies for the launch environment; present actual eligibility from `GET /entitlement` in the UI.
 - [ ] Inventory existing CLI-issued `legacy` keys before any later paid-entitlement enforcement.
 - [ ] Complete the existing non-production smoke, log-safety, and rollback gates in [stage 07](./07-testing-and-rollout.md), including a rollback rehearsal for the UI release.
@@ -89,6 +89,7 @@ Read the relevant installed Next.js 16.3.8 guides in `node_modules/next/dist/doc
 
 ## Implementation record
 
+- Added public Terms of Service and Privacy Policy routes from the two Word documents, preserving their text and showing the effective date as October 8, 2026. The legal operating entity and contact addresses are filled in both source documents and pages. Footer and signup links reach the pages; the signup gate remains closed until `MILOG_TERMS_URL` is explicitly configured after approval.
 - Synced the checked-in UI OpenAPI snapshot and generated types. The BFF now preserves the API tenant role through login, refresh, and session restoration; management routes use only the bearer token from the encrypted UI session.
 - Added server-side signup, resend, verification, entitlement, list/create/revoke routes. Errors retain field validation, API codes, and `Retry-After`; account responses use `no-store`. A step-up `invalid_credentials` response leaves the UI session intact. Key-list metadata is explicitly projected so an unexpected raw key in an upstream list response cannot pass through.
 - Added signup and verification screens, a generic check-email result, resend recovery, and an account screen with entitlement and key metadata. New raw keys appear in an immediate one-time view with copy/download actions. Password state is cleared after key creation requests, and revocation requires confirmation.

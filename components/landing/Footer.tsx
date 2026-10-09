@@ -7,6 +7,8 @@ const links = [
   ["API example", "#api-example"],
   ["Access", "#access"],
   ["Sign in", "/login"],
+  ["Terms of Service", "/terms"],
+  ["Privacy Policy", "/privacy"],
 ] as const;
 
 export function Footer() {

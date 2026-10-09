@@ -139,6 +139,7 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 - Establish one documented offer covering free access versus trial, price, currency, billing period, event allowance, retention, and what happens at limits. Do not invent commercial terms during a visual redesign.
 - Until product-owned commercial terms exist, present sign-in for existing account holders as the only access path. State that public plans are unavailable; do not imply free access, a trial, published prices, or a signup flow.
 - Stage 24 provides signup and verification behind an approved Terms of Service URL. Until that URL and the email-delivery launch gates are met, keep the login signup link and public marketing signup claims hidden; the direct `/signup` route explains that signup is unavailable.
+- Public `/terms` and `/privacy` pages now reproduce the supplied legal documents with an October 8, 2026 effective date and confirmed legal entity and contact details. Publishing these pages does not itself approve the signup terms.
 - Make hero, navigation, pricing, and final CTA language agree with that offer and with the actual onboarding destination.
 - Use an action label that accurately describes the next screen. Stage 18 uses `Sign in` for `/login`; a future signup or sales label requires a corresponding verified destination.
 - Retain customer names only when the relationship and use of the reference are confirmed. Stage 18 replaces the unsupported customer strip with implemented product capabilities; do not create testimonials or numbers.
@@ -185,7 +186,7 @@ Foundation contrast checks use the implemented HSL values against the dark canva
 
 - Preserve the Stage 19 desktop/mobile destination set: Features, API example, Sample demo, Access, and Sign in. Add a destination only when the corresponding section or route exists.
 - Keep the mobile navigation as a labelled disclosure with explicit expanded state, a close control, Escape/outside dismissal, and Escape focus return. Maintain at least 44px mobile link targets.
-- Keep repository, documentation, status, legal, sales, and company links withheld until verified destinations exist. Label the current contract-shaped code as an API example rather than full documentation.
+- Keep repository, documentation, status, sales, and company links withheld until verified destinations exist. The legal links point to the public `/terms` and `/privacy` pages. Label the current contract-shaped code as an API example rather than full documentation.
 - Use the visible hero headline as the page's meaningful primary heading and keep subsequent headings hierarchical.
 - Provide visible focus, selected and expanded states, logical tab order, and reliable menu focus return. Avoid hover-only access to essential content.
 - Retain the 4.5rem document scroll offset for the 3.5rem sticky header. Revalidate it if header height changes; keep focused headings and controls visible at narrow widths and browser zoom.

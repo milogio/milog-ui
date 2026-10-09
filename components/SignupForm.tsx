@@ -74,6 +74,7 @@ export function SignupForm({ termsUrl }: { termsUrl: string | null }) {
               <input type="checkbox" required checked={accepted} onChange={(event) => setAccepted(event.target.checked)} className="mt-1" />
               <span>I accept the <a className="text-brand underline" href={termsUrl} target="_blank" rel="noopener noreferrer">Terms of Service</a>.</span>
             </label>
+            <p className="text-xs leading-5 text-muted-foreground">Learn how we handle information in the <Link href="/privacy" className="text-brand underline">Privacy Policy</Link>.</p>
             {fieldError(error, "terms_accepted") ? <p className="text-sm text-destructive-foreground">{fieldError(error, "terms_accepted")}</p> : null}
             {error ? <p role="alert" className="text-sm text-destructive-foreground">{accountErrorMessage(error)}</p> : null}
             <button className="btn btn-primary w-full justify-center" disabled={busy || !accepted}>{busy ? "Creating account…" : "Create account"}</button>
@@ -81,7 +82,7 @@ export function SignupForm({ termsUrl }: { termsUrl: string | null }) {
           <Link href="/login" className="mt-6 inline-block text-sm text-brand hover:underline">Already have an account? Sign in</Link>
         </>
       ) : (
-        <p role="status" className="mt-6 text-sm leading-6">Signup is not available yet. The terms for new accounts have not been published. Existing account holders can <Link href="/login" className="text-brand underline">sign in</Link>.</p>
+        <p role="status" className="mt-6 text-sm leading-6">Signup is not available yet. The Terms of Service are still being finalized. Existing account holders can <Link href="/login" className="text-brand underline">sign in</Link>.</p>
       )}
     </div>
   );

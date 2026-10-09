@@ -1,0 +1,158 @@
+{
+  "terms": {
+    "title": "MiLog Terms of Service",
+    "intro": "These Terms govern access to MiLog, a service for receiving and viewing application event logs and timelines. By creating an account, accepting these Terms, or using the service, you agree to them on behalf of yourself and, if applicable, the organization you represent. If you act for an organization, you confirm that you have authority to bind it. “MiLog,” “we,” and “us” mean 1435529 B.C. LTD.",
+    "sections": [
+      {
+        "heading": "1  Accounts and access",
+        "paragraphs": [
+          "You must provide accurate account information, keep credentials and API keys secure, and promptly tell us about unauthorized use. You are responsible for activity through your account and keys, including activity by people you authorize. You may grant access only as the service permits. MiLog is intended for business use in Canada."
+        ]
+      },
+      {
+        "heading": "2  Permitted use and licence",
+        "paragraphs": [
+          "While your account is active and you comply with these Terms, we grant you a limited, non-exclusive, non-transferable right to access and use MiLog for your internal business purposes. You may connect your applications to the documented MiLog API. This right does not transfer ownership of the service, software, documentation, or any MiLog intellectual property."
+        ]
+      },
+      {
+        "heading": "3  Your content",
+        "paragraphs": [
+          "You retain ownership of the event data, messages, metadata, and other material that you or your users submit to MiLog (“Customer Content”). You grant us the rights needed to host, process, transmit, display, back up, and secure Customer Content to provide and support the service and comply with law. You are responsible for Customer Content, including its accuracy, legality, and any notices or permissions needed to send it to MiLog. Do not submit information that you are not permitted to use or share. You should avoid sending passwords, payment card details, or other sensitive information in event logs unless you have assessed the risks and have an appropriate legal basis."
+        ]
+      },
+      {
+        "heading": "4  Prohibited uses",
+        "paragraphs": [
+          "You must not use MiLog to break the law or another person’s rights; upload malicious code; attempt unauthorized access; interfere with the service or other users; bypass usage or security limits; scrape or reverse engineer the service except where law permits; or resell, sublicense, or make MiLog available as a standalone service without our written permission. We may restrict activity that threatens security, availability, or legal compliance."
+        ]
+      },
+      {
+        "heading": "5  Fees, subscriptions, and evaluation access",
+        "paragraphs": [
+          "MiLog may offer limited evaluation access. Its duration and limits will be shown when offered and may end automatically. A paid subscription exists only if you accept an order or checkout that states the price, currency, billing period, included usage, renewal terms, and any applicable taxes. You authorize charges under that order and must pay undisputed amounts when due. If payment fails, we may suspend paid access after reasonable notice. Any cancellation, refund, or renewal rights stated in the accepted order or required by applicable law apply. We will not charge for a paid subscription without a separate purchase step."
+        ]
+      },
+      {
+        "heading": "6  Resellers",
+        "paragraphs": [
+          "No reseller rights are granted by these Terms. A reseller must have a separate written agreement with us. If you buy through an authorized reseller, your order and payment terms with that reseller may apply, but your use of MiLog remains subject to these Terms unless we agree otherwise in writing."
+        ]
+      },
+      {
+        "heading": "7  MiLog intellectual property and copyright",
+        "paragraphs": [
+          "MiLog and its licensors own the service, software, design, documentation, trademarks, and other materials we provide, including their copyrights and other intellectual property rights. Except for the limited licence above, no rights are granted. You may not remove ownership notices. Feedback you choose to provide may be used to improve MiLog without an obligation to you."
+        ]
+      },
+      {
+        "heading": "8  Third-party links and services",
+        "paragraphs": [
+          "MiLog may link to third-party websites or work with services you choose to connect. We do not control third-party websites or their content, availability, or privacy practices. Your use of them is subject to their own terms and policies."
+        ]
+      },
+      {
+        "heading": "9  Service changes and availability",
+        "paragraphs": [
+          "We may maintain, update, or change MiLog. We will use reasonable efforts to give notice of material changes that reduce core functionality for active paid subscriptions. The service may be interrupted for maintenance, outages, or events outside our control. Any specific service level commitment must be stated in a separate written agreement."
+        ]
+      },
+      {
+        "heading": "10  Suspension and termination",
+        "paragraphs": [
+          "You may stop using MiLog at any time and request account closure. We may suspend or terminate access for a material breach of these Terms, nonpayment under an accepted paid order, security risk, or legal requirement. Where practical, we will give notice and an opportunity to remedy a breach. On termination, your licence ends. We may retain or delete Customer Content according to the Privacy Policy, applicable law, and any separate written agreement. You should export content you need before closing the account."
+        ]
+      },
+      {
+        "heading": "11  Disclaimers and warranties",
+        "paragraphs": [
+          "We will use reasonable care in providing MiLog. Except for any express promise in a separate written agreement, MiLog is provided “as is” and “as available.” To the extent permitted by law, we disclaim implied warranties of merchantability, fitness for a particular purpose, non-infringement, and uninterrupted or error-free operation. Nothing in these Terms limits rights or remedies that cannot lawfully be excluded."
+        ]
+      },
+      {
+        "heading": "12  Limits of liability",
+        "paragraphs": [
+          "To the extent permitted by law, neither party is liable to the other for lost profits, lost revenue, or indirect, incidental, special, or consequential damages arising from MiLog. Our total liability arising from the service or these Terms will not exceed the greater of CAD $100 and the fees you paid us for MiLog in the 12 months before the event giving rise to the claim. These limits do not apply where prohibited by law or to fraud, wilful misconduct, or a party’s payment obligations."
+        ]
+      },
+      {
+        "heading": "13  Changes to these Terms",
+        "paragraphs": [
+          "We may update these Terms. We will post the updated version with a new effective date and give reasonable advance notice of material changes to active account holders when practical. Continued use after the effective date means you accept the updated Terms. If you do not accept them, stop using MiLog and close your account."
+        ]
+      },
+      {
+        "heading": "14  Governing law and contact",
+        "paragraphs": [
+          "These Terms are governed by the laws of British Columbia and the applicable laws of Canada. The courts of British Columbia have jurisdiction over disputes, subject to any mandatory rights that applicable law gives you elsewhere in Canada. For questions about these Terms, contact legal@milog.ca."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "MiLog Privacy Policy",
+    "intro": "This Policy explains how 1435529 B.C. LTD. (operating MiLog) collects, uses, discloses, protects, and retains personal information when people visit our website, create an account, or use MiLog. It also explains how to ask about, access, or correct personal information. MiLog is based in British Columbia and is intended for Canadian customers. BC’s Personal Information Protection Act applies to our private-sector activities, and federal privacy law may also apply to personal information handled across provincial or national borders in commercial activity.",
+    "sections": [
+      {
+        "heading": "1  Information we collect",
+        "paragraphs": [
+          "We collect information you provide when you sign up or contact us, such as your name, organization name, email address, password, and support messages. We record account and API-key activity needed to manage access and security. MiLog also receives event logs, messages, timestamps, metadata, and related data that a customer sends through the API; these may contain personal information if the customer includes it. When you use the website or service, we may collect technical information such as IP address, browser details, device information, request logs, and error information."
+        ]
+      },
+      {
+        "heading": "2  Cookies and local storage",
+        "paragraphs": [
+          "MiLog uses an essential session cookie to keep signed-in users authenticated and may use browser storage to remember interface settings, filters, and alert preferences. These are used to operate the service. If we introduce optional analytics or advertising cookies, we will update this Policy and provide any choices required by law before using them."
+        ]
+      },
+      {
+        "heading": "3  Why we use information",
+        "paragraphs": [
+          "We use personal information to create and verify accounts; authenticate users and API requests; receive and display customer events; provide support; secure, monitor, troubleshoot, and improve MiLog; communicate service or policy changes; administer any paid order; and meet legal obligations. We collect and use only information reasonably needed for these purposes, subject to consent and other lawful grounds where applicable."
+        ]
+      },
+      {
+        "heading": "4  Customer event data",
+        "paragraphs": [
+          "Customers decide what event data they send to MiLog and are responsible for the notices, permissions, and legal basis needed for that data. We process that data to provide the logging and timeline service, follow customer instructions available through the service or a written agreement, and protect the service. An authorized customer user may be able to view, export, or share event data using MiLog features; customers should manage access and sharing carefully."
+        ]
+      },
+      {
+        "heading": "5  When we share information",
+        "paragraphs": [
+          "We may share information with service providers that help us host, operate, secure, support, or send service email, under appropriate contractual and security protections. We may disclose information where required or permitted by law, to protect rights and safety, or as part of a business transaction subject to applicable legal requirements. We do not sell personal information. We do not use customer event data for third-party advertising."
+        ]
+      },
+      {
+        "heading": "6  Where information is processed",
+        "paragraphs": [
+          "MiLog and its service providers may process information in Canada or other countries. Information processed outside your province or Canada may be subject to the laws of that location, including lawful access by public authorities. We remain responsible for personal information under our control and use appropriate protections for service providers. Contact us for current information about the locations and providers used for your account."
+        ]
+      },
+      {
+        "heading": "7  Retention and deletion",
+        "paragraphs": [
+          "We keep information only as long as reasonably needed to provide MiLog, maintain security and records, resolve disputes, and meet legal obligations. Retention may differ for account records, event data, technical logs, and backups. When information is no longer needed, we delete it or make it non-identifying, subject to lawful retention requirements. Customers may request account closure or deletion of their data by contacting us; we will explain any information that must be retained."
+        ]
+      },
+      {
+        "heading": "8  Security",
+        "paragraphs": [
+          "We use reasonable administrative, technical, and physical safeguards suited to the sensitivity of the information, including access controls and protected credentials. No online service can guarantee absolute security. Customers should protect their passwords and API keys and avoid including unnecessary sensitive information in event logs. If we identify an incident involving personal information, we will assess it and give notices required by applicable law."
+        ]
+      },
+      {
+        "heading": "9  Your choices and privacy rights",
+        "paragraphs": [
+          "You may ask to access or correct personal information we hold about you, withdraw consent where applicable, or ask questions or make a complaint about our practices. Some requests may be subject to legal exceptions or reasonable identity verification. If your information is in event data submitted by a MiLog customer, we may direct your request to that customer because it controls the content and access permissions. You may also complain to the Office of the Information and Privacy Commissioner for British Columbia or, where federal law applies, the Office of the Privacy Commissioner of Canada."
+        ]
+      },
+      {
+        "heading": "10  Changes and contact",
+        "paragraphs": [
+          "We may update this Policy as MiLog changes. We will post the revised version with a new effective date and provide notice of material changes where appropriate. For privacy questions, access or correction requests, or complaints, contact our Privacy Officer at privacy@milog.ca."
+        ]
+      }
+    ]
+  }
+}

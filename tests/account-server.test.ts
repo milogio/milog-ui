@@ -4,6 +4,7 @@ import { POST as verifyRoute } from "@/app/api/signup/verify/route";
 import type { ApiSignupRequest } from "@/lib/apiContract";
 import { MiLogServerError } from "@/lib/milogServer";
 import type { AuthSession } from "@/lib/types";
+import { approvedTermsUrl } from "@/lib/terms";
 
 const session: AuthSession = {
   token: "account-bearer-secret",
@@ -105,6 +106,15 @@ describe("account API boundary", () => {
     const gated = await signupRoute(makeRequest());
     expect(gated.status).toBe(503);
     expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("accepts the explicit same-origin legal route without approving it automatically", () => {
+    delete process.env.MILOG_TERMS_URL;
+    expect(approvedTermsUrl()).toBeNull();
+    process.env.MILOG_TERMS_URL = "/terms";
+    expect(approvedTermsUrl()).toBe("/terms");
+    process.env.MILOG_TERMS_URL = "/privacy";
+    expect(approvedTermsUrl()).toBeNull();
   });
 
   it("posts the verification token in JSON and preserves invalid-link state", async () => {
