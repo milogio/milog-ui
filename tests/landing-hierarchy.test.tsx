@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import Page from "@/app/page";
+import { MarketingPage } from "@/components/landing/MarketingPage";
 
 describe("marketing page hierarchy", () => {
   it("uses one visible primary heading and keeps later headings subordinate", () => {
-    render(<Page />);
+    render(<MarketingPage />);
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(
@@ -16,7 +16,7 @@ describe("marketing page hierarchy", () => {
   });
 
   it("puts interactive product evidence before focused benefits and integration details", () => {
-    const { container } = render(<Page />);
+    const { container } = render(<MarketingPage />);
     const demo = container.querySelector("#demo");
     const features = container.querySelector("#features");
     const apiExample = container.querySelector("#api-example");
@@ -32,7 +32,7 @@ describe("marketing page hierarchy", () => {
   });
 
   it("presents three outcome-focused benefit groups", () => {
-    render(<Page />);
+    render(<MarketingPage />);
 
     expect(screen.getByRole("heading", { level: 3, name: "Find the event that matters" })).toBeVisible();
     expect(screen.getByRole("heading", { level: 3, name: "Reconstruct what happened" })).toBeVisible();

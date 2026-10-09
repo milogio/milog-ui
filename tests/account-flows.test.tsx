@@ -15,7 +15,7 @@ describe("signup and email verification", () => {
 
   it("gates signup until terms are available", () => {
     render(<SignupForm termsUrl={null} />);
-    expect(screen.getByText(/Signup is not available yet/)).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Signup is not available in this deployment yet.");
     expect(screen.queryByRole("button", { name: "Create account" })).not.toBeInTheDocument();
   });
 

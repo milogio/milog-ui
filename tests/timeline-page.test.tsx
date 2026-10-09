@@ -144,13 +144,16 @@ vi.mock("@/components/Drawer", () => ({
 
 vi.mock("@/components/MetadataColumnSelector", () => ({
   MetadataColumnSelector: ({
+    availableKeys,
     selectedKeys,
     onChange,
   }: {
+    availableKeys: string[];
     selectedKeys: string[];
     onChange: (keys: string[]) => void;
   }) => (
     <div>
+      <output data-testid="available-metadata-keys">{availableKeys.join(",")}</output>
       <output data-testid="metadata-keys">{selectedKeys.join(",")}</output>
       <button onClick={() => onChange([...selectedKeys, "status"])}>Add status metadata</button>
     </div>
@@ -288,6 +291,32 @@ describe("TimelinePage orchestration", () => {
     expect(screen.getByTestId("metadata-keys")).toHaveTextContent("source");
     fireEvent.click(screen.getByRole("button", { name: "Add status metadata" }));
     expect(window.localStorage.getItem("milog.metadata-columns")).toBe(JSON.stringify(["source", "status"]));
+  });
+
+  it("suggests event-log metadata and replaces the old saved default selection", () => {
+    window.localStorage.setItem("milog.metadata-columns", JSON.stringify(["source", "campaign", "status", "lead_score"]));
+
+    render(<TimelinePage initialFilters={{}} />);
+
+    const expected = ["request_id", "service", "duration_ms", "error_code"];
+    expect(screen.getByTestId("metadata-keys")).toHaveTextContent(expected.join(","));
+    expect(screen.getByTestId("available-metadata-keys")).toHaveTextContent(expected.join(","));
+    expect(window.localStorage.getItem("milog.metadata-columns")).toBe(JSON.stringify(expected));
+  });
+
+  it("adds metadata keys from timeline events across loaded pages", () => {
+    mocks.query.data = {
+      pages: [
+        { events: [{ ...event("evt-1"), metadata: { trace_id: "trace-1" } }], nextCursor: "next" },
+        { events: [{ ...event("evt-2"), metadata: { retry_count: 2 } }] },
+      ],
+    };
+
+    render(<TimelinePage initialFilters={{}} />);
+
+    expect(screen.getByTestId("available-metadata-keys")).toHaveTextContent(
+      "request_id,service,duration_ms,error_code,trace_id,retry_count",
+    );
   });
 
   it("exports every filtered event to CSV with the selected metadata columns", async () => {

@@ -5,6 +5,7 @@ import { Footer } from "@/components/landing/Footer";
 import { Hero } from "@/components/landing/Hero";
 import { Nav } from "@/components/landing/Nav";
 import { Pricing } from "@/components/landing/Pricing";
+import { FinalCTA } from "@/components/landing/FinalCTA";
 
 describe("marketing navigation", () => {
   it("uses working in-page destinations and the existing-account sign-in route", () => {
@@ -60,6 +61,28 @@ describe("marketing navigation", () => {
     );
     expect(screen.queryByRole("navigation", { name: "Mobile" })).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
+  });
+
+  it("offers signup across public entry points when the terms gate is configured", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Nav signupAvailable />
+        <Hero signupAvailable />
+        <Pricing signupAvailable />
+        <FinalCTA signupAvailable />
+      </>,
+    );
+
+    for (const link of screen.getAllByRole("link", { name: /create (your )?account/i })) {
+      expect(link).toHaveAttribute("href", "/signup");
+    }
+    expect(screen.getByRole("heading", { name: "Create your MiLog account." })).toBeInTheDocument();
+    expect(screen.queryByText("Start 14-day trial")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Open navigation" }));
+    const mobileNav = screen.getByRole("navigation", { name: "Mobile" });
+    expect(within(mobileNav).getByRole("link", { name: "Create account" })).toHaveAttribute("href", "/signup");
+    expect(within(mobileNav).getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/login");
   });
 
   it("closes the mobile menu after an in-page destination is chosen", async () => {

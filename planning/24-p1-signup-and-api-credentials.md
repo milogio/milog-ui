@@ -1,6 +1,6 @@
 # P1: Signup, evaluation, and API credentials
 
-Status: **UI implementation complete 2026-10-08; non-production integration and launch gates pending**
+Status: **Public signup UI ready 2026-10-09; production integration and mail-delivery gates pending**
 
 ## Goal and source of truth
 
@@ -14,7 +14,7 @@ This stage extends the completed tenant-bound backend-for-frontend authenticatio
 - `contracts/ui-api.oas.yaml` and `lib/generated/ui-api.ts` cover login and session endpoints but do not yet include signup, entitlement, or API keys.
 - The API login contract includes `tenant.role`, but `sessionFromTokenPayload` and `validateSessionServer` currently drop it. The client auth state therefore cannot distinguish an owner/admin from a member.
 - `upstreamError` currently loses Laravel field errors, `error.code`, and `Retry-After`. Its generic `401` classification also cannot distinguish an expired UI session from an incorrect key-creation step-up password.
-- Marketing and login offer existing-account sign-in only. No signup, verification, account, or key-management route exists. The [marketing guideline](../docs/DESIGN-GUIDELINE.md) withholds public trial claims until product-owned onboarding terms are confirmed.
+- Before Stage 24, marketing and login offered existing-account sign-in only; signup, verification, account, and key-management routes did not exist. The [marketing guideline](../docs/DESIGN-GUIDELINE.md) withheld public trial claims until onboarding terms were confirmed.
 
 ## Implementation sequence
 
@@ -81,7 +81,8 @@ Read the relevant installed Next.js 16.3.8 guides in `node_modules/next/dist/doc
 
 - [ ] Deploy the API contract and configure `MILOG_UI_URL` to the actual UI origin before enabling signup. Configure production SMTP credentials/from address and SPF, DKIM, and DMARC.
 - [ ] Redact the verification `token` query parameter from UI proxy, access, error, and analytics logs before enabling signup; its initial email-link request necessarily reaches the web server before browser history can be cleaned.
-- [ ] Have the product/legal owner approve the completed public `/terms` and `/privacy` pages, sourced from `docs/MiLog_Terms_of_Service.docx` and `docs/MiLog_Privacy_Policy.docx`. Both documents now identify 1435529 B.C. LTD. as the legal operating entity and show October 8, 2026 as the effective date. Terms lists legal@milog.ca; Privacy lists privacy@milog.ca. After approval, the UI operator sets `MILOG_TERMS_URL=/terms` (or another approved HTTPS destination); this is not an API approval setting. Until then, do not publish a public signup CTA or new trial claims.
+- [x] Product/legal owner approved the completed public `/terms` and `/privacy` pages on 2026-10-09. Both documents identify 1435529 B.C. LTD. as the legal operating entity and show October 8, 2026 as the effective date. Terms lists legal@milog.ca; Privacy lists privacy@milog.ca. `/terms` is the approved same-origin destination. This is a product/legal decision, not an API approval setting.
+- [ ] Set `MILOG_TERMS_URL=/terms` in the target UI deployment only after the API and email-delivery launch gates are verified. Local host and Docker development environments now set it for non-production testing. Marketing signup links and the signup route follow this runtime setting.
 - [ ] Confirm the API-side `MILOG_*` trial and key policies for the launch environment; present actual eligibility from `GET /entitlement` in the UI.
 - [ ] Inventory existing CLI-issued `legacy` keys before any later paid-entitlement enforcement.
 - [ ] Complete the existing non-production smoke, log-safety, and rollback gates in [stage 07](./07-testing-and-rollout.md), including a rollback rehearsal for the UI release.
@@ -89,10 +90,12 @@ Read the relevant installed Next.js 16.3.8 guides in `node_modules/next/dist/doc
 
 ## Implementation record
 
-- Added public Terms of Service and Privacy Policy routes from the two Word documents, preserving their text and showing the effective date as October 8, 2026. The legal operating entity and contact addresses are filled in both source documents and pages. Footer and signup links reach the pages; the signup gate remains closed until `MILOG_TERMS_URL` is explicitly configured after approval.
+- Added public Terms of Service and Privacy Policy routes from the two Word documents, preserving their text and showing the effective date as October 8, 2026. The legal operating entity and contact addresses are filled in both source documents and pages. Product/legal approval of these pages was confirmed on 2026-10-09. The local development environments now set `MILOG_TERMS_URL=/terms`; production activation remains an operational gate.
 - Synced the checked-in UI OpenAPI snapshot and generated types. The BFF now preserves the API tenant role through login, refresh, and session restoration; management routes use only the bearer token from the encrypted UI session.
 - Added server-side signup, resend, verification, entitlement, list/create/revoke routes. Errors retain field validation, API codes, and `Retry-After`; account responses use `no-store`. A step-up `invalid_credentials` response leaves the UI session intact. Key-list metadata is explicitly projected so an unexpected raw key in an upstream list response cannot pass through.
 - Added signup and verification screens, a generic check-email result, resend recovery, and an account screen with entitlement and key metadata. New raw keys appear in an immediate one-time view with copy/download actions. Password state is cleared after key creation requests, and revocation requires confirmation.
-- Gated the signup form and login signup link behind an approved `MILOG_TERMS_URL`; the signup POST route enforces the same gate. The verification page has `Referrer-Policy: no-referrer` and removes the token from browser history before posting. Marketing CTAs retain existing-account sign-in while the product terms remain unresolved.
+- Gated the signup form, login signup link, marketing entry points, and signup POST route behind `MILOG_TERMS_URL`. With `/terms` configured, desktop/mobile navigation, hero, access section, and final CTA offer account creation without inventing prices, fixed evaluation duration, or key limits. The verification page has `Referrer-Policy: no-referrer` and removes the token from browser history before posting.
 - Added focused tests for server forwarding and error normalization, generic signup, verification-token cleanup, session entitlement loading, role-gated controls, one-time key handling, and revocation. Contract check, lint, typecheck, the full test suite, and the Webpack production build pass. The default Turbopack build is blocked in this execution environment by an internal port-binding restriction.
-- Reviewed the gated signup, missing-token verification, and login routes in the in-app browser. They rendered without browser warnings or errors. A live signup-to-key run awaits an approved terms URL, production-style mail setup, and non-production API credentials.
+- Reviewed the gated signup, missing-token verification, and login routes in the in-app browser. They rendered without browser warnings or errors. A live signup-to-key run still needs production-style mail setup and non-production API credentials.
+- On 2026-10-09, configured the approved `/terms` URL in ignored local host and Docker environment files, added runtime-gated signup links to desktop/mobile marketing navigation, hero, access, and final CTA, and updated the login and unavailable-state copy. The server-rendered landing page reads the runtime gate on each request. Contract check, lint, typecheck, all 185 tests, and the Webpack production build pass. Browser review confirmed the landing, signup, and login links at desktop, 768px, and 390px widths.
+- Production remains unverified: no target UI deployment was identified in this repository, the local API at `localhost:8980` was unreachable, and the available API `.env` has no SMTP username, password, or from address. Verification-email delivery, token-query log redaction, live signup-to-key integration, and rollback checks must pass before setting `MILOG_TERMS_URL=/terms` in a public deployment.

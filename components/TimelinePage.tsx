@@ -35,7 +35,8 @@ import { TopNav } from "@/components/TopNav";
 
 const FILTERS_STORAGE_KEY = "milog.filters";
 const METADATA_COLUMNS_STORAGE_KEY = "milog.metadata-columns";
-const DEFAULT_METADATA_KEYS = ["source", "campaign", "status", "lead_score"];
+const DEFAULT_METADATA_KEYS = ["request_id", "service", "duration_ms", "error_code"];
+const LEGACY_DEFAULT_METADATA_KEYS = ["source", "campaign", "status", "lead_score"];
 const ALERTS_STORAGE_KEY = "milog.alerts";
 
 function loadStoredFilters(initialFilters: TimelineFilters) {
@@ -53,7 +54,12 @@ function loadStoredFilters(initialFilters: TimelineFilters) {
 
 function loadMetadataKeys() {
   if (typeof window === "undefined") return DEFAULT_METADATA_KEYS;
-  return safeJsonParse<string[]>(window.localStorage.getItem(METADATA_COLUMNS_STORAGE_KEY), DEFAULT_METADATA_KEYS);
+  const stored = safeJsonParse<string[]>(window.localStorage.getItem(METADATA_COLUMNS_STORAGE_KEY), DEFAULT_METADATA_KEYS);
+  return Array.isArray(stored) &&
+    stored.length === LEGACY_DEFAULT_METADATA_KEYS.length &&
+    stored.every((key, index) => key === LEGACY_DEFAULT_METADATA_KEYS[index])
+    ? DEFAULT_METADATA_KEYS
+    : stored;
 }
 
 function readAlerts() {

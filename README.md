@@ -41,13 +41,13 @@ Users with multiple active memberships are prompted to select a tenant before th
 
 ## Signup and API credentials
 
-The UI now supports owner signup, email verification, entitlement status, and owner/admin API-key management through server-side `/api/v1` calls. The API owns users, tenants, evaluation policy, and keys. Public `/terms` and `/privacy` pages reproduce the Word documents in `docs/` with October 8, 2026 as their effective date. The legal operating entity is 1435529 B.C. LTD.; the Terms contact is legal@milog.ca and the Privacy contact is privacy@milog.ca. The product/legal owner must approve the completed documents before enabling signup. `MILOG_TERMS_URL` must point to approved terms before the UI enables signup or links to it from login; it can be `/terms` for the approved same-origin page or an approved HTTPS URL. Configure `MILOG_UI_URL` in the API to this UI's actual origin and enable production SMTP with SPF, DKIM, and DMARC before publishing signup.
+The UI supports owner signup, email verification, entitlement status, and owner/admin API-key management through server-side `/api/v1` calls. The API owns users, tenants, evaluation policy, and keys. Public `/terms` and `/privacy` pages reproduce the Word documents in `docs/` with October 8, 2026 as their effective date. The legal operating entity is 1435529 B.C. LTD.; the Terms contact is legal@milog.ca and the Privacy contact is privacy@milog.ca. The product/legal owner approved both pages on October 9, 2026. Set `MILOG_TERMS_URL=/terms` in a UI environment to enable its signup route and marketing entry points. The local host and Docker development environments now use `/terms`; a production deployment must set it separately after the remaining launch checks. Configure `MILOG_UI_URL` in the API to the UI's actual origin and enable production SMTP with SPF, DKIM, and DMARC before publishing signup.
 
 The `/verify-email` page removes its token from browser history before submitting it and uses `Referrer-Policy: no-referrer`. Created API keys are shown once; the list contains only metadata. Owners and admins can create temporary keys when `GET /entitlement` allows it and can revoke keys. Current passwords are required for creation and cleared from the form after submission. Paid checkout and paid-key creation are not exposed because billing integration is not available.
 
 Because the email link initially contains `?token=`, redact that query parameter from UI reverse-proxy, access, error, and analytics logs before enabling signup. The page itself does not log or retain the token.
 
-Public marketing signup and evaluation claims remain withheld until approved onboarding terms and launch policy are ready. The API's evaluation and key limits are configuration, so the UI uses entitlement eligibility rather than copying their default values.
+When `MILOG_TERMS_URL` is set, the landing page and login offer account creation. They do not promise a fixed evaluation duration or key limit: the API owns that configuration, and the UI displays entitlement eligibility returned by the API. With the variable unset, both the marketing page and signup route retain the sign-in-only fallback.
 
 Do not commit `.env.local`; it is ignored by git.
 
@@ -104,6 +104,10 @@ Important routes:
 
 - `/` - marketing landing page
 - `/login` - MiLog login
+- `/signup` - owner signup when `MILOG_TERMS_URL` is configured
+- `/verify-email` - email verification callback
+- `/terms` and `/privacy` - public legal pages
+- `/account` - authenticated entitlement and API credentials
 - `/timeline` - authenticated timeline dashboard
 - `/share/[shareId]` - read-only shared timeline
 

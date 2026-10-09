@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Play } from "lucide-react";
 import { TimelinePreview } from "@/components/landing/TimelinePreview";
 
-export function Hero() {
+export function Hero({ signupAvailable = false }: { signupAvailable?: boolean }) {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-grid" />
@@ -21,10 +21,10 @@ export function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              href="/login"
+              href={signupAvailable ? "/signup" : "/login"}
               className="inline-flex h-11 items-center rounded-md bg-gradient-brand px-5 text-sm font-medium text-brand-foreground shadow-glow hover:opacity-90"
             >
-              Sign in to MiLog
+              {signupAvailable ? "Create your account" : "Sign in to MiLog"}
             </Link>
             <Link
               href="#demo"
@@ -34,6 +34,7 @@ export function Hero() {
               Explore the sample
             </Link>
           </div>
+          {signupAvailable ? <p className="mt-4 text-sm text-muted-foreground">Already have an account? <Link href="/login" className="text-brand underline">Sign in</Link>.</p> : null}
           <div className="mt-5 font-mono text-sm text-muted-foreground">
             authenticated · tenant-scoped · cursor-paginated
           </div>

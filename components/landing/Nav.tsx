@@ -12,7 +12,7 @@ const links = [
   ["Access", "#access"],
 ] as const;
 
-export function Nav() {
+export function Nav({ signupAvailable = false }: { signupAvailable?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -53,12 +53,15 @@ export function Nav() {
             ))}
           </nav>
 
-          <Link
-            href="/login"
-            className="hidden h-9 items-center rounded-md bg-gradient-brand px-3 text-sm font-medium text-brand-foreground hover:opacity-90 md:inline-flex"
-          >
-            Sign in
-          </Link>
+          <div className="hidden items-center gap-4 md:flex">
+            {signupAvailable ? <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">Sign in</Link> : null}
+            <Link
+              href={signupAvailable ? "/signup" : "/login"}
+              className="inline-flex h-9 items-center rounded-md bg-gradient-brand px-3 text-sm font-medium text-brand-foreground hover:opacity-90"
+            >
+              {signupAvailable ? "Create account" : "Sign in"}
+            </Link>
+          </div>
 
           <button
             ref={triggerRef}
@@ -93,13 +96,14 @@ export function Nav() {
               ))}
               <li className="pt-2">
                 <Link
-                  href="/login"
+                  href={signupAvailable ? "/signup" : "/login"}
                   className="flex min-h-11 items-center justify-center rounded-md bg-gradient-brand px-3 text-sm font-medium text-brand-foreground hover:opacity-90"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Sign in
+                  {signupAvailable ? "Create account" : "Sign in"}
                 </Link>
               </li>
+              {signupAvailable ? <li><Link href="/login" className="flex min-h-11 items-center justify-center rounded-md px-3 text-sm text-muted-foreground hover:bg-accent hover:text-foreground" onClick={() => setMenuOpen(false)}>Sign in</Link></li> : null}
             </ul>
           </nav>
         ) : null}

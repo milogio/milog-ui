@@ -1,25 +1,8 @@
-import { CodeSection } from "@/components/landing/CodeSection";
-import { Features } from "@/components/landing/Features";
-import { FinalCTA } from "@/components/landing/FinalCTA";
-import { Footer } from "@/components/landing/Footer";
-import { Hero } from "@/components/landing/Hero";
-import { InteractiveDemo } from "@/components/landing/InteractiveDemo";
-import { Nav } from "@/components/landing/Nav";
-import { Pricing } from "@/components/landing/Pricing";
-import { TrustedBy } from "@/components/landing/TrustedBy";
+import { connection } from "next/server";
+import { MarketingPage } from "@/components/landing/MarketingPage";
+import { approvedTermsUrl } from "@/lib/terms";
 
-export default function Page() {
-  return (
-    <main className="min-h-screen bg-background text-foreground">
-      <Nav />
-      <Hero />
-      <TrustedBy />
-      <InteractiveDemo />
-      <Features />
-      <CodeSection />
-      <Pricing />
-      <FinalCTA />
-      <Footer />
-    </main>
-  );
+export default async function Page() {
+  await connection();
+  return <MarketingPage signupAvailable={Boolean(approvedTermsUrl())} />;
 }
