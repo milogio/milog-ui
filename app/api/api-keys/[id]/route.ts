@@ -1,8 +1,10 @@
 import { accountError, accountSession, requireKeyManager, revokeApiKeyServer } from "@/lib/accountServer";
 import { MiLogServerError } from "@/lib/milogServer";
+import { assertSameOrigin } from "@/lib/requestOrigin";
 
-export async function DELETE(_request: Request, context: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
+    assertSameOrigin(request);
     const session = await accountSession();
     requireKeyManager(session);
     const { id } = await context.params;

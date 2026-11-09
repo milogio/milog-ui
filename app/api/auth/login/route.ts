@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { loginServer, MiLogServerError, writeSession } from "@/lib/milogServer";
+import { assertSameOrigin } from "@/lib/requestOrigin";
 
 export async function POST(request: Request) {
   try {
+    assertSameOrigin(request);
     const body = (await request.json()) as { email?: string; password?: string; tenant_id?: string };
     if (!body.email || !body.password) {
       return NextResponse.json({ message: "Email and password are required." }, { status: 400 });

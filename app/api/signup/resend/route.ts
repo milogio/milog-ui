@@ -1,8 +1,10 @@
 import { accountBody, accountError, accountJson, resendSignupServer } from "@/lib/accountServer";
 import { MiLogServerError } from "@/lib/milogServer";
+import { assertSameOrigin } from "@/lib/requestOrigin";
 
 export async function POST(request: Request) {
   try {
+    assertSameOrigin(request);
     const body = await accountBody(request);
     if (typeof body.email !== "string" || !body.email.trim()) throw new MiLogServerError("Email is required.", 422, "validation");
     await resendSignupServer(body.email);

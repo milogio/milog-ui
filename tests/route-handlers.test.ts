@@ -142,10 +142,41 @@ describe("UI route handlers", () => {
       new MiLogServerError("Logout service unavailable.", 503, "unavailable"),
     );
 
-    const response = await logout();
+    const response = await logout(new Request("http://ui.test/api/auth/logout", { method: "POST" }));
 
     expect(response.status).toBe(503);
     await expect(response.json()).resolves.toEqual({ message: "Logout service unavailable." });
     expect(server.clearSession).toHaveBeenCalledOnce();
+  });
+
+  it("rejects a cross-origin login even with forged forwarding headers", async () => {
+    process.env.MILOG_UI_ORIGIN = "https://ui.milog.test";
+    try {
+      const response = await login(new Request("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: { Origin: "https://attacker.test", "X-Forwarded-Host": "ui.milog.test", "X-Forwarded-Proto": "https" },
+        body: JSON.stringify({ email: "ada@example.com", password: "secret" }),
+      }));
+      expect(response.status).toBe(403);
+      expect(server.loginServer).not.toHaveBeenCalled();
+    } finally {
+      delete process.env.MILOG_UI_ORIGIN;
+    }
+  });
+
+  it("accepts the configured public origin through the local proxy", async () => {
+    process.env.MILOG_UI_ORIGIN = "https://ui.milog.test";
+    server.loginServer.mockResolvedValue({ session: activeSession });
+    try {
+      const response = await login(new Request("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: { Origin: "https://ui.milog.test" },
+        body: JSON.stringify({ email: "ada@example.com", password: "secret" }),
+      }));
+      expect(response.status).toBe(200);
+      expect(server.writeSession).toHaveBeenCalledOnce();
+    } finally {
+      delete process.env.MILOG_UI_ORIGIN;
+    }
   });
 });

@@ -109,14 +109,18 @@ export async function readSession(): Promise<AuthSession | null> {
 
 export async function writeSession(session: AuthSession) {
   const { sessionSecret } = requireConfig();
+  (await cookies()).set(SESSION_COOKIE, encodeSession(session, sessionSecret), sessionCookieOptions(session));
+}
+
+export function sessionCookieOptions(session: AuthSession, environment = process.env.NODE_ENV) {
   const expiresIn = Math.max(0, Math.min(SESSION_MAX_AGE_SECONDS, Math.floor((Date.parse(session.session_expires_at) - Date.now()) / 1000)));
-  (await cookies()).set(SESSION_COOKIE, encodeSession(session, sessionSecret), {
+  return {
     httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    secure: environment === "production",
     path: "/",
     maxAge: expiresIn,
-  });
+  };
 }
 
 export async function clearSession() {

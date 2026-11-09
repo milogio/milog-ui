@@ -138,45 +138,9 @@ Commit the schema snapshots and generated types in the same change. CI runs the 
 
 ## Production Deployment
 
-The included multi-stage `Dockerfile` builds Next.js standalone output and runs as an unprivileged user on port `3000`. Required runtime configuration is validated when the production server starts:
+Use the separate [production deployment guide](docs/production-deployment.md) for the FullHost Value 2 VM. `compose.production.yaml` pulls a digest-pinned image built off-host, binds only to `127.0.0.1:3000`, and connects over HTTPS to `https://api.milog.ca` on the separate API VM. The existing `compose.yaml` and `.env.docker.example` remain for development.
 
-```env
-MILOG_API_URL=http://milog-nginx
-MILOG_SESSION_SECRET=<at-least-32-random-characters>
-```
-
-`MILOG_API_URL` belongs to the UI server, not the browser. In the API production Compose topology, attach the UI container to the API's private network and use the API Nginx service name. Do not use a browser-visible hostname or publish the internal API solely for the UI.
-
-TLS should terminate at the public ingress or reverse proxy in front of MiLog UI. Plain HTTP between UI and API is acceptable only on a private, access-controlled container network. If that hop crosses an untrusted network, use an HTTPS API URL with a certificate trusted by the container. Never set `NODE_TLS_REJECT_UNAUTHORIZED=0`.
-
-For rolling deployments, optionally set `DEPLOYMENT_VERSION` to the immutable release or image identifier at build time. All replicas for one release must use the same build and session secret.
-
-### Health and smoke tests
-
-The container health check calls `GET /api/health`. It returns `200` only when required configuration is valid and the API is reachable; an unauthenticated `401` from the API authentication endpoint counts as reachable.
-
-After deployment, use a dedicated low-privilege smoke-test user whose tenant contains more than one cursor page:
-
-```bash
-MILOG_SMOKE_ORIGIN=https://milog.example.com \
-MILOG_SMOKE_EMAIL=smoke@example.com \
-MILOG_SMOKE_PASSWORD='from-your-secret-manager' \
-MILOG_SMOKE_TENANT_ID=optional-tenant-uuid \
-npm run smoke
-```
-
-The test verifies login, encrypted cookie issuance, session restoration, two non-overlapping cursor pages, tenant isolation, and logout. Credentials are read only from the process environment and are not printed.
-
-### Release order and rollback
-
-1. Back up the API database and deploy API migrations.
-2. Deploy the API version supporting tenant-bound login, refresh, revocation, bearer timeline reads, and cursor pagination while retaining producer API-key and offset compatibility.
-3. Verify API authentication and cursor behavior, then verify UI `/api/health`.
-4. Deploy the UI image and run `npm run smoke`.
-5. Manually verify filters, load more, export, alerts, shared links, session restoration, and logout.
-6. Remove compatibility behavior only after production telemetry confirms the new paths are in use.
-
-To roll back the UI, restore the previous UI image while leaving the compatible API release and migrations in place. Do not roll the API back below tenant-bound authentication or cursor support while this UI release is active. Database migrations must use the API project's documented rollback procedure; avoid reversing authentication migrations while active UI sessions exist.
+The standalone image runs as an unprivileged user. Startup validates the API URL, public UI origin, and session secret. The existing `/api/health` container check requires valid configuration and API reachability.
 
 ## Test Coverage Priorities
 

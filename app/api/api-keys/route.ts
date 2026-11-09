@@ -1,6 +1,7 @@
 import type { ApiKeyCreateRequest } from "@/lib/apiContract";
 import { accountBody, accountError, accountJson, accountSession, createApiKeyServer, listApiKeysServer, requireKeyManager } from "@/lib/accountServer";
 import { MiLogServerError } from "@/lib/milogServer";
+import { assertSameOrigin } from "@/lib/requestOrigin";
 
 export async function GET() {
   try {
@@ -14,6 +15,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    assertSameOrigin(request);
     const session = await accountSession();
     requireKeyManager(session);
     const body = await accountBody(request);

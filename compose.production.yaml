@@ -1,0 +1,25 @@
+# Deploy only a CI/build-machine image pinned by its content digest.
+# Use: docker compose --env-file .env.production -f compose.production.yaml up -d --no-build
+services:
+  ui:
+    image: "${MILOG_UI_REPOSITORY:?Set the pushed UI image repository}@sha256:${MILOG_UI_DIGEST:?Set its 64-character digest}"
+    pull_policy: always
+    restart: unless-stopped
+    init: true
+    env_file:
+      - path: .env.production
+        required: true
+    environment:
+      NODE_ENV: production
+      MILOG_API_URL: https://api.milog.ca
+      NODE_OPTIONS: --max-old-space-size=512
+    ports:
+      - "127.0.0.1:3000:3000"
+    mem_limit: 768m
+    pids_limit: 128
+    cpus: 0.85
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

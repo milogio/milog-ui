@@ -19,13 +19,17 @@ async function json(response) {
 
 const loginResponse = await fetch(`${origin}/api/auth/login`, {
   method: "POST",
-  headers: { "Content-Type": "application/json", Accept: "application/json" },
+  headers: { "Content-Type": "application/json", Accept: "application/json", Origin: origin },
   body: JSON.stringify({ email, password, ...(tenantId ? { tenant_id: tenantId } : {}) }),
   redirect: "manual",
 });
 const login = await json(loginResponse);
 const setCookie = loginResponse.headers.get("set-cookie");
 assert(setCookie, "Login did not issue a session cookie.");
+if (origin.startsWith("https://")) {
+  assert(/;\s*Secure(?:;|$)/i.test(setCookie), "Session cookie is missing Secure over HTTPS.");
+}
+assert(/;\s*HttpOnly(?:;|$)/i.test(setCookie), "Session cookie is missing HttpOnly.");
 const cookie = setCookie.split(";", 1)[0];
 assert(login.user?.tenant_id === login.tenant?.id, "Login identity was not bound to the returned tenant.");
 
@@ -48,5 +52,5 @@ try {
 
   console.log(`Smoke test passed for tenant ${login.tenant.id}: ${firstPage.events.length} first-page events, ${secondPage.events.length} second-page events.`);
 } finally {
-  await fetch(`${origin}/api/auth/logout`, { method: "POST", headers: { Cookie: cookie, Accept: "application/json" } }).catch(() => undefined);
+  await fetch(`${origin}/api/auth/logout`, { method: "POST", headers: { Cookie: cookie, Accept: "application/json", Origin: origin } }).catch(() => undefined);
 }

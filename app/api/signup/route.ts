@@ -2,9 +2,11 @@ import type { ApiSignupRequest } from "@/lib/apiContract";
 import { accountBody, accountError, accountJson, signupServer } from "@/lib/accountServer";
 import { MiLogServerError } from "@/lib/milogServer";
 import { approvedTermsUrl } from "@/lib/terms";
+import { assertSameOrigin } from "@/lib/requestOrigin";
 
 export async function POST(request: Request) {
   try {
+    assertSameOrigin(request);
     if (!approvedTermsUrl()) throw new MiLogServerError("Signup is not available yet.", 503, "configuration");
     const body = await accountBody(request);
     if (typeof body.name !== "string" || typeof body.tenant_name !== "string" || typeof body.email !== "string" ||

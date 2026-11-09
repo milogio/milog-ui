@@ -1,0 +1,37 @@
+# Replace the site address with the chosen public UI hostname before installation.
+# Caddy runs on the host; Docker publishes Next.js only on 127.0.0.1:3000.
+{
+	# Runtime/error logs can include unstructured request URLs. Keep them off
+	# until a tested path-only error logger is available; 5xx access entries remain.
+	log default {
+		output discard
+	}
+}
+
+ui.example.com {
+	log ui_access {
+		output file /var/log/caddy/milog-ui-access.json {
+			roll_size 10mb
+			roll_keep 3
+		}
+		format filter {
+			request>uri delete
+			request>headers delete
+			resp_headers delete
+			wrap json
+		}
+	}
+	log_append path {http.request.uri.path}
+
+	reverse_proxy 127.0.0.1:3000 {
+		# Never accept client-provided proxy identity, scheme, or origin headers.
+		header_up Host {host}
+		header_up -Forwarded
+		header_up -X-Forwarded-*
+		header_up -X-Original-*
+		header_up -X-Real-IP
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Host {host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}

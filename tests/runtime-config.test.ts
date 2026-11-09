@@ -1,5 +1,7 @@
 import { GET as healthCheck } from "@/app/api/health/route";
 import { readRuntimeConfig } from "@/lib/runtimeConfig";
+import { randomBytes } from "node:crypto";
+import { spawnSync } from "node:child_process";
 
 describe("deployment runtime configuration", () => {
   afterEach(() => {
@@ -45,5 +47,37 @@ describe("deployment runtime configuration", () => {
     expect(response.status).toBe(503);
     expect(body).toMatchObject({ status: "unavailable", checks: { configuration: "invalid" } });
     expect(JSON.stringify(body)).not.toContain("sessionSecret");
+  });
+
+  it("requires HTTPS origins and a strong persistent secret in production", () => {
+    const valid = {
+      NODE_ENV: "production",
+      MILOG_API_URL: "https://api.milog.ca",
+      MILOG_UI_ORIGIN: "https://ui.example.com",
+      MILOG_SESSION_SECRET: randomBytes(48).toString("base64"),
+    };
+    expect(readRuntimeConfig(valid)).toMatchObject({ apiUrl: valid.MILOG_API_URL, uiOrigin: valid.MILOG_UI_ORIGIN });
+    expect(() => readRuntimeConfig({ ...valid, MILOG_API_URL: "http://api.milog.ca" })).toThrow("must use HTTPS");
+    expect(() => readRuntimeConfig({ ...valid, MILOG_API_URL: "https://api.milog.ca/?token=secret" })).toThrow("only an origin");
+    expect(() => readRuntimeConfig({ ...valid, MILOG_UI_ORIGIN: "http://ui.example.com" })).toThrow("must use HTTPS");
+    expect(() => readRuntimeConfig({ ...valid, MILOG_SESSION_SECRET: "placeholder-secret-that-is-32-characters" })).toThrow("48 random bytes");
+  });
+
+  it("applies the same production checks before the standalone server starts", () => {
+    const environment = { ...process.env, NODE_ENV: "production" as const, MILOG_API_URL: "https://api.milog.ca", MILOG_UI_ORIGIN: "https://ui.example.com", MILOG_SESSION_SECRET: randomBytes(48).toString("base64") };
+    const accepted = spawnSync(process.execPath, ["scripts/validate-runtime.mjs"], {
+      cwd: process.cwd(),
+      env: environment,
+      encoding: "utf8",
+    });
+    expect(accepted.status).toBe(0);
+    expect(accepted.stdout).not.toContain(environment.MILOG_SESSION_SECRET);
+    const result = spawnSync(process.execPath, ["scripts/validate-runtime.mjs"], {
+      cwd: process.cwd(),
+      env: { ...environment, MILOG_API_URL: "http://api.milog.ca" },
+      encoding: "utf8",
+    });
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("Production MILOG_API_URL must use HTTPS");
   });
 });

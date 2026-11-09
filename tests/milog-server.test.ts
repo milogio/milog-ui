@@ -1,4 +1,4 @@
-import { decodeSession, encodeSession, getTimelineServer, loginServer, MiLogServerError, validateSessionServer } from "@/lib/milogServer";
+import { decodeSession, encodeSession, getTimelineServer, loginServer, MiLogServerError, sessionCookieOptions, validateSessionServer } from "@/lib/milogServer";
 import type { AuthSession } from "@/lib/types";
 
 const secret = "test-session-secret-that-is-at-least-32-characters";
@@ -35,6 +35,14 @@ describe("MiLog server authentication boundary", () => {
     expect(decodeSession(value, secret)).toEqual(activeSession);
     expect(decodeSession(`${value.slice(0, -1)}x`, secret)).toBeNull();
     expect(decodeSession(encodeSession(session({ session_expires_at: "2020-01-01T00:00:00Z" }), secret), secret)).toBeNull();
+  });
+
+  it("keeps the encrypted session cookie secure behind HTTPS termination", () => {
+    expect(sessionCookieOptions(session(), "production")).toMatchObject({
+      httpOnly: true, sameSite: "lax", secure: true, path: "/",
+    });
+    expect(sessionCookieOptions(session(), "production").maxAge).toBeGreaterThan(0);
+    expect(sessionCookieOptions(session(), "development").secure).toBe(false);
   });
 
   it("uses the tenant-bound login endpoint", async () => {
