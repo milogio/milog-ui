@@ -9,6 +9,34 @@ This runbook targets one Ubuntu Server 26.04 LTS UI VM with 1 CPU core, 2 GB RAM
 - Deploy the API first: migrations, tenant-bound auth, signup/verification, entitlement, and timeline contract must be present. Verify `https://api.milog.ca` TLS and API behavior. Set the API VM's `MILOG_UI_URL` to **exactly the chosen UI origin** before enabling signup so email links point to this host.
 - Keep production `MILOG_TERMS_URL` empty until the API, outbound SMTP, SPF/DKIM/DMARC, verification flow, and log-safety checks pass. Billing checkout and paid-key creation remain disabled.
 
+## Publish with GitHub Actions
+
+The manually triggered `Publish UI image` workflow runs `npm run check` before
+building and publishing the standalone image to `ghcr.io/milogio/milog-ui`.
+It uses the built-in `GITHUB_TOKEN` with package-write permission. Do not add
+production session secrets, API credentials, or the server pull token to CI.
+
+1. Commit and push the workflow and reviewed source to the default branch.
+2. Open **Actions → Publish UI image → Run workflow** in `milogio/milog-ui`.
+   Select the reviewed release branch and start the workflow.
+3. Wait for both jobs to succeed. Copy `MILOG_UI_REPOSITORY` and
+   `MILOG_UI_DIGEST` from the run summary into `/opt/milog-ui/.env.production`.
+   The digest value contains only the 64 hexadecimal characters; Compose adds
+   `sha256:` itself. Set `MILOG_UI_ORIGIN=https://app.milog.ca` and retain the
+   independent persistent session secret. Leave `MILOG_TERMS_URL` empty initially.
+4. Ensure the package remains private and the account owning the production
+   `read:packages` token has read access and any required SSO authorization.
+   Organization Actions policies must permit the pinned actions and creation
+   of private container packages. Existing manually created packages may need
+   this repository granted write access under **Manage Actions access**.
+
+The image targets `linux/amd64`; verify `uname -m` reports `x86_64` on the VM.
+Each release tag includes its commit, run ID, and attempt. Deploy by the digest
+from a successful run. Publishing does not connect to production or enable
+signup. The VM only needs the matching `compose.production.yaml` and protected
+`.env.production`; it does not need the source repository or build tools.
+The API's `MILOG_UI_URL` must be `https://app.milog.ca`.
+
 ## Build and publish off-host
 
 Run the repository checks and build on CI or a build machine with enough memory. The existing Dockerfile creates Next.js standalone output and runs it as UID 1001. Use a registry reachable from the UI VM:
